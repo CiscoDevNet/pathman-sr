@@ -1,0 +1,170 @@
+.full {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+.terminal-window {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  height: 500px;
+  width: 600px;
+  margin-left: -300px;
+  margin-top: -250px;
+  background: #fff;
+  visibility: visible;
+  border: 1px solid #aaa;
+}
+.terminal-window.minimized {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  bottom: auto;
+  height: 180px;
+  margin: 0;
+}
+.terminal-window.minimized .terminal-body pre {
+  overflow-y: hidden;
+}
+.terminal-window.minimized .terminal-body pre p {
+  font-size: 6px;
+  line-height: 8px;
+}
+.terminal-window.minimized .terminal-header .btn-maximize {
+  display: inline;
+}
+.terminal-window.minimized .terminal-header .btn-minimize {
+  display: none;
+}
+.terminal-window .terminal-header {
+  top: 0;
+  height: 25px;
+  margin: 0 10px;
+}
+.terminal-window .terminal-header h2 {
+  font-size: 16px;
+  line-height: 25px;
+  margin: 0;
+}
+.terminal-window .terminal-header .btn-maximize {
+  display: none;
+}
+.terminal-window .terminal-header .btn-minimize {
+  display: inline;
+}
+.terminal-window .terminal-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  bottom: 0;
+  top: 25px;
+}
+.terminal-window .terminal-body pre {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  margin: 0 10px 10px 10px;
+  padding: 5px;
+  overflow-y: auto;
+  background: #333;
+  color: #fff;
+  font-family: consolas, "courier new";
+}
+.terminal-window .terminal-body pre p {
+  font-size: 12px;
+  line-height: 14px;
+  margin: 0;
+}
+.terminal-window .terminal-body pre p i {
+  background: #fff;
+  color: #333;
+}
+.terminal-window .terminal-body input {
+  position: absolute;
+  left: -99999px;
+  top: -99999px;
+}
+.terminal-window {
+  background: #444;
+  color: #eee;
+  z-index: 2000;
+  margin-bottom: 10px !important;
+  border-color: #666;
+}
+.terminal-window .terminal-body pre {
+  background: #222;
+  color: #eee;
+  border-color: #666;
+}
+.terminal-window .btn.btn-plain {
+  color: #eee;
+}
+.terminal-window .btn.btn-plain:hover {
+  color: #ffd22b;
+}
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.clearfix:after {
+  clear: both;
+}
+.btn {
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
+.btn.btn-plain {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: none;
+  background: none;
+}
+.btn.btn-plain:active,
+.btn.btn-plain:hover,
+.btn.btn-plain:focus,
+.btn.btn-plain:visited .btn.btn-plain[disabled] {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: none;
+  background: none;
+}
+.terminal-container {
+    position: absolute;
+    right: 10px;
+    width: 250px;
+    top: 60px;
+    overflow: auto;
+    max-height: 100%;
+}
+.terminal-container .terminal-window.minimized {
+    width: 240px;
+}
+/*
+.terminal-container {
+  //  z-index: 1000;
+  position: absolute;
+  right: 10px;
+  width: 250px;
+  top: 60px;
+  bottom: 0;
+  overflow: auto;
+}*/

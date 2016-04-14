@@ -1,0 +1,528 @@
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    background-color: #F5F5F5;
+}
+
+div.topBar {
+    position: absolute;
+    width: 100%;
+    height: 80px;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0);
+    text-align: center;
+}
+
+div.topBar > div.topSlider {
+    position: relative;
+    left: 40%;
+    width: 192px;
+}
+
+/*div.dropdownContainer, div.buttonContainer {*/
+    /*text-align: center;*/
+/*}*/
+
+div.topBar button {
+    position: relative;
+    top: 5px;
+}
+
+div.expandTopBar {
+    top: 0;
+}
+
+div.listBar {
+    position: absolute;
+    left: 100%;
+    height: 100%;
+    width: 35%;
+    z-index: 1;
+    transition: left 0.3s;
+    background-color: #E5E5E5;
+    border-radius: 0;
+    border-bottom: 0;
+    border-right: 0;
+    overflow: hidden;
+    padding-right: 60px;
+    border: 1.5px solid #1BAAFD;
+}
+
+div.listBar > .panel-heading {
+    border-radius: 0;
+    background-color: #E5E5E5;
+    color:#000;
+    height: 5%;
+    border-color: #E5E5E5;
+    position: relative;
+    margin: 0px 0px 25px 0px;
+}
+.listBar .panel-heading .pull-left{
+    position: absolute;
+    left: 10px;
+    z-index: 2;
+}
+.listBar .panel-heading .panel-title{
+    display: block;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+}
+.create-lsp-back{
+    margin: 0px 20px 0px 0px;
+}
+
+div.listBar .panel-footer {
+    text-align: center;
+    background-color: #E5E5E5;
+    
+    height: 90px;
+}
+
+td.inputCell > input.input-hidden {
+    opacity: 0;
+}
+
+div.expandListBar {
+    left: 65%;
+}
+
+div.ui-main {
+    height: 100%;
+    width: 100%;
+    background-color: #F5F5F5;
+    transition: width 0.1s;
+}
+
+div.contractMain {
+    width: 70%;
+}
+
+.form-control{
+    background-color: #fff !important;
+}
+
+div.table-container {
+    overflow: auto;
+    text-align: left;
+    cursor: default;
+    flex: 1;
+    margin-bottom: 120px;
+}
+.table-container.false,.panel-footer.false{
+    display: none;
+}
+
+.mouse-pointer {
+    cursor: pointer;
+}
+
+div.statusBar {
+    position: relative;
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30%;
+    transition: top 0.3s;
+}
+
+div.expandStatusBar {
+    top: -53px;
+}
+
+div.statusBar > div.alert {
+    text-align: center;
+}
+
+div.statusBar > div.alert-success {
+    background-color: #2f7028;
+    color: #56c857;
+}
+
+div.statusBar > div.alert-danger {
+    background-color: #af3e3e;
+    color: #b9aaa8;
+}
+
+div.dropdown {
+    display: inline-block;
+    text-align: left;
+}
+
+div.panel-body {
+    text-align: center;
+    position: relative;
+    height: 97%;
+    width: 100%;
+    padding: 0;
+    transition: left 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+div.createpanel {
+    top: -100%;
+    left: 0;
+}
+
+div.createpanel-hidden {
+    left: -100%;
+}
+.endpoint-selector .dropdown{
+    width: 33%;
+}
+.endpoint-selector .row{
+    margin:0px 0px 10px 0px;
+}
+.createpanel.end-point .create-panel-item:not(.endpoint-selector){
+    display: none;
+}
+.createpanel.manual .create-panel-item:not(.manual-selector){
+    display: none;
+}
+.manual-selector-tip{
+    padding: 15px 0px;
+    margin: 0px 3px 0px 1px;
+    background-color: rgb(115, 114, 114);
+    border-radius: 6px;
+    transition: all .3s;
+    opacity: 1;
+}
+.manual-selector-tip.true{
+    opacity: 0;
+}
+
+
+div.listpanel {
+    left: 0;
+}
+
+div.listpanel-hidden {
+    left: 100%;
+}
+
+th.inputCol {
+    width: 10%;
+}
+
+th.nameCol {
+    width: 20%;
+}
+
+th.costCol {
+    width: 10%;
+}
+
+div.panel-body > div > hr {
+    border-top: 1px solid rgba(75, 75, 75, 0.5);
+}
+
+span.spacer {
+    display: inline-block;
+    width: 5px;
+}
+
+td.inputCell {
+    text-align: center;
+}
+
+td.inputCell > input {
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+span.metric-selector-title {
+    margin-right: 8px;
+}
+
+input.metric-radio {
+    margin-left: 7px;
+    margin-right: 5px;
+}
+
+div.panel-footer {
+    padding: 0;
+}
+
+div.panel-footer div.btn {
+    width: 45%;
+}
+
+div.panel-footer div.btn + div.btn {
+    margin-left: 10px;
+}
+
+div.metric-selector {
+    text-align: left;
+}
+
+div.metric-selector-hidden {
+    left: 100%;
+}
+
+div.endpoint-selector {
+    margin-top: 5px;
+}
+.bgp-tooltip table tbody{
+  color:#000;
+}
+.bgp-tooltip h4
+{
+  color: #000;
+}
+div.default-footer {
+    height: 45px !important;
+    position: relative;
+    left: 0;
+    transition: left 0.3s;
+}
+
+div.default-footer-hidden {
+    left: -100%;
+}
+
+div.delete-footer {
+    height: 45px !important;
+    position: relative;
+    top: -45px;
+    left: 0;
+    transition: left 0.3s;
+}
+
+div.delete-footer-hidden {
+    left: 100%;
+}
+
+div.centerContainer {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.centerContainer > div.buttonContainer {
+    display: flex;
+    margin-top: 5px;
+}
+
+div.flexButton {
+    flex: 1;
+}
+
+div.centerContainer > input {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+div.createpanel div.panel-footer {
+    position: absolute;
+    bottom: 0;
+    width:100%;
+}
+
+input.input-valid {
+   border: 2px solid #00aa00;
+}
+
+input.input-invalid {
+   border: 2px solid #ff0000;
+}
+
+.has-error .form-control-feedback {
+    color: #a94442;
+    right: 8px;
+}
+
+.btn-default {
+  color: #ffffff !important;
+  background-color: #1BAAFD !important;
+  border-color: #1BAAFD !important;
+}
+.btn-default:hover,
+.btn-default:focus,
+.btn-default:active,
+.btn-default.active,
+.open .dropdown-toggle.btn-default {
+  color: #ffffff !important;
+  background-color: #0386D2 !important;
+  border-color: #0386D2 !important;
+}
+
+.has-success .form-control-feedback {
+    color: #3c763d;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #b7665f;
+  border-color: #b7665f !important;
+}
+.btn-danger:hover {
+  color: #fff;
+  background-color: #DB3627 !important;
+  border-color: #DB3627 !important;
+}
+.btn-success {
+  color: #fff;
+  background-color: #3fb286;
+  border-color: #3fb286;
+}
+.btn-success:hover {
+  color: #fff;
+  background-color: #28BE85 !important;
+  border-color: #28BE85 !important;
+}
+
+.has-feedback {
+    position: relative;
+}
+
+.form-control-feedback {
+    position: absolute;
+    /*top: 25px;*/
+    right: 8px;
+    z-index: 2;
+    display: block;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+}
+
+div.extra-buttons {
+    width: 68%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+}
+
+div.extra-buttons > div.btn {
+    width: 45%;
+}
+
+div.extra-buttons div.btn + div.btn {
+    margin-left: 5px;
+}
+
+.bgp-tooltip {
+    padding: '0 10px';
+}
+.bgp-tooltip .visible:not(.true) {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    visibility: hidden;
+}
+
+.popover {
+    background-color: #F5F5F5;
+    color: #000;
+}
+
+/*.popover .popover-title {
+    background: #666;
+    border-bottom-color: #999;
+}*/
+.popover.left .arrow {
+    border-left-color: #F5F5F5;
+}
+.popover.left .arrow:after {
+    border-left-color: #F5F5F5;
+}
+.popover.right .arrow {
+    border-right-color: #F5F5F5;
+}
+.popover.right .arrow:after {
+    border-right-color: #F5F5F5;
+}
+.popover.top .arrow {
+    border-top-color: #F5F5F5;
+}
+.popover.top .arrow:after {
+    border-top-color: #F5F5F5;
+}
+.popover.bottom .arrow {
+    border-bottom-color: #737373
+}
+.popover.bottom .arrow:after {
+    border-bottom-color: #F5F5F5;
+}
+
+.rightbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding-top: 10px;
+    z-index: 400;
+}
+
+.rightbar:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 410;
+}
+
+.rightbar .rightbar-item button.control {
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    font-size: 24px;
+    position: relative;
+    border-left: none;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    border-right: 3px solid transparent;
+    display: block;
+    width: 60px;
+    height: 55px;
+    background: transparent;
+    color: #aaa;
+    z-index: 420;
+}
+
+
+.rightbar .rightbar-item button:focus {
+    outline:none
+}
+
+.rightbar .rightbar-item button.control:hover {
+    color: #1BAAFD;
+}
+
+.rightbar .rightbar-item button.control i {
+    font-size: 25px;
+}
+
+.rightbar .rightbar-item.active button.control {
+    background: #E5E5E5;
+    border-right-color: #1BAAFD;
+    border-top-color: #1BAAFD;
+    border-bottom-color: #1BAAFD;
+    color: #1BAAFD;
+    margin-left: -1px;
+    margin-right:2px;
+
+tr:hover td{
+    background-color: #444;
+}
+
+.btn-info{
+    background-color: #EB2300;
+    border-color: #EB2300;
+}
+.form-control {
+    background-color: #fff;
+}
+
+
+
