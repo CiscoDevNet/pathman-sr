@@ -22,14 +22,15 @@ import copy
 import re
 
 import time
+import logging
+
 # Import third party library modules.
 import tornado.ioloop
 import tornado.web
 import tornado.httpserver
 
-from pathman50 import *
 from pathman_ini import *
-from server_sr import CommandHandlerSR
+from server_sr import CommandHandlerSR,  LOGGING, build_odl_topology
 #from server_pathman import CommandHandler2
 
 Response_Flag = True
@@ -57,8 +58,11 @@ class Commands(object):
         ##tuple_register2 = (txt_uri, CommandHandler2, dict(debug=debug))
         tuple_register_sr = (txt_uri_sr, CommandHandlerSR, dict(debug=debug))
 
-        ##application = tornado.web.Application([tuple_register2, tuple_register_sr], dict(debug=debug))
-        application = tornado.web.Application([ tuple_register_sr], dict(debug=debug))
+        application = tornado.web.Application([ tuple_register_sr,
+                                                #tuple_register2, # For regular Pathman
+                                                (r'/pathman/client/(.*)', tornado.web.StaticFileHandler, {"path": "client"}),
+                                                #(r'/pathman/topology', dataHandler), # For BGP APP
+                                                ], dict(debug=debug))
         """
             http_server = tornado.httpserver.HTTPServer(application, ssl_options={
             "certfile": os.path.join(data_dir, "server.crt"),
@@ -82,8 +86,8 @@ if __name__ == "__main__":
     kwargs['uri'] = 'pathman'
 
     kwargs['debug'] = True
-    #logging.config.dictConfig(LOGGING)
-    logging.config.fileConfig("pathman_logging.conf")
+    logging.config.dictConfig(LOGGING)
+    #logging.config.fileConfig("pathman_logging.conf")
     logging.info('This is initializing the log')
     Commands(**kwargs)
 
