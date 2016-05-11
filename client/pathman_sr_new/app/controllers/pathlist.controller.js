@@ -4,7 +4,7 @@ app.controller('PathListCtrl',
 		$scope.closeSidePanel = function(fadeTopoLayers){
 
 			$scope.sidePanel = null;
-			fadeTopoLayers = fadeTotoLayers ? false : true;
+			fadeTopoLayers = fadeTopoLayers ? false : true;
 			if (fadeTopoLayers) {
 				NextTopologyService.fadeInAllLayers($scope.nxTopology);
 				NextTopologyService.clearPathLayer($scope.nxTopology);

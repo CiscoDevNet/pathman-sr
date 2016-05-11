@@ -13,15 +13,18 @@
 
 		$scope.nxTopology = NextTopologyService.createTopoObject();
 
-
-
-		NetworkService.refreshTopology();
-
-
-
 		$scope.nxTopology.attach($scope.nxApp);
 
 		$scope.nxApp.container(document.getElementById("topology-container"));
+
+		NetworkService.refreshTopology(
+			function(topologyData){
+				$scope.nxTopology.data(topologyData);
+			},
+			function(err){
+				//todo: handle errors
+			}
+		);
 
 		$scope.sidePanel = true;
 
