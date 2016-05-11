@@ -38,29 +38,33 @@ data_dir = ''
 
 class CommandHandlerSR(tornado.web.RequestHandler):
     """Class to handle received API commands."""
-    
+    def get(self):
+        self.write("Hello, world")
+
+    def set_default_headers(self):
+        # logging.info('set default headers')
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+        self.set_header("Access-Control-Allow-Headers",
+                        "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With,"
+                        " X-Requested-By, If-Modified-Since, X-File-Name, Cache-Control")
+
+    def options(self):
+        # logging.info('option request')
+        self.write({"response": "Success"})
+
     def post(self):
         """Examine POST request and react to subcommands."""
-        request = self.request
         list_subreplies = []
-        dict_subreply = {}
-        
         for reply in response_list_sr:
-            
-            #dict_subreply.append(reply)
-            
             list_subreplies.append(reply)
-        
-        dict_reply = {}
-        dict_reply['response'] = list_subreplies
+        dict_reply = {'response': list_subreplies}
         self.write(dict_reply)
-        #nprint(json.dumps(dict_reply), Response_Flag)
         logging.info(json.dumps(dict_reply))
 
     def initialize(self, debug):
         """Save desired debug level."""
         self.__debug = debug
-        #nprint('Init 2 done - debug saved', debug=debug)
         logging.info('Init 2 done - debug saved')
 
     def prepare(self):
