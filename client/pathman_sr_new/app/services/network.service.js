@@ -4,12 +4,22 @@
 
 		this.refreshTopology = refreshTopology;
 
+		function refreshTopology(successCbk, errorCbk){
 
+			var restObj = Restangular.all('pathman_sr');
 
-
-		function refreshTopology(){
-
-			// get topo
+			restObj.post({
+				"request": {
+					"option": "topo"
+				}
+			}).then(
+				function(data) {
+					console.log(data);
+				},
+				function(err){
+					console.log(err);
+				}
+			);
 
 		}
 

@@ -1,5 +1,6 @@
-app.controller('PathmanAppCtrl',
-	function($scope, $mdSidenav, $mdDialog, NextTopologyService) {
+(function(app){
+
+	var PathmanAppCtrl = function($scope, $mdSidenav, $mdDialog, NextTopologyService, NetworkService) {
 
 
 		var host = location.host;
@@ -12,10 +13,21 @@ app.controller('PathmanAppCtrl',
 
 		$scope.nxTopology = NextTopologyService.createTopoObject();
 
+
+
+		NetworkService.refreshTopology();
+
+
+
 		$scope.nxTopology.attach($scope.nxApp);
 
 		$scope.nxApp.container(document.getElementById("topology-container"));
 
 		$scope.sidePanel = true;
 
-	});
+	};
+
+	PathmanAppCtrl.$inject = ['$scope', '$mdSidenav', '$mdDialog', 'NextTopologyService', 'NetworkService'];
+	app.controller('PathmanAppCtrl', PathmanAppCtrl);
+
+})(app);

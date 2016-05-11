@@ -8,16 +8,22 @@ var app = angular.module('pathmanApp', ['ngMaterial', 'restangular'])
 				.accentPalette('light-blue');
 
 
-			RestangularProvider.setBaseUrl(window.location.protocol + "//" + window.location.hostname + ":8181");
-			RestangularProvider.setDefaultHeaders({Authorization: "Basic YWRtaW46YWRtaW4="});
+			// todo: make URL dynamic
+			RestangularProvider.setBaseUrl("http://localhost:8020");
+			RestangularProvider.setDefaultHeaders({
+				//Authorization: "Basic YWRtaW46YWRtaW4="
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS"
 
-			RestangularProvider.setRequestInterceptor(function (element, operation) {
-				if (operation === 'post' && element.hasOwnProperty('id') && element.id === undefined) {
-					return null;
-				} else {
-					return element;
-				}
 			});
+
+			//RestangularProvider.setRequestInterceptor(function (element, operation) {
+			//	if (operation === 'post' && element.hasOwnProperty('id') && element.id === undefined) {
+			//		return null;
+			//	} else {
+			//		return element;
+			//	}
+			//});
 
 
 
