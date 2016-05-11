@@ -1,0 +1,31 @@
+{
+  "name": "next-bower",
+  "homepage": "http://next-ui.com",
+  "authors": [
+    "Aikepaer Abuduweili <aaikepae@cisco.com>"
+  ],
+  "description": "NeXt UI Toolkit bower and npm distribution.",
+  "main": [
+    "js/next.js",
+    "css/next.css"
+  ],
+  "moduleType": [],
+  "keywords": [
+    "NeXt",
+    "topology",
+    "SDN"
+  ],
+  "dependencies": {},
+  "ignore": [],
+  "version": "0.9.1",
+  "license": "EPL-1.0",
+  "_release": "0.9.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.9.1",
+    "commit": "a7a87293a8bf5771af2c303969ee0529151e637d"
+  },
+  "_source": "https://github.com/NeXt-UI/next-bower.git",
+  "_target": "~0.9.1",
+  "_originalSource": "NeXt"
+}
