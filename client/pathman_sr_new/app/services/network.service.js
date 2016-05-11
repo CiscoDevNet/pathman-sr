@@ -5,15 +5,17 @@
 		this.refreshTopology = refreshTopology;
 
 
+
+
 		function refreshTopology(){
 
-
+			// get topo
 
 		}
 
 	};
 
-	NetworkService.$inject = ['NextTopologyService'];
+	NetworkService.$inject = ['NextTopologyService', 'Restangular'];
 	app.service("NetworkService", NetworkService);
 
 })(app);

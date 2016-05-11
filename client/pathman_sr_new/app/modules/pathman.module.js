@@ -1,4 +1,4 @@
-var app = angular.module('pathmanApp', ['ngMaterial'])
+var app = angular.module('pathmanApp', ['ngMaterial', 'restangular'])
 	// configuration of color themes
 	.config(
 		function($mdThemingProvider, RestangularProvider) {
@@ -7,7 +7,7 @@ var app = angular.module('pathmanApp', ['ngMaterial'])
 				.primaryPalette('blue')
 				.accentPalette('light-blue');
 
-			/* Restangular set-up */
+
 			RestangularProvider.setBaseUrl(window.location.protocol + "//" + window.location.hostname + ":8181");
 			RestangularProvider.setDefaultHeaders({Authorization: "Basic YWRtaW46YWRtaW4="});
 
@@ -18,6 +18,8 @@ var app = angular.module('pathmanApp', ['ngMaterial'])
 					return element;
 				}
 			});
+
+
 
 		}
 	);
