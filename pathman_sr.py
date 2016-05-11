@@ -31,6 +31,7 @@
     20160316, Niklas - ver 5.1 - Adding Netconf module for config scan
     20160328, Niklas - ver 5.2 - Added SegmentRouting support
     20160411, Niklas - ver 5.2b - Verified both OSPF and ISIS support w xrvr-6.0.0
+    20160510, Niklas - ver 5.3 - Added pcep and sr data to list and topo commands
     """
 __author__ = 'niklas'
 
@@ -400,6 +401,7 @@ def get_loop_list(path_list):
         logging.error("Empty Loop-list for :%s" % path_list)
     logging.info("Loop list: %s" % loop_list)
     return loop_list
+
 
 def get_sid_list(path_list):
     """ get sids for nodes in pathlist"""
@@ -1290,10 +1292,11 @@ def listAllLsp(dict_subcommand, debug):
 
     for lsp in lsplist:
         lsp_dict = {}
-        lsp_dict.update({'name':lsp.name})
-        lsp_dict.update({'pcc':lsp.pcc})
-        lsp_dict.update({'path':lsp.hoplist})
-        lsp_dict.update({'hops':lsp.iphoplist})
+        lsp_dict.update({'name': lsp.name})
+        lsp_dict.update({'pcc': lsp.pcc})
+        lsp_dict.update({'path': lsp.hoplist})
+        lsp_dict.update({'hops': lsp.iphoplist})
+        lsp_dict.update({'sids': get_sid_list(lsp.hoplist)})
         lspdictlist.append(lsp_dict)
 
     logging.info("list: %s, formatted: %s" %(lsplist,lspdictlist))
@@ -1343,7 +1346,6 @@ def topoCheck(temp_nodelist):
     return temp_nodelist
 
 
-
 def getTopo(dict_subcommand, debug):
     """ called from REST Server
         - Get UI a topo to work with """
@@ -1353,7 +1355,13 @@ def getTopo(dict_subcommand, debug):
         temp_nodelist = []
 
         for node in node_list:
-            node_dict = {'name':node.name, 'site':node.name, 'ipaddress':node.loopback,'prefix':node.prefix}
+            node_dict = {'name': node.name,
+                         'site': node.name,
+                         'ipaddress': node.loopback,
+                         'prefix': node.prefix,
+                         'sid': node.sid,
+                         'pcc': node.pcc
+                         }
             copyTopo(node_dict, topologyData['nodes'])
             temp_nodelist.append(node_dict)
             #topo_response['nodes'].append(node_dict)
@@ -1381,7 +1389,8 @@ def getTopo(dict_subcommand, debug):
     else:
         logging.info("Failed to get topo: %s" % cause)
         return False, cause, []
-    
+
+
 def listSRnodes(debug):
     """Lists existing SR Nodes
         - catching config changes require a refresh """
