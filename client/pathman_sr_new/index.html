@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="pathmanApp">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="media/img/favicon.ico" type="image/vnd.microsoft.icon">
+        <title>Pathman Segment Routing</title>
+
+		<!-- Link AngularJS and modules -->
+		<script type="text/javascript" src="../vendor/angular/angular.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-animate/angular-animate.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-messages/angular-messages.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-aria/angular-aria.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-material/angular-material.min.js"></script>
+		<link rel="stylesheet" href="../vendor/angular-material/angular-material.min.css">
+		<!-- / Link AngularJS and modules -->
+
+		<link rel="stylesheet" type="text/css" href="../vendor/font-awesome/css/font-awesome.min.css">
+
+		<!-- Link NeXt library -->
+		<script type="text/javascript" src="../vendor/NeXt/js/next.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../vendor/NeXt/css/next.min.css">
+		<!-- / Link NeXt library -->
+
+		<script type="text/javascript" src="../vendor/jquery/dist/jquery.min.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../assets/css/helpers.css">
+
+
+
+
+
+
+
+
+
+
+
+
+		<link href="../assets/css/pathman.css" rel="stylesheet">
+		<!--<link href="../assets/css/terminal.css" rel="stylesheet">-->
+        <script type="text/javascript" src="../crap/lib/mapData.js"></script>
+        <script src="app/js/Constants.js"></script>
+
+        <script type="text/javascript" src="app/js/TerminalService.js"></script>
+        <script type="text/javascript" src="app/js/TerminalWindow.js"></script>
+        <script type="text/javascript" src="app/js/Config.js"></script>
+        <script type="text/javascript" src="app/js/view/TooltipView.js"></script>
+
+        <script src="app/js/service/BackendCommunicationService.js"></script>
+        <script src="app/js/viewmodel/CostPathModel.js"></script>
+        <script src="app/js/viewmodel/MetricSelectorModel.js"></script>
+        <script src="app/js/viewmodel/CreatePathModel.js"></script>
+        <script src="app/js/viewmodel/CreatePathFooterModel.js"></script>
+        <script src="app/js/viewmodel/ListPathFooterModel.js"></script>
+        <script src="app/js/viewmodel/ListPathModel.js"></script>
+        <script src="app/js/viewmodel/EndpointSelectorModel.js"></script>
+        <script src="app/js/viewmodel/NamePathModel.js"></script>
+        <script src="app/js/viewmodel/StatusBarModel.js"></script>
+        <script src="app/js/viewmodel/PathTopologyModel.js"></script>
+        <script src="app/js/viewmodel/TopBarModel.js"></script>
+        <script src="app/js/viewmodel/PathInfoModel.js"></script>
+        <script src="app/js/viewmodel/MainModel.js"></script>
+
+        <script src="app/js/view/CostPath.js"></script>
+        <script src="app/js/view/CreatePath.js"></script>
+        <script src="app/js/view/CreatePathFooter.js"></script>
+        <script src="app/js/view/MetricSelector.js"></script>
+        <script src="app/js/view/ListPathFooter.js"></script>
+        <script src="app/js/view/ListPath.js"></script>
+        <script src="app/js/view/EndpointSelector.js"></script>
+        <script src="app/js/view/NamePath.js"></script>
+        <script src="app/js/view/TopBar.js"></script>
+        <script src="app/js/view/PathInfo.js"></script>
+        <script src="app/js/view/StatusBar.js"></script>
+        <script src="app/js/view/Main.js"></script>
+
+        <!--<script src="app/js/App.js"></script>-->
+    </head>
+    <body ng-controller="PathmanAppCtrl">
+
+
+	<div layout="row" class="h100 app-wrapper" flex>
+
+
+
+
+		<section layout="column" class="h100" flex>
+			<md-toolbar class="md-primary">
+				<div class="md-toolbar-tools">
+
+					<span class="product-label">
+						Pathman SR
+					</span>
+
+					<md-button ng-click="openPanel('setup-path')">
+						<i class="fa fa-wrench"></i>
+						Path setup
+					</md-button>
+					<md-button ng-click="openPanel('path-list')">
+						<i class="fa fa-list"></i>
+						Path List
+					</md-button>
+					<span flex></span>
+				</div>
+			</md-toolbar>
+
+			<div class="content-wrapper">
+				<section layout="row" class="h100">
+					<div id="topology-container" class="w100 h100"></div>
+				</section>
+			</div>
+
+		</section>
+
+		<section layout="column"
+				 class="h100"
+				 ng-if="sidePanel"
+				 ng-include=" 'app/templates/pathlist-panel.tpl.html' ">
+		</section>
+	</div>
+
+
+
+		<script type="text/javascript" src="app/modules/pathman.module.js"></script>
+		<script type="text/javascript" src="app/services/next-topology.service.js"></script>
+		<script type="text/javascript" src="app/controllers/pathlist.controller.js"></script>
+		<script type="text/javascript" src="app/controllers/pathman.controller.js"></script>
+    </body>
+</html>
