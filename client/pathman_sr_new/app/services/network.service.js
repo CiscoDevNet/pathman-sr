@@ -21,6 +21,7 @@
 							"errResolution": "Make sure that protocols match.",
 							"errObj": data
 						};
+						errorCbk(errData);
 					}
 				},
 				function(err){

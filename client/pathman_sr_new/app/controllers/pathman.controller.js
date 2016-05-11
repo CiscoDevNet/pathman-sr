@@ -1,36 +1,82 @@
 (function(app){
 
-	var PathmanAppCtrl = function($scope, $mdSidenav, $mdDialog, NextTopologyService, NetworkService) {
+	var PathmanAppCtrl = function($scope, $mdSidenav, $mdDialog, NextTopologyService,
+								  NetworkService, PathListService) {
 
 
-		var host = location.host;
-		var protocol = location.protocol;
-		odl.Config = new nx.Config({
-			socketUrl: 'ws://' + host + ':8080/APP/webs/sock/tc'
-		});
+		$scope.sidePanel = false;
+		$scope.nxApp = null;
+		$scope.nxTopology = null;
+		$scope.topologyInitd = false;
 
-		$scope.nxApp = new nx.ui.Application();
+		$scope.topologyData = {};
+		$scope.pathListPathData = [];
 
-		$scope.nxTopology = NextTopologyService.createTopoObject();
+		$scope.init = init;
+		$scope.initTopology = initTopology;
+		$scope.initPathList = initPathList;
+		$scope.openPanel = openPanel;
 
-		$scope.nxTopology.attach($scope.nxApp);
 
-		$scope.nxApp.container(document.getElementById("topology-container"));
 
-		NetworkService.refreshTopology(
-			function(topologyData){
-				$scope.nxTopology.data(topologyData);
-			},
-			function(err){
-				//todo: handle errors
-			}
-		);
 
-		$scope.sidePanel = true;
+		$scope.init();
+
+
+		/* Implementation */
+
+		function init(){
+			$scope.initTopology();
+			$scope.initPathList();
+		}
+
+		function initTopology(){
+			$scope.nxApp = new nx.ui.Application();
+
+			$scope.nxTopology = NextTopologyService.createTopoObject();
+
+			$scope.nxTopology.attach($scope.nxApp);
+
+			$scope.nxApp.container(document.getElementById("topology-container"));
+
+			NetworkService.refreshTopology(
+				function(data){
+					$scope.topologyData = data;
+					$scope.nxTopology.data($scope.topologyData);
+					$scope.topologyInitd = true;
+				},
+				function(err){
+					//todo: handle errors
+				}
+			);
+		}
+
+		function initPathList(){
+
+			PathListService.refreshPathList(
+				function(data){
+					$scope.pathListPathData = data;
+				},
+				function(err){
+
+					// todo: handle errors
+
+				}
+			);
+
+		}
+
+		function openPanel(panelName){
+
+			$scope.sidePanel = true;
+			$scope.sidePanelName = panelName;
+
+		}
 
 	};
 
-	PathmanAppCtrl.$inject = ['$scope', '$mdSidenav', '$mdDialog', 'NextTopologyService', 'NetworkService'];
+	PathmanAppCtrl.$inject = ['$scope', '$mdSidenav', '$mdDialog', 'NextTopologyService',
+		'NetworkService', 'PathListService'];
 	app.controller('PathmanAppCtrl', PathmanAppCtrl);
 
 })(app);
