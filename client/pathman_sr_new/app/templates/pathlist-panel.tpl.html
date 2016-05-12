@@ -3,7 +3,10 @@
 		<md-toolbar>
 			<div class="md-toolbar-tools">
 				<h2>
-					<span>Path List</span>
+					<span>
+						<i class="fa fa-list"></i>
+						Path List
+					</span>
 				</h2>
 				<span flex></span>
 				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
@@ -24,7 +27,12 @@
 				</md-list>
 
 				<div class="layout-padding" ng-hide="pathListData.length" layout="row">
-					No paths found.
+					<div ng-show="!pathListInitd" layout="row">
+						<md-progress-circular md-mode="indeterminate" md-diameter="20px"></md-progress-circular> Loading path data
+					</div>
+					<div ng-show="pathListInitd">
+						No paths found.
+					</div>
 				</div>
 
 			</div>

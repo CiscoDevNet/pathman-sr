@@ -13,25 +13,28 @@
 			</div>
 		</md-toolbar>
 		<md-content flex>
-			<md-progress-linear md-mode="indeterminate" ng-if="!pathListInitd"></md-progress-linear>
 			<div layout-fill layout="row">
-				<md-tabs md-dynamic-height md-border-bottom class="w100">
+				<md-tabs md-dynamic-height md-border-bottom class="w100" ng-show="topologyInitd">
 					<md-tab label="Auto">
 						<md-content class="layout-padding">
-							<form>
+							<form name="autoPathForm">
 								<div layout="column">
 									<md-input-container>
 										<label>Source</label>
-										<md-select ng-model="psForm.source" ng-disabled="!pathListInitd">
+										<md-select ng-model="psForm.source"
+												   ng-required="true"
+												   name="source">
 											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
 												{{node.name}}
 											</md-option>
 										</md-select>
 									</md-input-container>
 
-									<md-input-container ng-disabled="!pathListInitd">
+									<md-input-container>
 										<label>Destination</label>
-										<md-select ng-model="psForm.destination" ng-disabled="!pathListInitd">
+										<md-select ng-model="psForm.destination"
+												   ng-required="true"
+												   name="destination">
 											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
 												{{node.name}}
 											</md-option>
@@ -40,16 +43,12 @@
 
 									<div class="form-label">Cost Metric</div>
 									<md-radio-group ng-model="psForm.costMetric">
-										<md-radio-button value="igp" class="md-primary">
-											<md-tooltip>
-												Interior Gateway Protocol
-											</md-tooltip>
-											IGP
-										</md-radio-button>
+										<md-radio-button value="igp" class="md-primary">IGP</md-radio-button>
 										<md-radio-button value="hops">Hops</md-radio-button>
 									</md-radio-group>
 
-									<md-button class="md-primary md-raised" ng-disabled="!pathListInitd">
+									<md-button class="md-primary md-raised"
+											   ng-disabled="isAutoPathFormInvalid()">
 										GO
 									</md-button>
 
@@ -64,6 +63,14 @@
 					</md-tab>
 				</md-tabs>
 
+				<!-- Loading spinner -->
+				<div ng-show="!topologyDataInitd"  class="layout-padding" layout="row">
+					<md-progress-circular md-mode="indeterminate"
+										  md-diameter="20px">
+
+					</md-progress-circular>
+					Loading data...
+				</div>
 
 			</div>
 		</md-content>
