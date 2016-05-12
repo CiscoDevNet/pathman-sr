@@ -10,6 +10,10 @@ body {
     background-color: #F5F5F5;
 }
 
+.toolbar-main {
+    background-color: #000000;
+}
+
 .product-label {
     font-weight: 800;
     margin-right: 20px;
@@ -26,6 +30,11 @@ body {
 
 .content-wrapper {
     width: 100%;
-    padding-top: 64px;
+    height: 100%;
     background-color: #FFFFFF;
+}
+
+.form-label {
+    font-weight: bold;
+    margin-bottom: 3px;
 }

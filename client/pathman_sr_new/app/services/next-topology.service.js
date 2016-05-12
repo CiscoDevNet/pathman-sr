@@ -19,7 +19,7 @@
 
 			return new nx.graphic.Topology({
 				adaptive: true,
-				data: {},
+				scalable: true,
 				nodeConfig: {
 					label: 'model.name',
 					iconType: 'router'
@@ -29,15 +29,8 @@
 				},
 				theme: 'blue',
 				identityKey: 'name',
-				//layoutType: 'USMap',
-				/*layoutConfig: {
-				 longitude: 'model.longitude',
-				 latitude: 'model.latitude'
-				 //                            worldTopoJson: '../../lib/world-50m.json'
-				 },*/
 				dataProcessor: 'force',
-				showIcon: true,
-				style: 'background:#F5F5F5'
+				showIcon: true
 			});
 		}
 	};

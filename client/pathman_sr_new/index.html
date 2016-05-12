@@ -89,13 +89,11 @@
 
 
 		<section layout="column" class="h100" flex>
-			<md-toolbar class="md-primary">
-				<div class="md-toolbar-tools">
-
+			<md-toolbar class="toolbar-main">
+				<div class="md-toolbar-tools toolbar-main">
 					<span class="product-label">
 						Pathman SR
 					</span>
-
 					<md-button ng-click="openPanel('path-setup')">
 						<i class="fa fa-wrench"></i>
 						Path setup
@@ -109,11 +107,11 @@
 			</md-toolbar>
 
 			<div class="content-wrapper">
-				<section layout="row" class="h100">
-					<div id="topology-container" class="w100 h100"></div>
-				</section>
+				<md-progress-linear ng-if="!topologyInitd" md-mode="indeterminate"></md-progress-linear>
+				<div class="w100 h100">
+					<div id="topology-container"></div>
+				</div>
 			</div>
-
 		</section>
 
 		<section layout="column"

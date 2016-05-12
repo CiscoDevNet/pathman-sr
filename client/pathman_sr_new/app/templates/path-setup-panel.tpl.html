@@ -9,36 +9,36 @@
 					</span>
 				</h2>
 				<span flex></span>
-				<md-button ng-click="closeSidePanel()" class="md-button">Close panel</md-button>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
 			</div>
 		</md-toolbar>
 		<md-content flex>
+			<md-progress-linear md-mode="indeterminate" ng-if="!pathListInitd"></md-progress-linear>
 			<div layout-fill layout="row">
-
 				<md-tabs md-dynamic-height md-border-bottom class="w100">
 					<md-tab label="Auto">
 						<md-content class="layout-padding">
 							<form>
 								<div layout="column">
-
 									<md-input-container>
 										<label>Source</label>
-										<md-select ng-model="psForm.source">
+										<md-select ng-model="psForm.source" ng-disabled="!pathListInitd">
 											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
 												{{node.name}}
 											</md-option>
 										</md-select>
 									</md-input-container>
 
-									<md-input-container>
+									<md-input-container ng-disabled="!pathListInitd">
 										<label>Destination</label>
-										<md-select ng-model="psForm.destination">
+										<md-select ng-model="psForm.destination" ng-disabled="!pathListInitd">
 											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
 												{{node.name}}
 											</md-option>
 										</md-select>
 									</md-input-container>
 
+									<div class="form-label">Cost Metric</div>
 									<md-radio-group ng-model="psForm.costMetric">
 										<md-radio-button value="igp" class="md-primary">
 											<md-tooltip>
@@ -49,7 +49,7 @@
 										<md-radio-button value="hops">Hops</md-radio-button>
 									</md-radio-group>
 
-									<md-button class="md-primary md-raised">
+									<md-button class="md-primary md-raised" ng-disabled="!pathListInitd">
 										GO
 									</md-button>
 

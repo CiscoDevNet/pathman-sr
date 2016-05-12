@@ -8,6 +8,7 @@
 		$scope.nxApp = null;
 		$scope.nxTopology = null;
 		$scope.topologyInitd = false;
+		$scope.pathListInitd = false;
 
 		$scope.topologyData = {};
 		$scope.pathListPathData = [];
@@ -33,11 +34,13 @@
 		function initTopology(){
 			$scope.nxApp = new nx.ui.Application();
 
+			$scope.nxApp.container(document.getElementById("topology-container"));
+
 			$scope.nxTopology = NextTopologyService.createTopoObject();
 
 			$scope.nxTopology.attach($scope.nxApp);
 
-			$scope.nxApp.container(document.getElementById("topology-container"));
+
 
 			NetworkService.refreshTopology(
 				function(data){
@@ -56,11 +59,10 @@
 			PathListService.refreshPathList(
 				function(data){
 					$scope.pathListPathData = data;
+					$scope.pathListInitd = true;
 				},
 				function(err){
-
 					// todo: handle errors
-
 				}
 			);
 
