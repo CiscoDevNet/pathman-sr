@@ -19,6 +19,11 @@
 						<md-content class="layout-padding">
 							<form name="autoPathForm">
 								<div layout="column">
+
+
+
+
+
 									<md-input-container>
 										<label>Source</label>
 										<md-select ng-model="psForm.source"
@@ -47,9 +52,21 @@
 										<md-radio-button value="hops">Hops</md-radio-button>
 									</md-radio-group>
 
-									<md-button class="md-primary md-raised"
-											   ng-disabled="isAutoPathFormInvalid()">
-										GO
+
+
+
+									<md-button class = "md-primary md-raised"
+											   ng-click = "autoPathFormLoadingStatus = true"
+											   ng-disabled = "isAutoPathFormInvalid() || autoPathFormLoadingStatus">
+
+										<span ng-hide="autoPathFormLoadingStatus">
+											GO
+										</span>
+										<span ng-show="autoPathFormLoadingStatus">
+											<i class="fa fa-circle-o-notch fa-spin fa-fw margin-bottom"
+											   aria-hidden="true"></i>
+											<span class="sr-only">Loading...</span>
+										</span>
 									</md-button>
 
 								</div>

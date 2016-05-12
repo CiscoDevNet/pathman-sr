@@ -3,6 +3,7 @@
 	var PathSetupCtrl = function($scope, $log) {
 
 		$scope.validCostMetrics = ['igp', 'hops'];
+		$scope.autoPathFormLoadingStatus = false;
 		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
 
 		/* Implementation */
@@ -16,10 +17,12 @@
 			}
 			else{
 
+				// if form invalid
 				if($scope.autoPathForm.$invalid){
 					return true;
 				}
 
+				// if source == dest
 				if($scope.psForm.hasOwnProperty('source') && $scope.psForm.hasOwnProperty('destination')){
 					if($scope.psForm.source == $scope.psForm.destination){
 						return true;
@@ -29,7 +32,7 @@
 					return true;
 				}
 
-
+				// if cost metrics are not chosen
 				if($scope.validCostMetrics.indexOf($scope.psForm.costMetric) === -1){
 					return true;
 				}

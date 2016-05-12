@@ -116,10 +116,10 @@
 
 		<section layout="column"
 				 class="h100"
-				 ng-if="sidePanel"
+				 ng-show="sidePanel"
 				 ng-controller="SidePanelCtrl">
-			<div class="h100" ng-if="sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
-			<div class="h100" ng-if="sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
+			<div class="h100" ng-show="sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
+			<div class="h100" ng-show="sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
 		</section>
 	</div>
 
