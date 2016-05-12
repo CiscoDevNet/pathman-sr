@@ -1,0 +1,71 @@
+<section layout="column" class="h100" ng-controller="PathSetupCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-wrench"></i>
+						Path setup
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close panel</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex>
+			<div layout-fill layout="row">
+
+				<md-tabs md-dynamic-height md-border-bottom class="w100">
+					<md-tab label="Auto">
+						<md-content class="layout-padding">
+							<form>
+								<div layout="column">
+
+									<md-input-container>
+										<label>Source</label>
+										<md-select ng-model="psForm.source">
+											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
+												{{node.name}}
+											</md-option>
+										</md-select>
+									</md-input-container>
+
+									<md-input-container>
+										<label>Destination</label>
+										<md-select ng-model="psForm.destination">
+											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
+												{{node.name}}
+											</md-option>
+										</md-select>
+									</md-input-container>
+
+									<md-radio-group ng-model="psForm.costMetric">
+										<md-radio-button value="igp" class="md-primary">
+											<md-tooltip>
+												Interior Gateway Protocol
+											</md-tooltip>
+											IGP
+										</md-radio-button>
+										<md-radio-button value="hops">Hops</md-radio-button>
+									</md-radio-group>
+
+									<md-button class="md-primary md-raised">
+										GO
+									</md-button>
+
+								</div>
+							</form>
+						</md-content>
+					</md-tab>
+					<md-tab label="Manual">
+						<md-content>
+
+						</md-content>
+					</md-tab>
+				</md-tabs>
+
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

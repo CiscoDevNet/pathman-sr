@@ -1,5 +1,6 @@
-app.controller('PathListCtrl',
-	function($scope, $mdSidenav, NextTopologyService) {
+(function(app){
+
+	var SidePanelCtrl = function($scope, $mdSidenav, NextTopologyService) {
 
 		$scope.closeSidePanel = function(fadeTopoLayers){
 
@@ -11,7 +12,9 @@ app.controller('PathListCtrl',
 				NextTopologyService.fadeInAllLayers($scope.nxTopology);
 				NextTopologyService.clearPathLayer($scope.nxTopology);
 			}
-
 		};
+	};
 
-	});
+	app.controller('SidePanelCtrl', SidePanelCtrl);
+
+})(app);

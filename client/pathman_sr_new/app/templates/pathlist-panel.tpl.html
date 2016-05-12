@@ -10,8 +10,23 @@
 			</div>
 		</md-toolbar>
 		<md-content flex>
-			<div layout-fill layout="row" >
-				hey
+
+			<div layout-fill layout="column">
+
+				<md-list layout-fill ng-show="pathListData.length">
+					<md-list-item class="md-2-line" ng-repeat="path in pathListData"
+								  layout="row">
+						<div class="md-list-item-text" flex>
+							<h3>hey</h3>
+							<p>node data</p>
+						</div>
+					</md-list-item>
+				</md-list>
+
+				<div class="layout-padding" ng-hide="pathListData.length" layout="row">
+					No paths found.
+				</div>
+
 			</div>
 		</md-content>
 	</md-sidenav>

@@ -119,7 +119,9 @@
 		<section layout="column"
 				 class="h100"
 				 ng-if="sidePanel"
-				 ng-include=" 'app/templates/pathlist-panel.tpl.html' ">
+				 ng-controller="SidePanelCtrl">
+			<div class="h100" ng-if="sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
+			<div class="h100" ng-if="sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
 		</section>
 	</div>
 
@@ -133,7 +135,9 @@
 	<script type="text/javascript" src="app/services/next-topology.service.js"></script>
 	<script type="text/javascript" src="app/services/network.service.js"></script>
 
-	<script type="text/javascript" src="app/controllers/pathlist.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/sidepanel.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/path-list.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/path-setup.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/pathman.controller.js"></script>
 
     </body>
