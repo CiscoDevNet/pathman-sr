@@ -64,6 +64,7 @@
 					}
 				]
 			}).then(
+
 				// success
 				function (data) {
 					if (HelpersService.hasOwnPropertiesPath(data, ['response', '0', 'path']) &&

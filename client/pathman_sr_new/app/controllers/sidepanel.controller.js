@@ -4,10 +4,8 @@
 
 		$scope.closeSidePanel = function(fadeTopoLayers){
 
-
-
-			$scope.sidePanel = false;
-			//$scope.sidePanelName = null;
+			$scope.$parent.sidePanel = false;
+			$scope.$parent.sidePanelName = null;
 
 			fadeTopoLayers = fadeTopoLayers ? false : true;
 			if (fadeTopoLayers && $scope.topologyInitd) {

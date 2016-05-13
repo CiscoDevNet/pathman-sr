@@ -18,11 +18,7 @@
 		$scope.initPathList = initPathList;
 		$scope.openPanel = openPanel;
 
-
-
-
 		$scope.init();
-
 
 		/* Implementation */
 
