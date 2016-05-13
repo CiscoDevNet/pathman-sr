@@ -38,3 +38,11 @@ body {
     font-weight: bold;
     margin-bottom: 3px;
 }
+
+md-sidenav,
+md-sidenav.md-locked-open,
+md-sidenav.md-closed.md-locked-open-add-active {
+    min-width: 304px !important;
+    width: 85vw !important;
+    max-width: 500px !important;
+}

@@ -1,12 +1,21 @@
 (function(app){
 
-	var PathSetupCtrl = function($scope, $log) {
+	var PathSetupCtrl = function($scope, PathListService) {
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
+		$scope.computedPaths = [];
+		$scope.computedMetrics = [];
+
 		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
+		$scope.computePaths = computePaths;
 
 		/* Implementation */
+
+		/**
+		 * Test form elements if input is invalid
+		 * @returns {boolean} True if invalid, false if valid
+		 */
 		function isAutoPathFormInvalid(){
 
 			if(!$scope.hasOwnProperty("psForm")){
@@ -42,9 +51,55 @@
 
 		}
 
+
+		/**
+		 * Based on input, compute paths
+		 */
+		function computePaths(){
+
+			// view settings
+			$scope.autoPathFormLoadingStatus = true;
+			$scope.computedPaths = [];
+			$scope.computedMetrics = [];
+
+			if($scope.isAutoPathFormInvalid()){
+				$scope.autoPathFormLoadingStatus = false;
+			}
+
+			// form is valid
+			else{
+				PathListService.computePathListByConfig(
+
+					// config
+					{
+						source: $scope.psForm.source,
+						destination: $scope.psForm.destination,
+						costMetric: $scope.psForm.costMetric
+					},
+
+					// success
+					function(data){
+						$scope.autoPathFormLoadingStatus = false;
+
+						// assign computed values
+						$scope.computedPaths = data.path;
+						$scope.computedMetrics = data.metric;
+
+					},
+
+					// error
+					function(err){
+						$scope.autoPathFormLoadingStatus = false;
+						console.error(err);
+						// todo: handle errors
+					}
+				);
+			}
+		}
+
 	};
 
-	PathSetupCtrl.$inject = ["$scope", "$log"];
+	PathSetupCtrl.$inject = ["$scope", "PathListService"];
 	app.controller('PathSetupCtrl', PathSetupCtrl);
 
 })(app);

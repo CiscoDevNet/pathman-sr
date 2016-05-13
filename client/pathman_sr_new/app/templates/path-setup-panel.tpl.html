@@ -13,64 +13,78 @@
 			</div>
 		</md-toolbar>
 		<md-content flex>
-			<div layout-fill layout="row">
+			<md-content layout-fill layout="row" flex>
 				<md-tabs md-dynamic-height md-border-bottom class="w100" ng-show="topologyInitd">
 					<md-tab label="Auto">
-						<md-content class="layout-padding">
-							<form name="autoPathForm">
-								<div layout="column">
+						<md-content>
+							<md-content class="layout-padding">
+								<form name="autoPathForm">
+									<md-content layout="column" flex>
 
+										<md-input-container>
+											<label>Source</label>
+											<md-select ng-model="psForm.source"
+													   ng-required="true"
+													   name="source">
+												<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
+													{{ node.name }}
+												</md-option>
+											</md-select>
+										</md-input-container>
 
+										<md-input-container>
+											<label>Destination</label>
+											<md-select ng-model="psForm.destination"
+													   ng-required="true"
+													   name="destination">
+												<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
+													{{ node.name }}
+												</md-option>
+											</md-select>
+										</md-input-container>
 
+										<div class="form-label">Cost Metric</div>
+										<md-radio-group ng-model="psForm.costMetric">
+											<md-radio-button value="igp" class="md-primary">IGP</md-radio-button>
+											<md-radio-button value="hops">Hops</md-radio-button>
+										</md-radio-group>
 
+										<md-button class = "md-primary md-raised"
+												   ng-click = "computePaths()"
+												   ng-disabled = "isAutoPathFormInvalid() || autoPathFormLoadingStatus">
 
-									<md-input-container>
-										<label>Source</label>
-										<md-select ng-model="psForm.source"
-												   ng-required="true"
-												   name="source">
-											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
-												{{node.name}}
-											</md-option>
-										</md-select>
-									</md-input-container>
+											<span ng-hide="autoPathFormLoadingStatus">
+												GO
+											</span>
+											<span ng-show="autoPathFormLoadingStatus">
+												<i class="fa fa-circle-o-notch fa-spin fa-fw margin-bottom"
+												   aria-hidden="true"></i>
+												<span class="sr-only">Loading...</span>
+											</span>
+										</md-button>
+									</md-content>
+								</form>
+							</md-content>
 
-									<md-input-container>
-										<label>Destination</label>
-										<md-select ng-model="psForm.destination"
-												   ng-required="true"
-												   name="destination">
-											<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
-												{{node.name}}
-											</md-option>
-										</md-select>
-									</md-input-container>
+							<md-divider></md-divider>
 
-									<div class="form-label">Cost Metric</div>
-									<md-radio-group ng-model="psForm.costMetric">
-										<md-radio-button value="igp" class="md-primary">IGP</md-radio-button>
-										<md-radio-button value="hops">Hops</md-radio-button>
-									</md-radio-group>
+							<div>
+								<md-list>
+									<md-list-item ng-repeat="(index, pathSet) in computedPaths"
+												  layout="row">
+										<div class="path-cost-number">
+											{{ computedMetrics[index] }}
+										</div>
+										<div class="path-details">
+											{{ pathSet.join(" &rarr; ") }}
+										</div>
+										<div>
+											<md-divider ng-hide="$last"></md-divider>
+										</div>
+									</md-list-item>
+								</md-list>
+							</div>
 
-
-
-
-									<md-button class = "md-primary md-raised"
-											   ng-click = "autoPathFormLoadingStatus = true"
-											   ng-disabled = "isAutoPathFormInvalid() || autoPathFormLoadingStatus">
-
-										<span ng-hide="autoPathFormLoadingStatus">
-											GO
-										</span>
-										<span ng-show="autoPathFormLoadingStatus">
-											<i class="fa fa-circle-o-notch fa-spin fa-fw margin-bottom"
-											   aria-hidden="true"></i>
-											<span class="sr-only">Loading...</span>
-										</span>
-									</md-button>
-
-								</div>
-							</form>
 						</md-content>
 					</md-tab>
 					<md-tab label="Manual">
@@ -89,7 +103,7 @@
 					Loading data...
 				</div>
 
-			</div>
+			</md-content>
 		</md-content>
 	</md-sidenav>
 </section>
