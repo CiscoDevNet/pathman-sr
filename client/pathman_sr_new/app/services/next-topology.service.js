@@ -33,6 +33,10 @@
 				showIcon: true
 			});
 		}
+
+		function initTopology(){
+
+		}
 	};
 
 	NextTopologyService.$inject = [];

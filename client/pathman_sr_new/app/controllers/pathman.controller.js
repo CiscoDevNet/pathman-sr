@@ -1,7 +1,7 @@
 (function(app){
 
 	var PathmanAppCtrl = function($scope, $mdSidenav, $mdDialog, NextTopologyService,
-								  NetworkService, PathListService) {
+								  NetworkService, PathListService, SharedDataService) {
 
 
 		$scope.sidePanel = false;
@@ -11,7 +11,7 @@
 		$scope.pathListInitd = false;
 
 		$scope.topologyData = {};
-		$scope.pathListPathData = [];
+		$scope.pathListData = [];
 
 		$scope.init = init;
 		$scope.initTopology = initTopology;
@@ -27,16 +27,12 @@
 			$scope.initPathList();
 		}
 
+
 		function initTopology(){
 			$scope.nxApp = new nx.ui.Application();
-
 			$scope.nxApp.container(document.getElementById("topology-container"));
-
 			$scope.nxTopology = NextTopologyService.createTopoObject();
-
 			$scope.nxTopology.attach($scope.nxApp);
-
-
 
 			NetworkService.refreshTopology(
 				function(data){
@@ -50,6 +46,9 @@
 			);
 		}
 
+		/**
+		 * Initialize path list by making REST call
+		 */
 		function initPathList(){
 
 			PathListService.refreshPathList(
@@ -61,9 +60,12 @@
 					// todo: handle errors
 				}
 			);
-
 		}
 
+		/**
+		 * Open side panel by name
+		 * @param panelName {String}
+		 */
 		function openPanel(panelName){
 
 			$scope.sidePanel = true;
