@@ -29,6 +29,6 @@
 	};
 
 	HelpersService.$inject = [];
-	app.service('HelpersService', HelpersService);
+	app.service("HelpersService", HelpersService);
 
 })(app);

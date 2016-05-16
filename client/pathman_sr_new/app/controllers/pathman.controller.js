@@ -70,15 +70,15 @@
 		 */
 		function openPanel(panelName){
 
-			$scope.sidePanel = true;
-			$scope.sidePanelName = panelName;
+			SharedDataService.data.sidePanel = true;
+			SharedDataService.data.sidePanelName = panelName;
 
 		}
 
 	};
 
-	PathmanAppCtrl.$inject = ['$scope', '$mdSidenav', '$mdDialog', 'NextTopologyService',
-		'NetworkService', 'PathListService', 'SharedDataService'];
-	app.controller('PathmanAppCtrl', PathmanAppCtrl);
+	PathmanAppCtrl.$inject = ["$scope", "$mdSidenav", "$mdDialog", "NextTopologyService",
+		"NetworkService", "PathListService", "SharedDataService"];
+	app.controller("PathmanAppCtrl", PathmanAppCtrl);
 
 })(app);

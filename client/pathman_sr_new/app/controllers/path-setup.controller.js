@@ -1,6 +1,9 @@
 (function(app){
 
-	var PathSetupCtrl = function($scope, PathListService) {
+	var PathSetupCtrl = function($scope, PathListService, SharedDataService) {
+
+		// "scopify" shared data
+		$scope.shared = SharedDataService.data;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
@@ -99,7 +102,7 @@
 
 	};
 
-	PathSetupCtrl.$inject = ["$scope", "PathListService"];
-	app.controller('PathSetupCtrl', PathSetupCtrl);
+	PathSetupCtrl.$inject = ["$scope", "PathListService", "SharedDataService"];
+	app.controller("PathSetupCtrl", PathSetupCtrl);
 
 })(app);

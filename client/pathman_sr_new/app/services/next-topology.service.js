@@ -21,15 +21,15 @@
 				adaptive: true,
 				scalable: true,
 				nodeConfig: {
-					label: 'model.name',
-					iconType: 'router'
+					label: "model.name",
+					iconType: "router"
 				},
 				linkConfig: {
-					linkType: 'curve'
+					linkType: "curve"
 				},
-				theme: 'blue',
-				identityKey: 'name',
-				dataProcessor: 'force',
+				theme: "blue",
+				identityKey: "name",
+				dataProcessor: "force",
 				showIcon: true
 			});
 		}
@@ -40,7 +40,7 @@
 	};
 
 	NextTopologyService.$inject = [];
-	app.service('NextTopologyService', NextTopologyService);
+	app.service("NextTopologyService", NextTopologyService);
 })(app);
 
 

@@ -2,7 +2,12 @@
 
 	var SidePanelCtrl = function($scope, $mdSidenav, NextTopologyService, SharedDataService) {
 
-		$scope.closeSidePanel = function(fadeTopoLayers){
+		$scope.closeSidePanel = closeSidePanel;
+
+		// "scopify" shared data
+		$scope.shared = SharedDataService.data;
+
+		function closeSidePanel(fadeTopoLayers){
 
 			SharedDataService.data.sidePanel = false;
 			SharedDataService.data.sidePanelName = null;
@@ -12,10 +17,10 @@
 				NextTopologyService.fadeInAllLayers(SharedDataService.data.nxTopology);
 				NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
 			}
-		};
+		}
 	};
 
-	SidePanelCtrl.$inject = ['$scope', '$mdSidenav', 'NextTopologyService', 'SharedDataService'];
-	app.controller('SidePanelCtrl', SidePanelCtrl);
+	SidePanelCtrl.$inject = ["$scope", "$mdSidenav", "NextTopologyService", "SharedDataService"];
+	app.controller("SidePanelCtrl", SidePanelCtrl);
 
 })(app);

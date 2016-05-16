@@ -22,6 +22,6 @@
 	};
 
 	SharedDataService.$inject = [];
-	app.service('SharedDataService', SharedDataService);
+	app.service("SharedDataService", SharedDataService);
 
 })(app);

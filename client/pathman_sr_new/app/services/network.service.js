@@ -6,11 +6,11 @@
 
 		function refreshTopology(successCbk, errorCbk){
 
-			var restObj = Restangular.all('pathman_sr');
+			var restObj = Restangular.all("pathman_sr");
 
 			restObj.customPOST({"request":[{"option":"topo"}]}).then(
 				function(data) {
-					if(HelpersService.hasOwnPropertiesPath(data, ['response', '0', 'topology'])){
+					if(HelpersService.hasOwnPropertiesPath(data, ["response", "0", "topology"])){
 						successCbk(data.response[0].topology);
 					}
 					else{
@@ -43,7 +43,7 @@
 
 	};
 
-	NetworkService.$inject = ['NextTopologyService', 'Restangular', 'HelpersService'];
+	NetworkService.$inject = ["NextTopologyService", "Restangular", "HelpersService"];
 	app.service("NetworkService", NetworkService);
 
 })(app);

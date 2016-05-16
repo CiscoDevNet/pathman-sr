@@ -12,12 +12,12 @@
 		 */
 		function refreshPathList (successCbk, errorCbk) {
 
-			var restObj = Restangular.all('pathman_sr');
+			var restObj = Restangular.all("pathman_sr");
 
 			restObj.customPOST({"request": [{"option": "list_all"}]}).then(
 				// success
 				function (data) {
-					if (HelpersService.hasOwnPropertiesPath(data, ['response', '0', 'list'])) {
+					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0", "list"])) {
 						successCbk(data.response[0].list);
 					}
 					else {
@@ -52,23 +52,23 @@
 
 		function computePathListByConfig (config, successCbk, errorCbk) {
 
-			var restObj = Restangular.all('pathman_sr');
+			var restObj = Restangular.all("pathman_sr");
 
 			restObj.customPOST({
 				request: [
 					{
-						option: 'path',
+						option: "path",
 						src: config.source,
 						dst: config.destination,
-						metric: config.costMetric || 'igp'
+						metric: config.costMetric || "igp"
 					}
 				]
 			}).then(
 
 				// success
 				function (data) {
-					if (HelpersService.hasOwnPropertiesPath(data, ['response', '0', 'path']) &&
-						HelpersService.hasOwnPropertiesPath(data, ['response', '0', 'metric'])) {
+					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0", "path"]) &&
+						HelpersService.hasOwnPropertiesPath(data, ["response", "0", "metric"])) {
 						successCbk(data.response[0]);
 					}
 					else {
@@ -103,7 +103,7 @@
 
 	};
 
-	PathListService.$inject = ['Restangular', 'HelpersService'];
+	PathListService.$inject = ["Restangular", "HelpersService"];
 	app.service("PathListService", PathListService);
 
 })(app);
