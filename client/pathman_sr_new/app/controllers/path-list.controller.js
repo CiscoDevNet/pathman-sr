@@ -6,7 +6,7 @@
 
 	};
 
-	PathListCtrl.$inject = ['$scope'];
+	PathListCtrl.$inject = ['$scope', 'SharedDataService'];
 	app.controller('PathListCtrl', PathListCtrl);
 
 })(app);

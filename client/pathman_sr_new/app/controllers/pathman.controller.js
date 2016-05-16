@@ -4,20 +4,18 @@
 								  NetworkService, PathListService, SharedDataService) {
 
 
-		$scope.sidePanel = false;
-		$scope.nxApp = null;
-		$scope.nxTopology = null;
-		$scope.topologyInitd = false;
-		$scope.pathListInitd = false;
 
-		$scope.topologyData = {};
-		$scope.pathListData = [];
+		// method prototypes
 
 		$scope.init = init;
 		$scope.initTopology = initTopology;
 		$scope.initPathList = initPathList;
 		$scope.openPanel = openPanel;
 
+		// "scopify" shared data
+		$scope.shared = SharedDataService.data;
+
+		// initialize the app
 		$scope.init();
 
 		/* Implementation */
@@ -27,18 +25,20 @@
 			$scope.initPathList();
 		}
 
-
 		function initTopology(){
-			$scope.nxApp = new nx.ui.Application();
-			$scope.nxApp.container(document.getElementById("topology-container"));
-			$scope.nxTopology = NextTopologyService.createTopoObject();
-			$scope.nxTopology.attach($scope.nxApp);
+			SharedDataService.data.nxApp = new nx.ui.Application();
+			SharedDataService.data.nxApp.container(document.getElementById("topology-container"));
+			SharedDataService.data.nxTopology = NextTopologyService.createTopoObject();
+			SharedDataService.data.nxTopology.attach(SharedDataService.data.nxApp);
 
 			NetworkService.refreshTopology(
 				function(data){
-					$scope.topologyData = data;
-					$scope.nxTopology.data($scope.topologyData);
-					$scope.topologyInitd = true;
+					// record the topology data
+					SharedDataService.data.topologyData = data;
+					// render topology
+					SharedDataService.data.nxTopology.data(SharedDataService.data.topologyData);
+					// topology initialized = true
+					SharedDataService.data.topologyInitd = true;
 				},
 				function(err){
 					//todo: handle errors
@@ -53,8 +53,10 @@
 
 			PathListService.refreshPathList(
 				function(data){
-					$scope.pathListPathData = data;
-					$scope.pathListInitd = true;
+					// record path list data
+					SharedDataService.data.pathListData = data;
+					// path list initialized = true
+					SharedDataService.data.pathListInitd = true;
 				},
 				function(err){
 					// todo: handle errors
@@ -76,7 +78,7 @@
 	};
 
 	PathmanAppCtrl.$inject = ['$scope', '$mdSidenav', '$mdDialog', 'NextTopologyService',
-		'NetworkService', 'PathListService'];
+		'NetworkService', 'PathListService', 'SharedDataService'];
 	app.controller('PathmanAppCtrl', PathmanAppCtrl);
 
 })(app);

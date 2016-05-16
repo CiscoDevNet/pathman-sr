@@ -1,5 +1,5 @@
 <section layout="column" class="h100" ng-controller="PathSetupCtrl">
-	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="sidePanel" >
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
 		<md-toolbar>
 			<div class="md-toolbar-tools">
 				<h2>
@@ -14,7 +14,7 @@
 		</md-toolbar>
 		<md-content flex>
 			<md-content layout-fill layout="row" flex>
-				<md-tabs md-dynamic-height md-border-bottom class="w100" ng-show="topologyInitd">
+				<md-tabs md-dynamic-height md-border-bottom class="w100" ng-show="shared.topologyInitd">
 					<md-tab label="Auto">
 						<md-content>
 							<md-content class="layout-padding">
@@ -26,7 +26,7 @@
 											<md-select ng-model="psForm.source"
 													   ng-required="true"
 													   name="source">
-												<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
+												<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
 													{{ node.name }}
 												</md-option>
 											</md-select>
@@ -37,7 +37,7 @@
 											<md-select ng-model="psForm.destination"
 													   ng-required="true"
 													   name="destination">
-												<md-option ng-repeat="node in topologyData.nodes" value="{{node.name}}">
+												<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
 													{{ node.name }}
 												</md-option>
 											</md-select>
@@ -95,7 +95,7 @@
 				</md-tabs>
 
 				<!-- Loading spinner -->
-				<div ng-show="!topologyDataInitd"  class="layout-padding" layout="row">
+				<div ng-show="!shared.topologyDataInitd"  class="layout-padding" layout="row">
 					<md-progress-circular md-mode="indeterminate"
 										  md-diameter="20px">
 

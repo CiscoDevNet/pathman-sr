@@ -54,7 +54,7 @@
 			</md-toolbar>
 
 			<div class="content-wrapper">
-				<md-progress-linear ng-if="!topologyInitd" md-mode="indeterminate"></md-progress-linear>
+				<md-progress-linear ng-if="!shared.topologyInitd" md-mode="indeterminate"></md-progress-linear>
 				<div class="w100 h100">
 					<div id="topology-container" class="h100"></div>
 				</div>
@@ -63,10 +63,10 @@
 
 		<section layout="column"
 				 class="h100"
-				 ng-show="sidePanel"
+				 ng-show="shared.sidePanel"
 				 ng-controller="SidePanelCtrl">
-			<div class="h100" ng-show="sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
-			<div class="h100" ng-show="sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
 		</section>
 	</div>
 

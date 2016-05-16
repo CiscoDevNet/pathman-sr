@@ -15,8 +15,8 @@
 		<md-content flex>
 
 			<div layout-fill layout="column">
-				<md-list layout-fill ng-show="pathListData.length">
-					<md-list-item class="md-2-line" ng-repeat="path in pathListData"
+				<md-list layout-fill ng-show="shared.pathListData.length">
+					<md-list-item class="md-2-line" ng-repeat="path in shared.pathListData"
 								  layout="row">
 						<div class="md-list-item-text" flex>
 							<h3>hey</h3>
@@ -25,11 +25,11 @@
 					</md-list-item>
 				</md-list>
 
-				<div class="layout-padding" ng-hide="pathListData.length" layout="row">
-					<div ng-show="!pathListInitd" layout="row">
+				<div class="layout-padding" ng-hide="shared.pathListData.length" layout="row">
+					<div ng-show="!shared.pathListInitd" layout="row">
 						<md-progress-circular md-mode="indeterminate" md-diameter="20px"></md-progress-circular> Loading path data
 					</div>
-					<div ng-show="pathListInitd">
+					<div ng-show="shared.pathListInitd">
 						No paths found.
 					</div>
 				</div>

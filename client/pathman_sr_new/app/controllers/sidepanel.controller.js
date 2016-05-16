@@ -1,20 +1,21 @@
 (function(app){
 
-	var SidePanelCtrl = function($scope, $mdSidenav, NextTopologyService) {
+	var SidePanelCtrl = function($scope, $mdSidenav, NextTopologyService, SharedDataService) {
 
 		$scope.closeSidePanel = function(fadeTopoLayers){
 
-			$scope.$parent.sidePanel = false;
-			$scope.$parent.sidePanelName = null;
+			SharedDataService.data.sidePanel = false;
+			SharedDataService.data.sidePanelName = null;
 
 			fadeTopoLayers = fadeTopoLayers ? false : true;
-			if (fadeTopoLayers && $scope.topologyInitd) {
-				NextTopologyService.fadeInAllLayers($scope.nxTopology);
-				NextTopologyService.clearPathLayer($scope.nxTopology);
+			if (fadeTopoLayers && SharedDataService.data.topologyInitd) {
+				NextTopologyService.fadeInAllLayers(SharedDataService.data.nxTopology);
+				NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
 			}
 		};
 	};
 
+	SidePanelCtrl.$inject = ['$scope', '$mdSidenav', 'NextTopologyService', 'SharedDataService'];
 	app.controller('SidePanelCtrl', SidePanelCtrl);
 
 })(app);
