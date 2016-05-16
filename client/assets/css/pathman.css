@@ -39,6 +39,31 @@ body {
     margin-bottom: 3px;
 }
 
+.path-cost-number {
+    display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    margin-right: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-align: center;
+    background-color: #999;
+    border-radius: 10px;
+}
+
+.path-item {
+    cursor: pointer;
+}
+
+.path-item:hover {
+    background: #f8f8f8;
+}
+
+/* Angular Material side panel tweaks */
 md-sidenav,
 md-sidenav.md-locked-open,
 md-sidenav.md-closed.md-locked-open-add-active {

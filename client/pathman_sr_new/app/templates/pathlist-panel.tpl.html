@@ -5,7 +5,7 @@
 				<h2>
 					<span>
 						<i class="fa fa-list"></i>
-						Path List
+						Deployed Paths
 					</span>
 				</h2>
 				<span flex></span>
@@ -15,12 +15,13 @@
 		<md-content flex>
 
 			<div layout-fill layout="column">
-				<md-list layout-fill ng-show="shared.pathListData.length">
-					<md-list-item class="md-2-line" ng-repeat="path in shared.pathListData"
+				<md-list ng-show="shared.pathListData.length">
+					<md-list-item class="md-2-line path-item"
+								  ng-repeat="path in shared.pathListData"
 								  layout="row">
 						<div class="md-list-item-text" flex>
-							<h3>hey</h3>
-							<p>node data</p>
+							<h3>{{ path.name }}</h3>
+							<p>{{ path.path.join(" &rarr; ") }}</p>
 						</div>
 					</md-list-item>
 				</md-list>
