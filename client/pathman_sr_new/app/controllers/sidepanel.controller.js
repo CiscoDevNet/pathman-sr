@@ -17,6 +17,14 @@
 				NextTopologyService.fadeInAllLayers(SharedDataService.data.nxTopology);
 				NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
 			}
+
+			// if topology ready
+			if(SharedDataService.topologyInitd){
+				window.setTimeout(function(){
+					SharedDataService.data.nxTopology.adaptToContainer();
+				}, 100);
+			}
+
 		}
 	};
 

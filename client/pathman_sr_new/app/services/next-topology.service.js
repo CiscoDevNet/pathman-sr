@@ -5,7 +5,7 @@
 	 The service encapsulates NeXt-specific logic. It does not perform any REST API calls.
 	 */
 
-	var NextTopologyService = function(SharedDataService) {
+	var NextTopologyService = function() {
 
 		var self = this;
 
@@ -19,8 +19,10 @@
 
 		}
 
-		function clearPathLayer(){
-
+		function clearPathLayer(topo){
+			var pathLayer = topo.getLayer("paths");
+			pathLayer.clear();
+			return pathLayer;
 		}
 
 		function createTopoObject() {
@@ -44,10 +46,21 @@
 
 		/**
 		 * Highlight path by nodes' names
-		 * @param pathList {Array}
+		 * @param topo {Object}
+		 * @param hopList {Array}
 		 */
-		function highlightPath(pathList){
+		function highlightPath(topo, hopList){console.log(topo, hopList);
+			//SharedDataService.data.nxTopology.addPath();
+			var pathLayer = topo.getLayer("paths");
+			var path = new nx.graphic.Topology.Path({
+				'pathWidth': 5,
+				'nodeNames': hopList,
+				'arrow': 'cap',
+				'color': '#ff0000'
+			});
 
+			// add the path
+			pathLayer.addPath(path);
 		}
 
 		/**
@@ -56,15 +69,22 @@
 		 */
 		function initTopology(htmlElementId){
 
-			SharedDataService.data.nxApp = new nx.ui.Application();
-			SharedDataService.data.nxApp.container(document.getElementById(htmlElementId));
-			SharedDataService.data.nxTopology = self.createTopoObject();
-			SharedDataService.data.nxTopology.attach(SharedDataService.data.nxApp);
+			var nxApp, nxTopology;
+
+			nxApp = new nx.ui.Application();
+			nxApp.container(document.getElementById(htmlElementId));
+			nxTopology = self.createTopoObject();
+			nxTopology.attach(nxApp);
+
+			return {
+				"nxApp": nxApp,
+				"nxTopology": nxTopology
+			};
 
 		}
 	};
 
-	NextTopologyService.$inject = ["SharedDataService"];
+	NextTopologyService.$inject = [];
 	app.service("NextTopologyService", NextTopologyService);
 })(app);
 

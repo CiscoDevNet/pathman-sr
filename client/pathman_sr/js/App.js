@@ -18,7 +18,7 @@
                 main.attach(this);
 
                 this.on('resize', function () {
-//                    console.log('adapting via resize');
+                    console.log('adapting via resize');
                     main.resolve('topo').adaptToContainer();
                 });
 

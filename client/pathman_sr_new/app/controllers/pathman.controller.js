@@ -35,7 +35,14 @@
 
 			NetworkService.refreshTopology(
 				function(data){
-					NextTopologyService.initTopology("topology-container");
+
+					var nxData = NextTopologyService.initTopology("topology-container");
+					console.log(nxData);
+					SharedDataService.multiSet({
+						"nxApp": nxData.nxApp,
+						"nxTopology": nxData.nxTopology
+					}, false);
+
 					// record the topology data
 					SharedDataService.data.topologyData = data;
 					// render topology
@@ -75,6 +82,14 @@
 
 			SharedDataService.data.sidePanel = true;
 			SharedDataService.data.sidePanelName = panelName;
+
+			if(SharedDataService.data.topologyInitd){
+				window.setTimeout(function(){
+					SharedDataService.data.nxTopology.adaptToContainer();
+				}, 100);
+				//SharedDataService.data.nxTopology.fit();
+			}
+
 
 		}
 
