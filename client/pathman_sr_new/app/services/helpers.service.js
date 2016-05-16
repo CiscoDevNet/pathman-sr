@@ -1,11 +1,16 @@
 (function(app){
 
+	/*
+	HelpersService
+	This service contains functions that help a dev with routine work
+	 */
+
 	var HelpersService = function(){
 
 		this.hasOwnPropertiesPath = hasOwnPropertiesPath;
 
 		/**
-		 * If an object "a" has a path [b, c, d], which verifies the object a.b.c.d
+		 * If an object "a" has a path [b, c, d], it verifies if the object a.b.c.d exists
 		 * @param sourceObj {Object}
 		 * @param path {Array}
 		 */

@@ -1,5 +1,10 @@
 (function(app){
 
+	/*
+	 NextTopologyService
+	 The service encapsulates NeXt-specific logic. It does not perform any REST API calls.
+	 */
+
 	var NextTopologyService = function(SharedDataService) {
 
 		var self = this;
@@ -42,9 +47,13 @@
 		 * @param pathList {Array}
 		 */
 		function highlightPath(pathList){
-			
+
 		}
 
+		/**
+		 * Initialize topology and display within "htmlElementId"
+		 * @param htmlElementId
+		 */
 		function initTopology(htmlElementId){
 
 			SharedDataService.data.nxApp = new nx.ui.Application();

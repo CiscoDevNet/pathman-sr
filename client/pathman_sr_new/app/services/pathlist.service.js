@@ -1,5 +1,10 @@
 (function (app) {
 
+	/*
+	PathListService
+	 The service does REST API work that has to do with paths and path lists
+	 */
+
 	var PathListService = function (Restangular, HelpersService) {
 
 		this.refreshPathList = refreshPathList;

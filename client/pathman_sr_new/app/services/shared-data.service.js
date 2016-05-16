@@ -1,7 +1,13 @@
 (function(app){
 
+	/*
+	SharedDataService
+	The service provides controllers and services access communicate with each other avoiding $scope routine
+	 */
+
 	var SharedDataService = function(){
 
+		// shared data
 		this.data = {
 			topologyData: null,
 			pathListData: null,

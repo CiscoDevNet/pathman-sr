@@ -1,5 +1,10 @@
 (function(app){
 
+	/*
+	NetworkService
+	The service does REST API work that has to do with topology/network
+	 */
+
 	var NetworkService = function(NextTopologyService, Restangular, HelpersService){
 
 		this.refreshTopology = refreshTopology;
