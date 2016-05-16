@@ -19,7 +19,7 @@
 			}
 
 			// if topology ready
-			if(SharedDataService.topologyInitd){
+			if(SharedDataService.data.topologyInitd){
 				window.setTimeout(function(){
 					SharedDataService.data.nxTopology.adaptToContainer();
 				}, 100);

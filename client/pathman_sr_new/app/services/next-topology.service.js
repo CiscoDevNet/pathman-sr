@@ -49,7 +49,8 @@
 		 * @param topo {Object}
 		 * @param hopList {Array}
 		 */
-		function highlightPath(topo, hopList){console.log(topo, hopList);
+		function highlightPath(topo, hopList){
+
 			//SharedDataService.data.nxTopology.addPath();
 			var pathLayer = topo.getLayer("paths");
 			var path = new nx.graphic.Topology.Path({
