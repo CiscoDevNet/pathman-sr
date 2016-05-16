@@ -1,17 +1,18 @@
 (function(app){
 
-	var PathSetupCtrl = function($scope, PathListService, SharedDataService) {
+	var PathSetupCtrl = function($scope, PathListService, NextTopologyService, SharedDataService) {
 
-		// "scopify" shared data
-		$scope.shared = SharedDataService.data;
+		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
+		$scope.computePaths = computePaths;
+		$scope.highlightPath = highlightPath;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
 		$scope.computedPaths = [];
 		$scope.computedMetrics = [];
 
-		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
-		$scope.computePaths = computePaths;
+		// "scopify" shared data
+		$scope.shared = SharedDataService.data;
 
 		/* Implementation */
 
@@ -100,9 +101,17 @@
 			}
 		}
 
+		/**
+		 * Highlight path by nodes' names
+		 * @param pathList {Array}
+		 */
+		function highlightPath(pathList){
+			NextTopologyService.highlightPath(pathList);
+		}
+
 	};
 
-	PathSetupCtrl.$inject = ["$scope", "PathListService", "SharedDataService"];
+	PathSetupCtrl.$inject = ["$scope", "PathListService", "NextTopologyService", "SharedDataService"];
 	app.controller("PathSetupCtrl", PathSetupCtrl);
 
 })(app);

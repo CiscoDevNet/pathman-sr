@@ -20,19 +20,22 @@
 
 		/* Implementation */
 
+		/**
+		 * Initialize application
+		 */
 		function init(){
 			$scope.initTopology();
 			$scope.initPathList();
 		}
 
+		/**
+		 * Get topology ready
+		 */
 		function initTopology(){
-			SharedDataService.data.nxApp = new nx.ui.Application();
-			SharedDataService.data.nxApp.container(document.getElementById("topology-container"));
-			SharedDataService.data.nxTopology = NextTopologyService.createTopoObject();
-			SharedDataService.data.nxTopology.attach(SharedDataService.data.nxApp);
 
 			NetworkService.refreshTopology(
 				function(data){
+					NextTopologyService.initTopology("topology-container");
 					// record the topology data
 					SharedDataService.data.topologyData = data;
 					// render topology

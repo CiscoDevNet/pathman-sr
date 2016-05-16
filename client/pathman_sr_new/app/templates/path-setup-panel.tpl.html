@@ -84,6 +84,7 @@
 						<div layout-fill layout="column">
 							<md-list>
 								<md-list-item ng-repeat="(index, pathSet) in computedPaths"
+											  ng-mouseover="highlightPath(path.path)"
 											  layout="row">
 									<div>
 										<span class="path-cost-number">{{ computedMetrics[index] }}</span>

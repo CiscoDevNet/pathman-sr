@@ -5,7 +5,13 @@
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
 
-		$scope.pathListData = SharedDataService.data.pathListData;
+		/**
+		 * Highlight path by nodes' names
+		 * @param pathList {Array}
+		 */
+		function highlightPath(pathList){
+			NextTopologyService.highlightPath(pathList);
+		}
 
 	};
 
