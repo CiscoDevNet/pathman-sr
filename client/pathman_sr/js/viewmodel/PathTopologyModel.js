@@ -75,6 +75,11 @@
                 nodes.forEach(function (node) {
                     path.nodes.push(this._getNodeByName(node));
                 }, this);
+
+
+
+				console.log(path);
+
                 this.paths().add(path);
             },
             removePath: function(nodes) {
@@ -298,8 +303,8 @@
                     pathPadding: path.padding,
                     arrow: path.arrow,
                     pathStyle: {
-                        fill: path.color
-                    }
+						fill: path.color
+					}
                 });
 
                 pathLayer.addPath(topoPath);

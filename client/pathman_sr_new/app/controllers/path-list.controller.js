@@ -11,9 +11,10 @@
 		 * Highlight path by nodes' names
 		 * @param topo {Object} NeXt topology object
 		 * @param pathList {Array}
+		 * @param pathType
 		 */
-		function highlightPath(topo, pathList){
-			NextTopologyService.highlightPath(topo, pathList);
+		function highlightPath(topo, pathList, pathType){
+			NextTopologyService.highlightPath(topo, pathList, pathType);
 		}
 
 	};

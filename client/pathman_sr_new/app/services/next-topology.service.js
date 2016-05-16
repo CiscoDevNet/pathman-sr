@@ -15,6 +15,19 @@
 		this.highlightPath = highlightPath;
 		this.initTopology = initTopology;
 
+		this._getLinksBetweenNodes = _getLinksBetweenNodes;
+		this._nodesToLinks = _nodesToLinks;
+
+		this._colorTable = {
+			"paths": {
+				"pathListHover": "#ffd966",
+				"pathListSelected": "#ff7300",
+				"deployed": "#00ff00",
+				"deploymentFailed": "#ff0000",
+				"_default": "#3333cc"
+			}
+		};
+
 		function fadeInAllLayers(){
 
 		}
@@ -47,21 +60,44 @@
 		/**
 		 * Highlight path by nodes' names
 		 * @param topo {Object}
-		 * @param hopList {Array}
+		 * @param hopListNames {Array} Array of names of hop routers
+		 * @param type {String} Type of a path. See color table above
 		 */
-		function highlightPath(topo, hopList){
+		function highlightPath(topo, hopListNames, type){
 
-			//SharedDataService.data.nxTopology.addPath();
 			var pathLayer = topo.getLayer("paths");
-			var path = new nx.graphic.Topology.Path({
-				'pathWidth': 5,
-				'nodeNames': hopList,
-				'arrow': 'cap',
-				'color': '#ff0000'
-			});
+			var hopList = [];
+			var pathLinkList = [];
+			var pathColor = self._colorTable["paths"][type] === "undefined" ?
+				self._colorTable["paths"]._default : self._colorTable["paths"][type];
 
-			// add the path
-			pathLayer.addPath(path);
+			// not using .map, because we need to be able to exclude "bad" nodes
+			for(var i = 0; i < hopListNames.length; i++){
+				var hopNode = topo.getNode(hopListNames[i]);
+				if(hopNode)
+					hopList.push(hopNode);
+			}
+
+			console.log(hopList);
+
+			pathLinkList = self._nodesToLinks(topo, hopList);
+
+
+			if(pathLinkList !== false){
+				// create a new Path entity
+				var path = new nx.graphic.Topology.Path({
+					"pathWidth": 3,
+					"links": pathLinkList,
+					"arrow": "cap",
+					"pathStyle": {
+						"fill": pathColor
+					}
+				});
+
+				// add the path
+				pathLayer.addPath(path);
+			}
+
 		}
 
 		/**
@@ -81,8 +117,43 @@
 				"nxApp": nxApp,
 				"nxTopology": nxTopology
 			};
-
 		}
+
+
+		function _getLinksBetweenNodes(topo, src, dest){
+			var linkSet = topo.getLinkSet(src.id(), dest.id());
+			if (linkSet !== null) {
+				return nx.util.values(linkSet.links());
+			}
+			return false;
+		}
+
+		function _nodesToLinks(topo, nodes) {
+			var result = [];
+			var lastNode;
+
+			nodes.forEach(function (node){
+				if (typeof lastNode === 'undefined'){
+					lastNode = node;
+				}
+				else{
+					if(node){
+						var link = self._getLinksBetweenNodes(topo, lastNode, node);
+
+						if(typeof link === false){
+							console.error("ERROR: path must be valid!");
+							return false;
+						}
+
+						result.push(link[0]);
+						lastNode = node;
+					}
+				}
+			});
+
+			return result;
+		}
+
 	};
 
 	NextTopologyService.$inject = [];
