@@ -28,7 +28,7 @@
 			}
 		};
 
-		function fadeInAllLayers(){
+		function fadeInAllLayers(topo){
 			//fade out all layers
 			var linksLayerHighlightElements = topo.getLayer('links').highlightedElements(),
 				nodeLayerHighlightElements = topo.getLayer('nodes').highlightedElements();
