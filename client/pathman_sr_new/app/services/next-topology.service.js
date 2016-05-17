@@ -1,4 +1,4 @@
-(function(app){
+(function(nx, app){
 
 	/*
 	 NextTopologyService
@@ -14,10 +14,12 @@
 		this.createTopoObject = createTopoObject;
 		this.addPath = addPath;
 		this.initTopology = initTopology;
+		this.extendNodeClass = extendNodeClass;
+		this.removePathByType = removePathByType;
 
 		this._getLinksBetweenNodes = _getLinksBetweenNodes;
 		this._nodesToLinks = _nodesToLinks;
-
+		this._paths = {};
 		this._colorTable = {
 			"paths": {
 				"pathListHover": "#ffbf00",
@@ -45,6 +47,7 @@
 		function clearPathLayer(topo){
 			var pathLayer = topo.getLayer("paths");
 			pathLayer.clear();
+			self._paths = {};
 			return pathLayer;
 		}
 
@@ -63,8 +66,103 @@
 				theme: "blue",
 				identityKey: "name",
 				dataProcessor: "force",
-				showIcon: true
+				showIcon: true,
+				nodeInstanceClass: 'ExtendedNode'
 			});
+		}
+
+		function extendNodeClass(){
+
+			nx.define("ExtendedNode", nx.graphic.Topology.Node, {
+				view: function(view){
+
+					view.content.push({
+						name: 'srBadge',
+						type: 'nx.graphic.Group',
+						content: [
+							{
+								name: 'srBadgeBg',
+								type: 'nx.graphic.Rect',
+								props: {
+									'class': 'link-set-circle',
+									height: 1
+								}
+							},
+							{
+								name: 'srBadgeText',
+								type: 'nx.graphic.Text',
+								props: {
+									'class': 'link-set-text',
+									y: 1
+								}
+							}
+						]
+					});
+					return view;
+				},
+				methods: {
+					// inherit properties/parent"s data
+					"init": function(args){
+						this.inherited(args);
+						var stageScale = this.topology().stageScale();
+						this.view("label").setStyle("font-size", 14 * stageScale);
+					},
+					// inherit parent"s model
+					"setModel": function(model) {
+						this.inherited(model);
+
+						if(this.model().get("sid") !== undefined){
+							this._drawSrEnabledBadge();
+						}
+
+						if(this.model().get("pcc") !== undefined){
+							//this._drawPcepEnabledBadge();
+						}
+					},
+					"_drawSrEnabledBadge": function(){
+
+						var icon, iconSize, iconScale,
+							srBadge, srBadgeBg, srBadgeText,
+							pcepBadge, pcepBadgeBg, pcepBadgeText,
+							srBadgeTransform;
+
+						// get view of device icon
+						icon = this.view('icon');
+						iconSize = icon.size();
+						iconScale = icon.scale();
+
+						// get view of SR badge
+						srBadge = this.view('srBadge');
+						srBadgeBg = this.view('srBadgeBg');
+						srBadgeText = this.view('srBadgeText');
+
+						// SR badge computation
+						var bound = srBadge.getBound();
+						var boundMax = Math.max(bound.width - 6, 1);
+						srBadgeBg.sets({width: boundMax, visible: true});
+						srBadgeBg.setTransform(boundMax / -2);
+
+						srBadgeText.sets({
+							text: "SR",
+							visible: true
+						});
+
+						// define position of the badge
+						srBadgeTransform = {
+							x: iconSize.width * iconScale / 4,
+							y: iconSize.height * iconScale / 4
+						};
+
+						srBadge.setTransform(srBadgeTransform.x, srBadgeTransform.y);
+
+						srBadge.visible(true);
+						srBadgeBg.visible(true);
+						srBadgeText.visible(true);
+					}
+
+				}
+			});
+
 		}
 
 		/**
@@ -103,10 +201,25 @@
 
 				// add the path
 				pathLayer.addPath(path);
+
+				self.removePathByType(topo, type);
+
+				self._paths[type] = path;
+
 			}
 
 		}
 
+		function removePathByType(topo, type){
+			var pathLayer;
+
+			if(self._paths.hasOwnProperty(type)){
+				pathLayer = topo.getLayer("paths");
+				pathLayer.removePath(self._paths[type]);
+				delete self._paths[type];
+			}
+
+		}
 
 
 		/**
@@ -119,7 +232,10 @@
 
 			nxApp = new nx.ui.Application();
 			nxApp.container(document.getElementById(htmlElementId));
+
+			self.extendNodeClass();
 			nxTopology = self.createTopoObject();
+
 			nxTopology.attach(nxApp);
 
 			return {
@@ -167,7 +283,7 @@
 
 	NextTopologyService.$inject = [];
 	app.service("NextTopologyService", NextTopologyService);
-})(app);
+})(nx, app);
 
 
 

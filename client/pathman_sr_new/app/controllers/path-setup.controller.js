@@ -7,6 +7,8 @@
 		$scope.highlightPath = highlightPath;
 		$scope.clearPathLayer = clearPathLayer;
 		$scope.registerPath = registerPath;
+		$scope.backToSetup = backToSetup;
+		$scope.removePathByType = removePathByType;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
@@ -124,6 +126,7 @@
 		}
 
 
+		// Go to step 2: select a name and deploy path
 		function registerPath(topo, pathSet){
 			SharedDataService.data.pathSetupMode = "register-path";
 
@@ -134,6 +137,15 @@
 				"pathName": pathSet[0] + " -> " + pathSet[pathSet.length - 1]
 			};
 
+		}
+
+		function backToSetup(topo){
+			SharedDataService.data.pathSetupMode = "search";
+			NextTopologyService.clearPathLayer(topo);
+		}
+
+		function removePathByType(topo, type){
+			NextTopologyService.removePathByType(topo, type);
 		}
 
 	};

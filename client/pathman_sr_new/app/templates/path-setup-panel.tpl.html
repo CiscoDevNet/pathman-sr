@@ -4,7 +4,7 @@
 			<div class="md-toolbar-tools">
 				<h2>
 					<span>
-						<i class="fa fa-wrench"></i>
+						<i class="fa fa-wrench" aria-hidden="true"></i>
 						Path setup
 					</span>
 				</h2>
@@ -13,6 +13,8 @@
 			</div>
 		</md-toolbar>
 		<md-content flex>
+
+
 
 
 			<!-- Loading spinner -->
@@ -35,6 +37,22 @@
 				<!-- When the path is chosen -->
 				<div flex
 					 ng-show="shared.pathSetupMode == 'register-path'">
+
+
+					<div layout="row" class="layout-padding">
+						<ul class="breadcrumbs">
+							<li class="breadcrumb" ng-click="backToSetup(shared.nxTopology)">Path setup</li>
+							<li class="breadcrumb">
+								<i class="material-icons" aria-hidden="true">keyboard_arrow_right</i>
+							</li>
+							<li class="breadcrumb">Path setup</li>
+						</ul>
+
+
+					</div>
+
+					<md-divider></md-divider>
+
 					<form name="registerPathForm" layout="column">
 						<md-content class="layout-padding"
 									layout="column">
@@ -61,10 +79,7 @@
 							</md-button>
 
 						</md-content>
-
 					</form>
-
-
 				</div>
 
 
@@ -129,9 +144,8 @@
 							<div layout-fill layout="column">
 								<md-list>
 									<md-list-item ng-repeat="(index, pathSet) in computedPaths"
-												  ng-mouseover="highlightPath(shared.nxTopology, pathSet, 'pathListHover')"
+												  ng-mouseenter="highlightPath(shared.nxTopology, pathSet, 'pathListHover')"
 												  ng-click="registerPath(shared.nxTopology, pathSet)"
-												  ng-mouseleave="clearPathLayer(shared.nxTopology)"
 												  layout="row">
 										<div>
 											<span class="path-cost-number">{{ computedMetrics[index] }}</span>
