@@ -12,7 +12,7 @@
 		this.fadeInAllLayers = fadeInAllLayers;
 		this.clearPathLayer = clearPathLayer;
 		this.createTopoObject = createTopoObject;
-		this.highlightPath = highlightPath;
+		this.addPath = addPath;
 		this.initTopology = initTopology;
 
 		this._getLinksBetweenNodes = _getLinksBetweenNodes;
@@ -20,7 +20,7 @@
 
 		this._colorTable = {
 			"paths": {
-				"pathListHover": "#ffd966",
+				"pathListHover": "#ffbf00",
 				"pathListSelected": "#ff7300",
 				"deployed": "#00ff00",
 				"deploymentFailed": "#ff0000",
@@ -63,11 +63,11 @@
 		 * @param hopListNames {Array} Array of names of hop routers
 		 * @param type {String} Type of a path. See color table above
 		 */
-		function highlightPath(topo, hopListNames, type){
+		function addPath(topo, hopListNames, type){
 
 			var pathLayer = topo.getLayer("paths");
 			var hopList = [];
-			var pathLinkList = [];
+			var pathLinkList;
 			var pathColor = self._colorTable["paths"][type] === "undefined" ?
 				self._colorTable["paths"]._default : self._colorTable["paths"][type];
 
@@ -78,10 +78,7 @@
 					hopList.push(hopNode);
 			}
 
-			console.log(hopList);
-
 			pathLinkList = self._nodesToLinks(topo, hopList);
-
 
 			if(pathLinkList !== false){
 				// create a new Path entity
@@ -99,6 +96,8 @@
 			}
 
 		}
+
+
 
 		/**
 		 * Initialize topology and display within "htmlElementId"

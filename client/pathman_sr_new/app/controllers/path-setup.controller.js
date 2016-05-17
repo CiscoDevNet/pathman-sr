@@ -108,7 +108,7 @@
 		 * @param pathType
 		 */
 		function highlightPath(topo, pathList, pathType){
-			NextTopologyService.highlightPath(topo, pathList, pathType);
+			NextTopologyService.addPath(topo, pathList, pathType);
 		}
 
 	};
