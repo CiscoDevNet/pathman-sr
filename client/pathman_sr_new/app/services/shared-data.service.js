@@ -24,6 +24,8 @@
 			sidePanel: false,
 			sidePanelName: null,
 
+			pathSetupMode: null,
+
 			// NeXt library data
 			nxApp: null,
 			nxTopology: null

@@ -29,7 +29,17 @@
 		};
 
 		function fadeInAllLayers(){
+			//fade out all layers
+			var linksLayerHighlightElements = topo.getLayer('links').highlightedElements(),
+				nodeLayerHighlightElements = topo.getLayer('nodes').highlightedElements();
 
+			//Clears previous
+			nodeLayerHighlightElements.clear();
+			linksLayerHighlightElements.clear();
+
+			nx.each(topo.layers(), function(layer) {
+				layer.fadeIn(true);
+			}, this);
 		}
 
 		function clearPathLayer(topo){

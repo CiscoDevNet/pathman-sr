@@ -5,6 +5,8 @@
 		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
 		$scope.computePaths = computePaths;
 		$scope.highlightPath = highlightPath;
+		$scope.clearPathLayer = clearPathLayer;
+		$scope.registerPath = registerPath;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
@@ -13,6 +15,8 @@
 
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
+
+		SharedDataService.data.pathSetupMode = "search";
 
 		/* Implementation */
 
@@ -109,6 +113,27 @@
 		 */
 		function highlightPath(topo, pathList, pathType){
 			NextTopologyService.addPath(topo, pathList, pathType);
+		}
+
+		/**
+		 * Clear path layer
+		 * @param topo
+		 */
+		function clearPathLayer(topo){
+			NextTopologyService.clearPathLayer(topo);
+		}
+
+
+		function registerPath(topo, pathSet){
+			SharedDataService.data.pathSetupMode = "register-path";
+
+			NextTopologyService.addPath(topo, pathSet, "pathListSelected");
+
+			$scope.pathSet = pathSet;
+			$scope.prForm = {
+				"pathName": pathSet[0] + " -> " + pathSet[pathSet.length - 1]
+			};
+
 		}
 
 	};

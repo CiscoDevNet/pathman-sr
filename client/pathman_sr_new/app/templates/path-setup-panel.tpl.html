@@ -24,47 +24,92 @@
 				Loading data...
 			</div>
 
-			<md-tabs md-dynamic-height
-					 md-border-bottom class="w100"
-					 ng-show="shared.topologyInitd"
-					 flex>
-				<md-tab label="Auto">
-					<md-content>
-						<md-content class="layout-padding">
-							<form name="autoPathForm">
-								<md-content layout="column" flex>
 
-									<md-input-container>
-										<label>Source</label>
-										<md-select ng-model="psForm.source"
-												   ng-required="true"
-												   name="source">
-											<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
-												{{ node.name }}
-											</md-option>
-										</md-select>
-									</md-input-container>
 
-									<md-input-container>
-										<label>Destination</label>
-										<md-select ng-model="psForm.destination"
-												   ng-required="true"
-												   name="destination">
-											<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
-												{{ node.name }}
-											</md-option>
-										</md-select>
-									</md-input-container>
 
-									<div class="form-label">Cost Metric</div>
-									<md-radio-group ng-model="psForm.costMetric">
-										<md-radio-button value="igp" class="md-primary">IGP</md-radio-button>
-										<md-radio-button value="hops">Hops</md-radio-button>
-									</md-radio-group>
 
-									<md-button class = "md-primary md-raised"
-											   ng-click = "computePaths()"
-											   ng-disabled = "isAutoPathFormInvalid() || autoPathFormLoadingStatus">
+			<div ng-show="shared.topologyInitd">
+
+
+
+				<!-- When the path is chosen -->
+				<div flex
+					 ng-show="shared.pathSetupMode == 'register-path'">
+					<form name="registerPathForm" layout="column">
+						<md-content class="layout-padding"
+									layout="column">
+
+							<div class="path-details">
+								<b>Path details</b><br>
+								{{ pathSet.join(" &rarr; ") }}
+							</div>
+
+							<md-input-container>
+
+								<label>Path name</label>
+								<input type="text"
+									   name="pathName"
+									   title="Path name"
+									   ng-model="prForm.pathName"
+									   ng-required>
+							</md-input-container>
+
+							<md-button class = "md-primary md-raised"
+									   ng-click = "deployPath()"
+									   ng-disabled = "registerPathForm.$invalid">
+								Deploy path
+							</md-button>
+
+						</md-content>
+
+					</form>
+
+
+				</div>
+
+
+				<!-- Path computing view -->
+				<md-tabs md-dynamic-height
+						 md-border-bottom class="w100"
+						 ng-show="shared.pathSetupMode == 'search'"
+						 flex>
+					<md-tab label="Auto">
+						<md-content>
+							<md-content class="layout-padding">
+								<form name="autoPathForm">
+									<md-content layout="column" flex>
+
+										<md-input-container>
+											<label>Source</label>
+											<md-select ng-model="psForm.source"
+													   ng-required="true"
+													   name="source">
+												<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
+													{{ node.name }}
+												</md-option>
+											</md-select>
+										</md-input-container>
+
+										<md-input-container>
+											<label>Destination</label>
+											<md-select ng-model="psForm.destination"
+													   ng-required="true"
+													   name="destination">
+												<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
+													{{ node.name }}
+												</md-option>
+											</md-select>
+										</md-input-container>
+
+										<div class="form-label">Cost Metric</div>
+										<md-radio-group ng-model="psForm.costMetric">
+											<md-radio-button value="igp" class="md-primary">IGP</md-radio-button>
+											<md-radio-button value="hops">Hops</md-radio-button>
+										</md-radio-group>
+
+										<md-button class = "md-primary md-raised"
+												   ng-click = "computePaths()"
+												   ng-disabled = "isAutoPathFormInvalid() || autoPathFormLoadingStatus">
 
 										<span ng-hide="autoPathFormLoadingStatus">
 											GO
@@ -74,35 +119,39 @@
 											   aria-hidden="true"></i>
 											<span class="sr-only">Loading...</span>
 										</span>
-									</md-button>
-								</md-content>
-							</form>
+										</md-button>
+									</md-content>
+								</form>
+							</md-content>
+
+							<md-divider></md-divider>
+
+							<div layout-fill layout="column">
+								<md-list>
+									<md-list-item ng-repeat="(index, pathSet) in computedPaths"
+												  ng-mouseover="highlightPath(shared.nxTopology, pathSet, 'pathListHover')"
+												  ng-click="registerPath(shared.nxTopology, pathSet)"
+												  ng-mouseleave="clearPathLayer(shared.nxTopology)"
+												  layout="row">
+										<div>
+											<span class="path-cost-number">{{ computedMetrics[index] }}</span>
+										</div>
+										<div class="path-details">
+											{{ pathSet.join(" &rarr; ") }}
+										</div>
+									</md-list-item>
+								</md-list>
+							</div>
 						</md-content>
+					</md-tab>
+					<md-tab label="Manual">
+						<md-content>
 
-						<md-divider></md-divider>
+						</md-content>
+					</md-tab>
+				</md-tabs>
+			</div>
 
-						<div layout-fill layout="column">
-							<md-list>
-								<md-list-item ng-repeat="(index, pathSet) in computedPaths"
-											  ng-mouseover="highlightPath(shared.nxTopology, path.path, 'pathListHover')"
-											  layout="row">
-									<div>
-										<span class="path-cost-number">{{ computedMetrics[index] }}</span>
-									</div>
-									<div class="path-details">
-										{{ pathSet.join(" &rarr; ") }}
-									</div>
-								</md-list-item>
-							</md-list>
-						</div>
-					</md-content>
-				</md-tab>
-				<md-tab label="Manual">
-					<md-content>
-
-					</md-content>
-				</md-tab>
-			</md-tabs>
 
 		</md-content>
 	</md-sidenav>

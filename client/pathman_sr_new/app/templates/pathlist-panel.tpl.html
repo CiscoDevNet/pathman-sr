@@ -19,6 +19,7 @@
 					<md-list-item class="md-2-line path-item"
 								  ng-repeat="path in shared.pathListData"
 								  ng-mouseover="highlightPath(shared.nxTopology, path.path, 'pathListHover')"
+								  ng-mouseleave="clearPathLayer(shared.nxTopology)"
 								  layout="row">
 						<div class="md-list-item-text" flex>
 							<h3>{{ path.name }}</h3>
