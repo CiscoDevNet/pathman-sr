@@ -21,10 +21,13 @@
 								  ng-mouseover="highlightPath(shared.nxTopology, path.path, 'pathListHover')"
 								  ng-mouseleave="clearPathLayer(shared.nxTopology)"
 								  layout="row">
-						<div class="md-list-item-text" flex>
+						<div class="md-list-item-text path-item-text" flex>
 							<h3>{{ path.name }}</h3>
 							<p>{{ path.path.join(" &rarr; ") }}</p>
 						</div>
+						<md-button class="md-raised md-warn">
+							Delete
+						</md-button>
 					</md-list-item>
 				</md-list>
 
