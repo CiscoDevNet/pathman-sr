@@ -9,11 +9,12 @@
 
 		this.refreshPathList = refreshPathList;
 		this.computePathListByConfig = computePathListByConfig;
+		this.deployPath = deployPath;
 
 		/**
 		 * Refresh list of paths
-		 * @param successCbk
-		 * @param errorCbk
+		 * @param successCbk {Function} Success callback
+		 * @param errorCbk {Function} Error callback
 		 */
 		function refreshPathList (successCbk, errorCbk) {
 
@@ -55,6 +56,12 @@
 
 		}
 
+		/**
+		 * Compute path list for configured direction and metric
+		 * @param config {Object} Configuration: source, destination, costMetric
+		 * @param successCbk {Function} Success callback
+		 * @param errorCbk {Function} Error callback
+		 */
 		function computePathListByConfig (config, successCbk, errorCbk) {
 
 			var restObj = Restangular.all("pathman_sr");
@@ -90,11 +97,64 @@
 
 				// error
 				function (err) {
-					console.log(err);
 					var errData = {
 						"errCode": "COMPUTE_PATH_LIST",
 						"errTitle": "Couldn't compute path list",
 						"errMsg": "You tried to compute and read path list from server, but for some reason it is being complicated at this point.",
+						"errResolution": "Check your connection, otherwise make sure if controller is up.",
+						"errObj": err
+					};
+
+					errorCbk(errData);
+
+				}
+			);
+
+		}
+
+		/**
+		 *
+		 * @param config {Object} Configuration: "path" is list of hops, "name" is the name of path
+		 * @param successCbk {Function} Success callback
+		 * @param errorCbk {Function} Error callback
+		 */
+		function deployPath(config, successCbk, errorCbk){
+
+			var restObj = Restangular.all("pathman_sr");
+
+			restObj.customPOST({
+				request: [
+					{
+						option: "create",
+						name: config.name,
+						path: config.path
+					}
+				]
+			}).then(
+
+				// success
+				function (data) {console.log(data);
+					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0"])) {
+						successCbk(data.response[0]);
+					}
+					else {
+						var errData = {
+							"errCode": "DEPLOY_PATH_INVALID",
+							"errTitle": "Couldn't deploy path",
+							"errMsg": "Response was invalid when was trying to deploy path. Path is likely to not be deployed.",
+							"errResolution": "Make sure that protocols match.",
+							"errObj": data
+						};
+						errorCbk(errData);
+					}
+				},
+
+				// error
+				function (err) {
+					var errData = {
+						"errCode": "DEPLOY_PATH",
+						"errTitle": "Couldn't deploy path",
+						"errMsg": "You tried to deploy path, but for some reason it is being complicated at this point.",
 						"errResolution": "Check your connection, otherwise make sure if controller is up.",
 						"errObj": err
 					};

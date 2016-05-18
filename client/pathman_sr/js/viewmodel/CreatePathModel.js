@@ -175,6 +175,9 @@
 
                 var self = this;
                 var pathTopo = self._parent._parent.pathTopo();
+
+				console.log(this._getPath(this.selectedPath()));
+
                 nx.backend.create(this._getPath(this.selectedPath()), this.footer().text(), function (data) {
 //                    console.log('path created');
 //                    console.log(data);

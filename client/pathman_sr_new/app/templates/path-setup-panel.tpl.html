@@ -34,18 +34,18 @@
 
 
 
-				<!-- When the path is chosen -->
+				<!-- Deploy path -->
 				<div flex
 					 ng-show="shared.pathSetupMode == 'register-path'">
 
 
 					<div layout="row" class="layout-padding">
 						<ul class="breadcrumbs">
-							<li class="breadcrumb" ng-click="backToSetup(shared.nxTopology)">Path setup</li>
+							<li class="breadcrumb" ng-click="backToSetup(shared.nxTopology)">Compute path</li>
 							<li class="breadcrumb">
 								<i class="material-icons" aria-hidden="true">keyboard_arrow_right</i>
 							</li>
-							<li class="breadcrumb">Path setup</li>
+							<li class="breadcrumb">Deploy path</li>
 						</ul>
 
 
@@ -53,35 +53,67 @@
 
 					<md-divider></md-divider>
 
-					<form name="registerPathForm" layout="column">
-						<md-content class="layout-padding"
-									layout="column">
 
-							<div class="path-details">
-								<b>Path details</b><br>
-								{{ pathSet.join(" &rarr; ") }}
-							</div>
 
-							<md-input-container>
+					<!-- Successfully deployed path -->
+					<div flex
+						 ng-show="shared.pathDeploymentResult == 'success'">
 
-								<label>Path name</label>
-								<input type="text"
-									   name="pathName"
-									   title="Path name"
-									   ng-model="prForm.pathName"
-									   ng-required>
-							</md-input-container>
+						<p>You have successfully deployed the path:</p>
+						<p class="path-details">
+							{{ pathSet.join(" &rarr; ") }}
+						</p>
+					</div>
+					<!-- / Successfully deployed path -->
 
-							<md-button class = "md-primary md-raised"
-									   ng-click = "deployPath()"
-									   ng-disabled = "registerPathForm.$invalid">
-								Deploy path
-							</md-button>
+					<!-- Has not deployed path -->
+					<div flex
+						 ng-show="shared.pathDeploymentResult == 'error'">
 
-						</md-content>
-					</form>
+						<p>The path has been refused by controller and has not been deployed.</p>
+						<p class="path-details">
+							{{ pathSet.join(" &rarr; ") }}
+						</p>
+					</div>
+					<!-- / Has not deployed path -->
+
+					<!-- Successfully deployed path -->
+					<div flex
+						 ng-show="shared.pathDeploymentResult == 'inprogress'">
+
+						<form name="registerPathForm" layout="column">
+							<md-content class="layout-padding"
+										layout="column">
+
+								<div class="path-details">
+									<b>Path details</b><br>
+									{{ pathSet.join(" &rarr; ") }}
+								</div>
+
+								<md-input-container>
+
+									<label>Path name</label>
+									<input type="text"
+										   name="pathName"
+										   title="Path name"
+										   ng-model="prForm.pathName"
+										   ng-required>
+								</md-input-container>
+
+								<md-button class = "md-primary md-raised"
+										   ng-click = "deployPath(shared.nxTopology, pathSet)"
+										   ng-disabled = "registerPathForm.$invalid">
+									Deploy path
+								</md-button>
+
+							</md-content>
+						</form>
+
+					</div>
+					<!-- / Successfully deployed path -->
+
 				</div>
-
+				<!-- / Deploy path -->
 
 				<!-- Path computing view -->
 				<md-tabs md-dynamic-height

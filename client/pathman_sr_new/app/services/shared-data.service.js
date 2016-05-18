@@ -25,6 +25,7 @@
 			sidePanelName: null,
 
 			pathSetupMode: null,
+			pathDeploymentResult: null,
 
 			// NeXt library data
 			nxApp: null,
