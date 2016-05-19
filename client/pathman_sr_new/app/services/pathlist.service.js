@@ -10,6 +10,7 @@
 		this.refreshPathList = refreshPathList;
 		this.computePathListByConfig = computePathListByConfig;
 		this.deployPath = deployPath;
+		this.removePath = removePath;
 
 		/**
 		 * Refresh list of paths
@@ -20,7 +21,12 @@
 
 			var restObj = Restangular.all("pathman_sr");
 
-			restObj.customPOST({"request": [{"option": "list_all"}]}).then(
+			restObj.customPOST({
+				"request": [
+					{
+						"option": "list_all"
+					}
+				]}).then(
 				// success
 				function (data) {
 					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0", "list"])) {
@@ -67,12 +73,12 @@
 			var restObj = Restangular.all("pathman_sr");
 
 			restObj.customPOST({
-				request: [
+				"request": [
 					{
-						option: "path",
-						src: config.source,
-						dst: config.destination,
-						metric: config.costMetric || "igp"
+						"option": "path",
+						"src": config.source,
+						"dst": config.destination,
+						"metric": config.costMetric || "igp"
 					}
 				]
 			}).then(
@@ -113,7 +119,7 @@
 		}
 
 		/**
-		 *
+		 * Deploy path
 		 * @param config {Object} Configuration: "path" is list of hops, "name" is the name of path
 		 * @param successCbk {Function} Success callback
 		 * @param errorCbk {Function} Error callback
@@ -123,11 +129,11 @@
 			var restObj = Restangular.all("pathman_sr");
 
 			restObj.customPOST({
-				request: [
+				"request": [
 					{
-						option: "create",
-						name: config.name,
-						path: config.path
+						"option": "create",
+						"name": config.name,
+						"path": config.path
 					}
 				]
 			}).then(
@@ -155,6 +161,61 @@
 						"errCode": "DEPLOY_PATH",
 						"errTitle": "Couldn't deploy path",
 						"errMsg": "You tried to deploy path, but for some reason it is being complicated at this point.",
+						"errResolution": "Check your connection, otherwise make sure if controller is up.",
+						"errObj": err
+					};
+
+					errorCbk(errData);
+
+				}
+			);
+
+		}
+
+
+		/**
+		 * Remove path
+		 * @param config {Object} Configuration: "node" is , "name" is the name of path
+		 * @param successCbk {Function} Success callback
+		 * @param errorCbk {Function} Error callback
+		 */
+		function removePath(config, successCbk, errorCbk){
+
+			var restObj = Restangular.all("pathman_sr");
+
+			restObj.customPOST({
+				"request": [
+					{
+						"option": "delete",
+						"name": config.name,
+						"node": config.node
+					}
+				]
+			}).then(
+
+				// success
+				function (data) {console.log(data);
+					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0"])) {
+						successCbk(data.response[0]);
+					}
+					else {
+						var errData = {
+							"errCode": "REMOVE_PATH_INVALID",
+							"errTitle": "Couldn't remove path",
+							"errMsg": "Response was invalid when was trying to remove path. Path is likely to not be removed.",
+							"errResolution": "Make sure that protocols match.",
+							"errObj": data
+						};
+						errorCbk(errData);
+					}
+				},
+
+				// error
+				function (err) {console.log(data);
+					var errData = {
+						"errCode": "REMOVE_PATH",
+						"errTitle": "Couldn't remove path",
+						"errMsg": "You tried to remove path, but for some reason it is being complicated at this point.",
 						"errResolution": "Check your connection, otherwise make sure if controller is up.",
 						"errObj": err
 					};
