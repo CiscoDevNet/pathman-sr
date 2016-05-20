@@ -1,71 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="pathmanApp">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" href="img/favicon.ico" type="image/vnd.microsoft.icon">
-        <title>Pathman</title>
+        <link rel="shortcut icon" href="media/img/favicon.ico" type="image/vnd.microsoft.icon">
+        <title>Pathman Segment Routing</title>
 
-        <link rel="stylesheet" type="text/css" href="../crap/lib/font-awesome/css/font-awesome.css">
+		<!-- Link AngularJS and modules -->
+		<script type="text/javascript" src="../vendor/angular/angular.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-animate/angular-animate.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-messages/angular-messages.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-aria/angular-aria.min.js"></script>
+		<script type="text/javascript" src="../vendor/angular-material/angular-material.min.js"></script>
+		<link rel="stylesheet" href="../vendor/angular-material/angular-material.min.css">
+		<!-- / Link AngularJS and modules -->
 
-        <link href="css/pathman.css" rel="stylesheet">
-        <link href="css/terminal.css" rel="stylesheet">
-        <!--<link rel="stylesheet" type="text/css" href="css/single.css">-->
-        <script type="text/javascript" src="../crap/lib/mapData.js"></script>
-        <!-- jQuery -->
-        <script type="text/javascript" src="../crap/lib/jquery.min.js"></script>
+		<!-- Link NeXt library -->
+		<script type="text/javascript" src="../vendor/NeXt/js/next.js"></script>
+		<link rel="stylesheet" type="text/css" href="../vendor/NeXt/css/next.min.css">
+		<!-- / Link NeXt library -->
 
-        <!-- d3 -->
-        <!-- TODO: replace with local copy of d3.v3.min.js -->
-        <script src="../crap/lib/d3/d3.v3.min.js"></script>
+		<script type="text/javascript" src="../vendor/jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="../vendor/lodash/dist/lodash.min.js"></script>
+		<script type="text/javascript" src="../vendor/restangular/dist/restangular.min.js"></script>
 
-        <!-- TODO: replace with local copy of bootstrap.min.js -->
-        <script type="text/javascript" src="../crap/lib/bootstrap.min.js"></script>
+		<!-- styles -->
+		<link rel="stylesheet" type="text/css" href="../assets/css/helpers.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/main.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/next-extensions.css">
 
-		<!-- NeXt -->
-		<script type="text/javascript" src="../crap/lib/next/js/next.js"></script>
-		<link href="../crap/lib/next/css/next-yellow.min.css" rel="stylesheet">
-		<link href="../crap/lib/next/css/next.css" rel="stylesheet">
-		
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="../vendor/font-awesome/css/font-awesome.min.css">
 
-        <script src="js/Constants.js"></script>
-
-        <script type="text/javascript" src="js/TerminalService.js"></script>
-        <script type="text/javascript" src="js/TerminalWindow.js"></script>
-        <script type="text/javascript" src="js/Config.js"></script>
-        <script type="text/javascript" src="js/view/TooltipView.js"></script>
-
-        <script src="js/service/BackendCommunicationService.js"></script>
-        <script src="js/viewmodel/CostPathModel.js"></script>
-        <script src="js/viewmodel/MetricSelectorModel.js"></script>
-        <script src="js/viewmodel/CreatePathModel.js"></script>
-        <script src="js/viewmodel/CreatePathFooterModel.js"></script>
-        <script src="js/viewmodel/ListPathFooterModel.js"></script>
-        <script src="js/viewmodel/ListPathModel.js"></script>
-        <script src="js/viewmodel/EndpointSelectorModel.js"></script>
-        <script src="js/viewmodel/NamePathModel.js"></script>
-        <script src="js/viewmodel/StatusBarModel.js"></script>
-        <script src="js/viewmodel/PathTopologyModel.js"></script>
-        <script src="js/viewmodel/TopBarModel.js"></script>
-        <script src="js/viewmodel/PathInfoModel.js"></script>
-        <script src="js/viewmodel/MainModel.js"></script>
-
-        <script src="js/view/CostPath.js"></script>
-        <script src="js/view/CreatePath.js"></script>
-        <script src="js/view/CreatePathFooter.js"></script>
-        <script src="js/view/MetricSelector.js"></script>
-        <script src="js/view/ListPathFooter.js"></script>
-        <script src="js/view/ListPath.js"></script>
-        <script src="js/view/EndpointSelector.js"></script>
-        <script src="js/view/NamePath.js"></script>
-        <script src="js/view/TopBar.js"></script>
-        <script src="js/view/PathInfo.js"></script>
-        <script src="js/view/StatusBar.js"></script>
-        <script src="js/view/Main.js"></script>
-
-        <script src="js/App.js"></script>
     </head>
-    <body>
+    <body ng-controller="PathmanAppCtrl">
+
+
+	<div layout="row" class="h100 app-wrapper" flex>
+
+		<section layout="column" class="h100" flex>
+			<md-toolbar class="toolbar-main">
+				<div class="md-toolbar-tools toolbar-main">
+					<span class="product-label">
+						Pathman SR
+					</span>
+					<md-button ng-click="openPanel('path-setup')">
+						<i class="fa fa-wrench"></i>
+						Path setup
+					</md-button>
+					<md-button ng-click="openPanel('path-list')">
+						<i class="fa fa-list"></i>
+						Path List
+					</md-button>
+					<span flex></span>
+				</div>
+			</md-toolbar>
+
+			<div class="content-wrapper">
+				<md-progress-linear ng-if="!shared.topologyInitd" md-mode="indeterminate"></md-progress-linear>
+				<div class="w100 h100">
+					<div id="topology-container" class="h100"></div>
+				</div>
+			</div>
+		</section>
+
+		<section layout="column"
+				 class="h100"
+				 ng-show="shared.sidePanel"
+				 ng-controller="SidePanelCtrl">
+			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
+		</section>
+	</div>
+
+	<script type="text/javascript" src="app/modules/pathman.module.js"></script>
+
+	<script type="text/javascript" src="app/services/shared-data.service.js"></script>
+
+	<script type="text/javascript" src="app/services/helpers.service.js"></script>
+	<script type="text/javascript" src="app/services/network.service.js"></script>
+	<script type="text/javascript" src="app/services/pathlist.service.js"></script>
+	<script type="text/javascript" src="app/services/next-topology.service.js"></script>
+	<script type="text/javascript" src="app/services/network.service.js"></script>
+
+	<script type="text/javascript" src="app/controllers/sidepanel.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/path-list.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/path-setup.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/pathman.controller.js"></script>
+
     </body>
 </html>
