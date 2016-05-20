@@ -460,23 +460,105 @@
 		function _extendNodeTooltip(){
 			nx.define('ExtendedNodeTooltip', nx.ui.Component, {
 				'properties': {
-					'node': {},
-					'topology': {},
-					'newNodeName': ''
+					"node": {
+						set: function (value) {
+							var model = value.model();
+							var dataCollection = new nx.data.Collection(filterModel(model.getData()));
+
+							this.view('list').set('items', dataCollection);
+							this.title(value.label());
+
+							function filterModel(model){
+
+								console.log(model);
+
+								var newModel = [
+									{
+										label: "Name",
+										value: model.name
+									},
+									{
+										label: "PCEP enabled",
+										value: ( model.pcc !== undefined ) ? "yes" : "no"
+									},
+									{
+										label: "SR enabled",
+										value: ( model.sid !== undefined ) ? "yes" : "no"
+									},
+									{
+										label: "IP",
+										value: model.ipaddress
+									},
+									{
+										label: "Type",
+										value: model.type
+									}
+
+								];
+
+								return newModel;
+
+							}
+
+						}
+					},
+					"title": "",
+					"nodePayload": {},
+					"topology": {}
 				},
 				// 'view' defines the appearance of the tooltip
-				'view': {
-					'content': {
-						'content': [
-							{
-								'tag': 'h1',
-								'content': '{#node.name}'
-							}],
-						// applies to the whole tooltip box
-						'props': {
-							'class': 'tooltip-node'
+				view: {
+					content: [
+						{
+							name: 'header',
+							props: {
+								'class': 'n-topology-tooltip-header'
+							},
+							content: [
+								{
+									tag: 'span',
+									props: {
+										'class': 'n-topology-tooltip-header-text'
+									},
+									name: 'title',
+									content: '{#title}'
+								}
+							]
+						},
+						{
+							name: 'content',
+							props: {
+								'class': 'n-topology-tooltip-content n-list'
+							},
+							content: [
+								{
+									name: 'list',
+									tag: 'ul',
+									props: {
+										'class': 'n-list-wrap',
+										template: {
+											tag: 'li',
+											props: {
+												'class': 'n-list-item-i',
+												role: 'listitem'
+											},
+											content: [
+												{
+													tag: 'label',
+													content: '{label}: '
+												},
+												{
+													tag: 'span',
+													content: '{value}'
+												}
+											]
+
+										}
+									}
+								}
+							]
 						}
-					}
+					]
 				},
 				"methods": {
 
