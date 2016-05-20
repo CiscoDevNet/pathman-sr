@@ -9,16 +9,22 @@
 
 		var self = this;
 
+		// public methods
 		this.fadeInAllLayers = fadeInAllLayers;
 		this.clearPathLayer = clearPathLayer;
 		this.createTopoObject = createTopoObject;
 		this.addPath = addPath;
-		this.initTopology = initTopology;
-		this.extendNodeClass = extendNodeClass;
 		this.removePathByType = removePathByType;
+		this.initTopology = initTopology;
 
+		// private methods
+		this._extendNodeClass = _extendNodeClass;
+		this._extendTooltipPolicy = _extendTooltipPolicy;
 		this._getLinksBetweenNodes = _getLinksBetweenNodes;
 		this._nodesToLinks = _nodesToLinks;
+		this._extendNodeTooltip = _extendNodeTooltip;
+
+		// private properties
 		this._paths = {};
 		this._colorTable = {
 			"paths": {
@@ -30,6 +36,11 @@
 			}
 		};
 
+
+		/**
+		 * Fade in topology layers
+		 * @param topo {Object} NeXt topology object
+		 */
 		function fadeInAllLayers(topo){
 			//fade out all layers
 			var linksLayerHighlightElements = topo.getLayer('links').highlightedElements(),
@@ -44,6 +55,12 @@
 			}, this);
 		}
 
+
+		/**
+		 * Remove all paths from topology
+		 * @param topo {Object} NeXt topology object
+		 * @returns {Object} Path layer object
+		 */
 		function clearPathLayer(topo){
 			var pathLayer = topo.getLayer("paths");
 			pathLayer.clear();
@@ -51,6 +68,10 @@
 			return pathLayer;
 		}
 
+		/**
+		 *
+		 * @returns {nx.graphic.Topology}
+		 */
 		function createTopoObject() {
 
 			return new nx.graphic.Topology({
@@ -67,11 +88,14 @@
 				identityKey: "name",
 				dataProcessor: "force",
 				showIcon: true,
-				nodeInstanceClass: 'ExtendedNode'
+				nodeInstanceClass: 'ExtendedNode',
+				"tooltipManagerConfig": {
+					"nodeTooltipContentClass": "ExtendedNodeTooltip"
+				}
 			});
 		}
 
-		function extendNodeClass(){
+		function _extendNodeClass(){
 
 			nx.define("ExtendedNode", nx.graphic.Topology.Node, {
 				view: function(view){
@@ -324,8 +348,13 @@
 			nxApp = new nx.ui.Application();
 			nxApp.container(document.getElementById(htmlElementId));
 
-			self.extendNodeClass();
+			self._extendNodeClass();
+			self._extendTooltipPolicy();
+			self._extendNodeTooltip();
+
 			nxTopology = self.createTopoObject();
+
+			nxTopology.tooltipManager().tooltipPolicyClass('ExtendedTooltipPolicy');
 
 			nxTopology.attach(nxApp);
 
@@ -383,6 +412,80 @@
 			});
 
 			return result;
+		}
+
+
+		/**
+		 * Extends policy/rules for tooltip triggers
+		 * @private
+		 */
+		function _extendTooltipPolicy(){
+			nx.define("ExtendedTooltipPolicy",nx.graphic.Topology.TooltipPolicy, {
+
+				"properties": {
+					topology: {},
+					tooltipManager: {}
+				},
+
+				"methods": {
+
+					// inherit methods and properties from base class (nx.graphic.Topology.TooltipPolicy)
+					"init": function(args){
+						this.inherited(args);
+						this.sets(args);
+						this._tm = this.tooltipManager();
+					},
+
+					// disable default behavior: "click" closes the tooltip
+					"clickNode": function(node){
+						this._tm.closeAll();
+					},
+
+					// overwrite default behavior: entering the node makes tooltip show up
+					"enterNode": function(node){
+						var topo = node.topology();
+						topo.tooltipManager().openNodeTooltip(node);
+					},
+
+					// overwrite default behavior: leaving the node makes tooltip hide
+					"leaveNode": function(node){
+						this._tm.closeAll();
+					}
+
+				}
+			});
+		}
+
+
+		function _extendNodeTooltip(){
+			nx.define('ExtendedNodeTooltip', nx.ui.Component, {
+				'properties': {
+					'node': {},
+					'topology': {},
+					'newNodeName': ''
+				},
+				// 'view' defines the appearance of the tooltip
+				'view': {
+					'content': {
+						'content': [
+							{
+								'tag': 'h1',
+								'content': '{#node.name}'
+							}],
+						// applies to the whole tooltip box
+						'props': {
+							'class': 'tooltip-node'
+						}
+					}
+				},
+				"methods": {
+
+					"init": function(args){
+						this.inherited(args);
+					}
+
+				}
+			});
 		}
 
 	};
