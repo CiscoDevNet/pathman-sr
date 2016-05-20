@@ -1,11 +1,34 @@
-.link-set-circle {
-  fill: #00a800 !important;
-  stroke: #00a800 !important;
+@badge-active: #00ce00;
+@badge-inactive: #ff0000;
+@topologyBackgroundColor: #ffffff;
+
+
+.node-badge {
+
+  &-circle {
+    fill: @badge-active;
+    stroke: @badge-active;
+    stroke-width: 12px;
+    stroke-linejoin: round;
+
+    &-inactive {
+      fill: @badge-inactive;
+      stroke: @badge-inactive;
+    }
+
+  }
+  &-text {
+    font-family: "Cisco Sans Reg";
+    fill: @topologyBackgroundColor;
+    text-anchor: middle;
+    dominant-baseline: central;
+    font-size: 8px;
+    font-weight: 800;
+    pointer-events: none;
+
+  }
+
 
 }
 
-.node-badge-text {
-  fill: #ffffff;
-  stroke: #000000;
-}
 

@@ -76,81 +76,129 @@
 			nx.define("ExtendedNode", nx.graphic.Topology.Node, {
 				view: function(view){
 
-					view.content.push({
-						name: 'srBadge',
-						type: 'nx.graphic.Group',
-						content: [
-							{
-								name: 'srBadgeBg',
-								type: 'nx.graphic.Rect',
-								props: {
-									'class': 'link-set-circle',
-									height: 1
+					view.content.push([
+						{
+							name: 'srBadge',
+							type: 'nx.graphic.Group',
+							content: [
+								{
+									name: 'srBadgeBg',
+									type: 'nx.graphic.Rect',
+									props: {
+										'class': 'node-badge-circle',
+										height: 1
+									}
+								},
+								{
+									name: 'srBadgeText',
+									type: 'nx.graphic.Text',
+									props: {
+										'class': 'node-badge-text',
+										y: 1
+									}
 								}
-							},
-							{
-								name: 'srBadgeText',
-								type: 'nx.graphic.Text',
-								props: {
-									'class': 'link-set-text',
-									y: 1
-								}
+							],
+							props: {
+								"class": "node-badge"
 							}
-						]
-					});
+						},
+						{
+							name: 'pcepBadge',
+							type: 'nx.graphic.Group',
+							content: [
+								{
+									name: 'pcepBadgeBg',
+									type: 'nx.graphic.Rect',
+									props: {
+										'class': 'node-badge-circle',
+										height: 1
+									}
+								},
+								{
+									name: 'pcepBadgeText',
+									type: 'nx.graphic.Text',
+									props: {
+										'class': 'node-badge-text',
+										y: 1
+									}
+								}
+							],
+							props: {
+								"class": "node-badge"
+							}
+						}
+					]);
 					return view;
 				},
 				methods: {
-					// inherit properties/parent"s data
+
+					// Initialization of node (first invoked function)
 					"init": function(args){
+						// inherit methods and properties from base class nx.graphic.Topology.Node
 						this.inherited(args);
+
+						// get current stage scaling
 						var stageScale = this.topology().stageScale();
+						// enlarge default font size based on current stage scaling
 						this.view("label").setStyle("font-size", 14 * stageScale);
 					},
-					// inherit parent"s model
+
+					// inherit parent's model
 					"setModel": function(model) {
 						this.inherited(model);
 
-						if(this.model().get("sid") !== undefined){
-							this._drawSrEnabledBadge();
-						}
+						this._drawBadges(this.model());
 
-						if(this.model().get("pcc") !== undefined){
-							//this._drawPcepEnabledBadge();
-						}
 					},
-					"_drawSrEnabledBadge": function(){
 
+					/**
+					 * Draw badges over nodes to display additional info
+					 * @param model {Object} Node model
+					 * @private
+					 */
+					"_drawBadges": function(model){
+
+						// Initialize used variables
 						var icon, iconSize, iconScale,
 							srBadge, srBadgeBg, srBadgeText,
 							pcepBadge, pcepBadgeBg, pcepBadgeText,
-							srBadgeTransform;
+							srBound, srBoundMax, srBadgeTransform,
+							pcepBound, pcepBoundMax, pcepBadgeTransform;
 
-						// get view of device icon
+						// Get "view" of device icon
 						icon = this.view('icon');
 						iconSize = icon.size();
 						iconScale = icon.scale();
 
-						// get view of SR badge
+
+						// *** Configuration of SR badge
+
+
+						// Get view of SR badge
 						srBadge = this.view('srBadge');
 						srBadgeBg = this.view('srBadgeBg');
 						srBadgeText = this.view('srBadgeText');
-
-						// SR badge computation
-						var bound = srBadge.getBound();
-						var boundMax = Math.max(bound.width - 6, 1);
-						srBadgeBg.sets({width: boundMax, visible: true});
-						srBadgeBg.setTransform(boundMax / -2);
 
 						srBadgeText.sets({
 							text: "SR",
 							visible: true
 						});
 
+						// Chunk of computation to draw SR badge
+						srBound = srBadge.getBound();
+						srBoundMax = Math.max(srBound.width - 6, 1);
+						srBadgeBg.sets({
+							width: srBoundMax,
+							"class": model.get("sid") ? "node-badge-circle" : "node-badge-circle-inactive",
+							visible: true
+						});
+						srBadgeBg.setTransform(srBoundMax / -2);
+
+
 						// define position of the badge
 						srBadgeTransform = {
-							x: iconSize.width * iconScale / 4,
-							y: iconSize.height * iconScale / 4
+							x: iconSize.width * iconScale / 3,
+							y: iconSize.height * iconScale / 2.5
 						};
 
 						srBadge.setTransform(srBadgeTransform.x, srBadgeTransform.y);
@@ -158,6 +206,47 @@
 						srBadge.visible(true);
 						srBadgeBg.visible(true);
 						srBadgeText.visible(true);
+
+
+
+						// *** Configuration of PCEP badge
+
+
+
+						// Get view of PCEP badge
+						pcepBadge = this.view('pcepBadge');
+						pcepBadgeBg = this.view('pcepBadgeBg');
+						pcepBadgeText = this.view('pcepBadgeText');
+
+						pcepBadgeText.sets({
+							text: "PC",
+							visible: true
+						});
+
+						// Chunk of computation to draw SR badge
+						pcepBound = pcepBadge.getBound();
+						pcepBoundMax = Math.max(pcepBound.width - 6, 1);
+						pcepBadgeBg.sets({
+							width: pcepBoundMax,
+							"class": model.get("pcc") ? "node-badge-circle" : "node-badge-circle-inactive",
+							visible: true
+						});
+						pcepBadgeBg.setTransform(pcepBoundMax / -2);
+
+
+						// define position of the badge
+						pcepBadgeTransform = {
+							x: iconSize.width * iconScale / -3,
+							y: iconSize.height * iconScale / 2.5
+						};
+
+						pcepBadge.setTransform(pcepBadgeTransform.x, pcepBadgeTransform.y);
+
+						pcepBadge.visible(true);
+						pcepBadgeBg.visible(true);
+						pcepBadgeText.visible(true);
+
+
 					}
 
 				}
@@ -167,7 +256,7 @@
 
 		/**
 		 * Highlight path by nodes' names
-		 * @param topo {Object}
+		 * @param topo {Object} NeXt topology object
 		 * @param hopListNames {Array} Array of names of hop routers
 		 * @param type {String} Type of a path. See color table above
 		 */
@@ -210,21 +299,23 @@
 
 		}
 
+		/**
+		 * Remove path by type from topology and internal path list
+		 * @param topo {Object} NeXt topology object
+		 * @param type {String} Path type
+		 */
 		function removePathByType(topo, type){
 			var pathLayer;
-
 			if(self._paths.hasOwnProperty(type)){
 				pathLayer = topo.getLayer("paths");
 				pathLayer.removePath(self._paths[type]);
 				delete self._paths[type];
 			}
-
 		}
-
 
 		/**
 		 * Initialize topology and display within "htmlElementId"
-		 * @param htmlElementId
+		 * @param htmlElementId {String} Text identifier of HTML DOM element
 		 */
 		function initTopology(htmlElementId){
 
@@ -245,6 +336,14 @@
 		}
 
 
+		/**
+		 * Get array of links between the two nodes. Used for path deployment
+		 * @param topo {Object} NeXt topology object
+		 * @param src {Object} Source node object in NeXt format: nx.graphic.Topology.Node
+		 * @param dest {Object} Target/destination node object in NeXt format: nx.graphic.Topology.Node
+		 * @returns {*} Array of links if there are links, false otherwise
+		 * @private
+		 */
 		function _getLinksBetweenNodes(topo, src, dest){
 			var linkSet = topo.getLinkSet(src.id(), dest.id());
 			if (linkSet !== null) {
@@ -253,6 +352,13 @@
 			return false;
 		}
 
+		/**
+		 *
+		 * @param topo {Object} NeXt topology object
+		 * @param nodes {Array} Array of node objects (in NeXt format)
+		 * @returns {Array} Array of NeXt-like links
+		 * @private
+		 */
 		function _nodesToLinks(topo, nodes) {
 			var result = [];
 			var lastNode;
