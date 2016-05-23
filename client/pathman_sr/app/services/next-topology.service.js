@@ -75,26 +75,31 @@
 		function createTopoObject() {
 
 			return new nx.graphic.Topology({
-				adaptive: true,
-				scalable: true,
-				nodeConfig: {
-					label: "model.name",
-					iconType: "router"
+				"adaptive": true,
+				"scalable": true,
+				"nodeConfig": {
+					"label": "model.name",
+					"iconType": "router"
 				},
-				linkConfig: {
-					linkType: "curve"
+				"linkConfig": {
+					"linkType": "curve",
+					"width": 4
 				},
-				theme: "blue",
-				identityKey: "name",
-				dataProcessor: "force",
-				showIcon: true,
-				nodeInstanceClass: 'ExtendedNode',
+				"theme": "blue",
+				"identityKey": "name",
+				"dataProcessor": "force",
+				"showIcon": true,
+				"nodeInstanceClass": "ExtendedNode",
 				"tooltipManagerConfig": {
 					"nodeTooltipContentClass": "ExtendedNodeTooltip"
 				}
 			});
 		}
 
+		/**
+		 * Create a new NeXt class for node instances
+		 * @private
+		 */
 		function _extendNodeClass(){
 
 			nx.define("ExtendedNode", nx.graphic.Topology.Node, {
@@ -277,6 +282,7 @@
 			});
 
 		}
+
 
 		/**
 		 * Highlight path by nodes' names
