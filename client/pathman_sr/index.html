@@ -72,8 +72,9 @@
 				 class="h100"
 				 ng-show="shared.sidePanel"
 				 ng-controller="SidePanelCtrl">
-			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/path-list-panel/main.tpl.html' "></div>
-			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel/main.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/path-list-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-details'" ng-include=" 'app/templates/path-details-panel.tpl.html' "></div>
 		</section>
 	</div>
 
@@ -88,6 +89,7 @@
 	<script type="text/javascript" src="app/services/network.service.js"></script>
 
 	<script type="text/javascript" src="app/controllers/sidepanel.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/path-details.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/path-list.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/path-setup.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/pathman.controller.js"></script>

@@ -77,11 +77,29 @@
 		/**
 		 * Open side panel by name
 		 * @param panelName {String}
+		 * @param [args] {Object} optional
 		 */
-		function openPanel(panelName){
+		function openPanel(panelName, args){
 
-			SharedDataService.data.sidePanel = true;
-			SharedDataService.data.sidePanelName = panelName;
+			args = args || null;
+
+			switch(panelName){
+				case "path-details":
+
+					if(typeof args === 'object' && args !== null){
+						if(args.hasOwnProperty("pathData")){
+							SharedDataService.data.selectedPathData = args.pathData;
+
+							SharedDataService.data.sidePanel = true;
+							SharedDataService.data.sidePanelName = panelName;
+						}
+					}
+					break;
+				default:
+					SharedDataService.data.sidePanel = true;
+					SharedDataService.data.sidePanelName = panelName;
+					break;
+			}
 
 			if(SharedDataService.data.topologyInitd){
 				window.setTimeout(function(){

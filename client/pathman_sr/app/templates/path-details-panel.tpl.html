@@ -1,0 +1,93 @@
+<section layout="column" class="h100" ng-controller="PathDetailsCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-exchange"></i>
+						{{ pathData.name }}
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex>
+
+			<div layout-fill >
+
+
+				<section class="layout-padding">
+
+					<md-subheader class="md-primary">Path info</md-subheader>
+					<div layout="row" class="layout-padding-lr15">
+						<span flex="50"><strong>Path name</strong></span><span flex>{{ pathData.name }}</span>
+					</div>
+					<div layout="row" class="layout-padding-lr15">
+						<span flex="50"><strong>Route</strong></span><span flex>{{ pathData.path.join(" &rarr; ") }}</span>
+					</div>
+
+				</section>
+				<md-divider></md-divider>
+				<section class="layout-padding">
+
+
+					<md-subheader class="md-primary">Details</md-subheader>
+
+
+
+					<md-table-container>
+						<table md-table class="w100">
+							<thead md-head>
+							<tr md-row>
+								<th md-column><span>Node</span></th>
+								<th md-column><span>IP</span></th>
+								<th md-column><span>SID</span></th>
+							</tr>
+							</thead>
+							<tbody md-body >
+								<tr md-row ng-repeat="(index, path) in pathData.path">
+									<td md-cell>{{ path }}</td>
+									<td md-cell>
+										<span ng-show=" index == 0 ">
+											{{ pathData.pcc }}
+										</span>
+										<span ng-show=" index > 0 ">
+											{{ pathData.hops [ index - 1 ] }}
+										</span>
+									</td>
+									<td md-cell>
+										<span ng-show=" index == 0 ">
+											-
+										</span>
+										<span ng-show=" index > 0 ">
+											{{ pathData.sids[ index - 1 ] }}
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</md-table-container>
+
+					<md-table-pagination md-limit="query.limit" md-page="query.page" md-total="{{ devices.length }}" md-options="[25,50,100]" md-page-select="options.pageSelector" md-boundary-links="options.boundaryLinks"></md-table-pagination>
+
+
+
+
+
+
+				</section>
+
+				<div class="layout-padding" ng-hide="shared.pathListData.length" layout="row">
+					<div ng-show="!shared.pathListInitd" layout="row">
+						<md-progress-circular md-mode="indeterminate" md-diameter="20px"></md-progress-circular> Loading path data
+					</div>
+					<div ng-show="shared.pathListInitd">
+						No paths found.
+					</div>
+				</div>
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

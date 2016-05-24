@@ -15,6 +15,7 @@
 		this.data = {
 			topologyData: null,
 			pathListData: null,
+			selectedPathData: null,
 
 			// boolean markers
 			topologyInitd: false,
