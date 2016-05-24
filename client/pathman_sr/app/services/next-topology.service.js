@@ -476,8 +476,6 @@
 
 							function filterModel(model){
 
-								console.log(model);
-
 								var newModel = [
 									{
 										label: "Name",
@@ -494,13 +492,16 @@
 									{
 										label: "IP",
 										value: model.ipaddress
-									},
-									{
-										label: "Type",
-										value: model.type
 									}
 
 								];
+
+								// display SID if available
+								if(model.sid !== undefined)
+									newModel.push({
+										label: "SID",
+										value: model.sid
+									});
 
 								return newModel;
 

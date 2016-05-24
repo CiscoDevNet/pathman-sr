@@ -5,7 +5,7 @@
 				<h2>
 					<span>
 						<i class="fa fa-wrench" aria-hidden="true"></i>
-						Path setup
+						Setup SR-path
 					</span>
 				</h2>
 				<span flex></span>
@@ -13,9 +13,6 @@
 			</div>
 		</md-toolbar>
 		<md-content flex>
-
-
-
 
 			<!-- Loading spinner -->
 			<div ng-show="!shared.topologyInitd"  class="layout-padding" layout="row">
@@ -26,13 +23,7 @@
 				Loading data...
 			</div>
 
-
-
-
-
 			<div ng-show="shared.topologyInitd">
-
-
 
 				<!-- Deploy path -->
 				<div flex
@@ -99,6 +90,7 @@
 										   name="pathName"
 										   title="Path name"
 										   ng-model="prForm.pathName"
+										   make-it-red
 										   ng-required>
 								</md-input-container>
 

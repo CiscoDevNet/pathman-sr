@@ -52,6 +52,10 @@
 						<i class="fa fa-list"></i>
 						Path List
 					</md-button>
+					<md-button>
+						<i class="fa fa-info-circle"></i>
+						Help
+					</md-button>
 					<span flex></span>
 				</div>
 			</md-toolbar>
@@ -68,8 +72,8 @@
 				 class="h100"
 				 ng-show="shared.sidePanel"
 				 ng-controller="SidePanelCtrl">
-			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/pathlist-panel.tpl.html' "></div>
-			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/path-list-panel/main.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel/main.tpl.html' "></div>
 		</section>
 	</div>
 
