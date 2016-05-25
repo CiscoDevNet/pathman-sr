@@ -1,7 +1,7 @@
 (function(app){
 
 	var PathmanAppCtrl = function($scope, $mdSidenav, $mdDialog, NextTopologyService,
-								  NetworkService, PathListService, SharedDataService) {
+								  NetworkService, PathListService, SharedDataService, ErrorHandlerService) {
 
 
 
@@ -51,7 +51,9 @@
 					SharedDataService.data.topologyInitd = true;
 				},
 				function(err){
-					//todo: handle errors
+
+					ErrorHandlerService.log(err, true);
+
 				}
 			);
 		}
@@ -69,7 +71,9 @@
 					SharedDataService.data.pathListInitd = true;
 				},
 				function(err){
-					// todo: handle errors
+
+					ErrorHandlerService.log(err, true);
+
 				}
 			);
 		}
@@ -83,9 +87,10 @@
 
 			args = args || null;
 
+			// different actions for different panels
 			switch(panelName){
-				case "path-details":
 
+				case "path-details":
 					if(typeof args === 'object' && args !== null){
 						if(args.hasOwnProperty("pathData")){
 							SharedDataService.data.selectedPathData = args.pathData;
@@ -95,6 +100,7 @@
 						}
 					}
 					break;
+
 				default:
 					SharedDataService.data.sidePanel = true;
 					SharedDataService.data.sidePanelName = panelName;
@@ -102,10 +108,14 @@
 			}
 
 			if(SharedDataService.data.topologyInitd){
+
+				// make topology fit into shrunk container
 				window.setTimeout(function(){
 					SharedDataService.data.nxTopology.adaptToContainer();
 				}, 100);
-				//SharedDataService.data.nxTopology.fit();
+
+				// clear path layers
+				NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
 			}
 
 
@@ -114,7 +124,7 @@
 	};
 
 	PathmanAppCtrl.$inject = ["$scope", "$mdSidenav", "$mdDialog", "NextTopologyService",
-		"NetworkService", "PathListService", "SharedDataService"];
+		"NetworkService", "PathListService", "SharedDataService", "ErrorHandlerService"];
 	app.controller("PathmanAppCtrl", PathmanAppCtrl);
 
 })(app);

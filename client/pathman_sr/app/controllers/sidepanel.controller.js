@@ -14,13 +14,6 @@
 			SharedDataService.data.sidePanelName = null;
 			SharedDataService.data.selectedPathData = null;
 
-			// todo: do we need it?
-			//fadeTopoLayers = fadeTopoLayers ? false : true;
-			//if (fadeTopoLayers && SharedDataService.data.topologyInitd) {
-			//	NextTopologyService.fadeInAllLayers(SharedDataService.data.nxTopology);
-			//	NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
-			//}
-
 			// if topology ready
 			if(SharedDataService.data.topologyInitd){
 				window.setTimeout(function(){

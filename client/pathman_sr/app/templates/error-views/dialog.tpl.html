@@ -1,0 +1,39 @@
+<md-dialog aria-label="Error Window" ng-cloak>
+	<form>
+		<md-toolbar class="md-warn">
+			<div class="md-toolbar-tools">
+				<h2>Error Occurred</h2>
+				<span flex></span>
+				<md-button class="md-icon-button" ng-click="closeDialog()">
+					<md-icon aria-label="Close dialog">clear</md-icon>
+					<md-tooltip>Close dialog window</md-tooltip>
+				</md-button>
+			</div>
+		</md-toolbar>
+		<md-dialog-content>
+			<div class="md-dialog-content">
+				<form>
+					<h2>{{ errData.errTitle }}</h2>
+					<p>{{ errData.errMsg }}</p>
+					<p><b>Error code:</b> {{ errData.errCode }}</p>
+					<p ng-show="errData.hasOwnProperty('errResolution')"><b>Possible resolution:</b> {{ errData.errResolution }}</p>
+					<p>If you cannot fix the issue yourself, report the technician the error code and details of the failure (see the text box below).</p>
+					<p>
+						<md-input-container class="md-block" flex>
+							<label>Error details</label>
+							<textarea rows="10" md-select-on-focus>
+								{{ errData.errObj | json }}
+							</textarea>
+						</md-input-container>
+					</p>
+				</form>
+			</div>
+		</md-dialog-content>
+		<md-dialog-actions layout="row">
+			<span flex></span>
+			<md-button ng-click="closeDialog()" class="md-primary">
+				Close
+			</md-button>
+		</md-dialog-actions>
+	</form>
+</md-dialog>

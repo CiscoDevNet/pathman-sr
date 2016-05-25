@@ -10,6 +10,7 @@
 		$scope.backToSetup = backToSetup;
 		$scope.removePathByType = removePathByType;
 		$scope.deployPath = deployPath;
+		$scope.refreshPathList = refreshPathList;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
@@ -101,8 +102,9 @@
 					// error
 					function(err){
 						$scope.autoPathFormLoadingStatus = false;
-						console.error(err);
-						// todo: handle errors
+
+						ErrorHandlerService.log(err, true);
+
 					}
 				);
 			}
@@ -182,7 +184,9 @@
 			function deployPathSuccessCbk(data){
 				NextTopologyService.addPath(topo, $scope.pathSet, "deployed");
 				SharedDataService.data.pathDeploymentResult = "success";
-				console.log(data);
+
+				$scope.refreshPathList();
+
 				// todo: something else?
 			}
 
@@ -190,9 +194,30 @@
 			function deployPathErrorCbk(err){
 				NextTopologyService.addPath(topo, $scope.pathSet, "deploymentFailed");
 				SharedDataService.data.pathDeploymentResult = "error";
-				console.log(err);
-				// todo: something else?
+
+				$scope.refreshPathList();
+
+				ErrorHandlerService.log(err, true);
 			}
+		}
+
+		/**
+		 * Wrapper for refreshPathList method in PathListService
+		 */
+		function refreshPathList(){
+			PathListService.refreshPathList(
+				function(data){
+					// record path list data
+					SharedDataService.data.pathListData = data;
+					// path list initialized = true
+					SharedDataService.data.pathListInitd = true;
+				},
+				function(err){
+
+					ErrorHandlerService.log(err, true);
+
+				}
+			);
 		}
 
 	};

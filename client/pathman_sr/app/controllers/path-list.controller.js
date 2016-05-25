@@ -66,8 +66,9 @@
 							SharedDataService.data.pathListInitd = true;
 						},
 						function(err){
-							// todo: handle errors
-							console.error(err);
+
+							ErrorHandlerService.log(err, true);
+
 						}
 					);
 
@@ -79,9 +80,9 @@
 				}
 
 				function removePathErrorCbk(err){
-					//SharedDataService.data.pathListInitd = true;
-					// todo: handle errors
-					console.error(err);
+
+					ErrorHandlerService.log(err, true);
+
 				}
 
 
