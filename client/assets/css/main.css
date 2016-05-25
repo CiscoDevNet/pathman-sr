@@ -84,3 +84,8 @@ md-sidenav.md-closed.md-locked-open-add-active {
   width: 85vw !important;
   max-width: 500px !important;
 }
+/* Angular Materia Data Table font size */
+td.md-cell,
+th.md-column {
+  font-size: 16px !important;
+}
