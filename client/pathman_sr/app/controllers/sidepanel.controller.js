@@ -16,6 +16,9 @@
 
 			// if topology ready
 			if(SharedDataService.data.topologyInitd){
+
+				NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
+
 				window.setTimeout(function(){
 					SharedDataService.data.nxTopology.adaptToContainer();
 				}, 100);

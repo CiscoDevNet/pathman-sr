@@ -74,6 +74,10 @@
 			$scope.computedPaths = [];
 			$scope.computedMetrics = [];
 
+			// clear path layer when recomputing paths for selected source/destination
+			NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
+
+			// form is invalid
 			if($scope.isAutoPathFormInvalid()){
 				$scope.autoPathFormLoadingStatus = false;
 			}

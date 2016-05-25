@@ -27,8 +27,7 @@
 							ng-click="null"
 							class="md-2-line"
 							ng-repeat="path in shared.pathListData"
-							ng-mouseover="highlightPath(shared.nxTopology, path.path, 'pathListHover')"
-							ng-mouseleave="clearPathLayer(shared.nxTopology)">
+							ng-mouseover="highlightPath(shared.nxTopology, path.path, 'pathListHover')">
 							<div class="md-list-item-text" layout="row">
 								<div
 									ng-click="openPanel('path-details', {pathData: path})"
