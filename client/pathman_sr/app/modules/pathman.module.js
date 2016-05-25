@@ -1,4 +1,4 @@
-var app = angular.module('pathmanApp', ['ngMaterial', 'restangular'])
+var app = angular.module('pathmanApp', ['ngMaterial', 'restangular', 'md.data.table'])
 	// configuration of color themes
 	.config(
 		function($mdThemingProvider, RestangularProvider) {

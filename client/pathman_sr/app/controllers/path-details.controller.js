@@ -6,11 +6,21 @@
 		$scope.shared = SharedDataService.data;
 		$scope.pathData = null;
 
+		$scope.selected = [];
+
+		$scope.pathDetailsQuery = {
+			limit: 10,
+			page: 1
+		};
 
 		// when path data changes
 		$scope.$watch("shared.selectedPathData", function(pathData){
 			$scope.pathData = pathData;
-			console.log(pathData);
+			if(pathData !== null && typeof pathData === "object"){
+				if(pathData.hasOwnProperty("path")){
+					NextTopologyService.addPath($scope.shared.nxTopology, pathData.path, "pathListSelected")
+				}
+			}
 		});
 
 	};
