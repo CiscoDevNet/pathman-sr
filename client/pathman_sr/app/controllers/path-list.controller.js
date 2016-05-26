@@ -8,6 +8,7 @@
 
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
+		$scope.pathSearchQuery = "";
 
 		// search field "catcher"
 		var wrap = $("#path-list-area");

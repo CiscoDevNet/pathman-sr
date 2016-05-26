@@ -113,6 +113,7 @@ body {
 .breadcrumbs li.breadcrumb.active {
   color: #888888;
 }
+/* Search */
 .search {
   position: absolute;
   top: 12px;
@@ -151,6 +152,7 @@ body {
   background: #ffffff;
   border-bottom: solid #d7d7d7 1px;
 }
+/* / Search */
 /* Angular Material side panel tweaks */
 md-sidenav,
 md-sidenav.md-locked-open,
