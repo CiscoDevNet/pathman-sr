@@ -1,4 +1,6 @@
-@font-size-standard: 16px;
+@import "variables";
+@import "helpers";
+@import "next-extensions";
 
 html {
 	width: 100%;
@@ -102,6 +104,68 @@ body {
 	}
 }
 
+
+
+
+
+
+.search {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	right: 20px;
+	z-index: 9999;
+	input {
+		width: 100%;
+		border: 1px solid #ccc;
+		padding: 8px;
+		font-size: 15px;
+		transition: width 0.2s;
+		-webkit-appearance: none;
+	}
+
+	&-input-container {
+		padding: 0 15px 0 10px;
+	}
+
+	.fix-search & {
+		position: fixed;
+		top: 70px;
+	}
+
+	&-dock {
+		position: fixed;
+		top: 64px;
+		left: 0;
+		width: 100%;
+		height: 60px;
+		z-index: 9998;
+
+		&-placeholder {
+			height: 60px;
+			background: #ffffff;
+		}
+
+		.fix-search & {
+			background: #ffffff;
+			border-bottom: solid #d7d7d7 1px;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Angular Material side panel tweaks */
 md-sidenav,
 md-sidenav.md-locked-open,
@@ -116,3 +180,4 @@ md-sidenav.md-closed.md-locked-open-add-active {
 td.md-cell, th.md-column {
 	font-size: @font-size-standard !important;
 }
+

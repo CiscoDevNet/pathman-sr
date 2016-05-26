@@ -9,6 +9,19 @@
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
 
+		// search field "catcher"
+		var wrap = $("#path-list-area");
+		var scrollProcessFn = function(e) {
+			console.log(this.scrollTop);
+			if (this.scrollTop > 0) {
+				wrap.addClass("fix-search");
+			} else {
+				wrap.removeClass("fix-search");
+			}
+
+		};
+		wrap.on("scroll", scrollProcessFn);
+
 		/**
 		 * Highlight path by nodes' names
 		 * @param topo {Object} NeXt topology object
