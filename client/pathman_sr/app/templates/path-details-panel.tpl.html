@@ -18,7 +18,16 @@
 
 
 				<section>
-					<!-- breadcrumbs -->
+
+					<!-- Breadcrumbs -->
+					<div layout="row">
+						<ul class="breadcrumbs">
+							<li class="breadcrumb" ng-click="openPanel('path-list')">Path list</li>
+							<li class="breadcrumb separator">/</li>
+							<li class="breadcrumb active">Path details</li>
+						</ul>
+					</div>
+					<!-- / Breadcrumbs -->
 
 				</section>
 
@@ -28,7 +37,7 @@
 					<md-toolbar class="md-table-toolbar md-accent">
 						<div class="md-toolbar-tools white-text">
 							<h2>
-								<span>Path summary</span>
+								<span>Summary</span>
 							</h2>
 						</div>
 					</md-toolbar>
@@ -56,9 +65,6 @@
 						</table>
 					</md-table-container>
 
-
-
-
 					<div layout="row" class="layout-padding-lr15">
 						<span flex="50"><strong></strong></span><span flex></span>
 					</div>
@@ -75,7 +81,7 @@
 					<md-toolbar class="md-table-toolbar md-accent">
 						<div class="md-toolbar-tools white-text">
 							<h2>
-								<span>Path details</span>
+								<span>Details</span>
 							</h2>
 						</div>
 					</md-toolbar>

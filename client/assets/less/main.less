@@ -75,9 +75,11 @@ body {
 	font-size: 16px;
 	font-weight: 500;
 	line-height: 1em;
-	padding-left: 0;
+	padding-left: 10px;
+	margin: 16px 0;
 
 	li.breadcrumb {
+		line-height: 1.5em;
 		display: inline-block;
 		color: rgba(0, 0, 0, 0.54);
 
@@ -90,8 +92,12 @@ body {
 			}
 		}
 
+		&.separator {
+			color: rgb(210, 210, 210);
+		}
+
 		&.active {
-			color: rgb(33, 150, 243);
+			color: rgb(136, 136, 136);
 		}
 	}
 }

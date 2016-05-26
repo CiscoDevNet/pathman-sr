@@ -30,20 +30,16 @@
 					 ng-show="shared.pathSetupMode == 'register-path'">
 
 
-					<div layout="row" class="layout-padding">
+					<!-- Breadcrumbs -->
+					<div layout="row">
 						<ul class="breadcrumbs">
 							<li class="breadcrumb" ng-click="backToSetup(shared.nxTopology)">Compute path</li>
-							<li class="breadcrumb">
-								<i class="material-icons" aria-hidden="true">keyboard_arrow_right</i>
-							</li>
-							<li class="breadcrumb">Deploy path</li>
+							<li class="breadcrumb separator">/</li>
+							<li class="breadcrumb active">Deploy path</li>
 						</ul>
-
-
 					</div>
-
 					<md-divider></md-divider>
-
+					<!-- / Breadcrumbs -->
 
 
 					<!-- Successfully deployed path -->
