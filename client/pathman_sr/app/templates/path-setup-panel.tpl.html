@@ -104,7 +104,7 @@
 				</div>
 				<!-- / Deploy path -->
 
-				<!-- Path computing view -->
+				<!-- Path computation view -->
 				<md-tabs md-dynamic-height
 						 md-border-bottom class="w100"
 						 ng-show="shared.pathSetupMode == 'search'"
@@ -120,7 +120,7 @@
 											<md-select ng-model="psForm.source"
 													   ng-required="true"
 													   name="source">
-												<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
+												<md-option ng-repeat="node in filteredNodes.pcepEnabled" value="{{node.name}}">
 													{{ node.name }}
 												</md-option>
 											</md-select>
@@ -131,7 +131,7 @@
 											<md-select ng-model="psForm.destination"
 													   ng-required="true"
 													   name="destination">
-												<md-option ng-repeat="node in shared.topologyData.nodes" value="{{node.name}}">
+												<md-option ng-repeat="node in filteredNodes.srEnabled" value="{{node.name}}">
 													{{ node.name }}
 												</md-option>
 											</md-select>

@@ -17,10 +17,18 @@
 		$scope.computedPaths = [];
 		$scope.computedMetrics = [];
 
+		$scope.filteredNodes = {
+			"pcepEnabled": [],
+			"srEnabled": []
+		};
+
+
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
 
 		SharedDataService.data.pathSetupMode = "search";
+
+
 
 		/* Implementation */
 
@@ -223,6 +231,33 @@
 				}
 			);
 		}
+
+
+		$scope.$watch("shared.topologyData", function(topologyData){console.log(topologyData);
+
+			if(typeof topologyData === "object" && topologyData !== null){
+				if(topologyData.hasOwnProperty("nodes")){
+
+					topologyData.nodes.forEach(
+						function(node){
+
+							// check PCEP enabled
+							if(node.hasOwnProperty("pcc")){
+								$scope.filteredNodes.pcepEnabled.push(node);
+							}
+
+							// check SR enabled
+							if(node.hasOwnProperty("sid")){
+								$scope.filteredNodes.srEnabled.push(node);
+							}
+
+						}
+					);
+
+				}
+			}
+
+		});
 
 	};
 
