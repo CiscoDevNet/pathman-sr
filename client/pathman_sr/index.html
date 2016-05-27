@@ -45,15 +45,19 @@
 						Pathman SR
 					</span>
 					<md-button ng-click="openPanel('path-setup')">
-						<i class="fa fa-wrench"></i>
+						<i class="fa fa-wrench" aria-hidden="true"></i>
 						Path setup
 					</md-button>
 					<md-button ng-click="openPanel('path-list')">
-						<i class="fa fa-list"></i>
+						<i class="fa fa-exchange" aria-hidden="true"></i>
 						Path List
 					</md-button>
+					<md-button ng-click="openPanel('node-list')">
+						<i class="fa fa-share-alt" aria-hidden="true"></i>
+						Node List
+					</md-button>
 					<md-button>
-						<i class="fa fa-info-circle"></i>
+						<i class="fa fa-info-circle" aria-hidden="true"></i>
 						Help
 					</md-button>
 					<span flex></span>
@@ -75,6 +79,8 @@
 			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'app/templates/path-list-panel.tpl.html' "></div>
 			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'app/templates/path-setup-panel.tpl.html' "></div>
 			<div class="h100" ng-show="shared.sidePanelName == 'path-details'" ng-include=" 'app/templates/path-details-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'node-list'" ng-include=" 'app/templates/node-list-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'node-details'" ng-include=" 'app/templates/node-details-panel.tpl.html' "></div>
 		</section>
 	</div>
 
@@ -91,6 +97,8 @@
 
 	<script type="text/javascript" src="app/controllers/error-handler.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/sidepanel.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/node-details.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/node-list.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/path-details.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/path-list.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/path-setup.controller.js"></script>

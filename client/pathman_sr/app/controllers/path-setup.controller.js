@@ -22,13 +22,10 @@
 			"srEnabled": []
 		};
 
-
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
 
 		SharedDataService.data.pathSetupMode = "search";
-
-
 
 		/* Implementation */
 
