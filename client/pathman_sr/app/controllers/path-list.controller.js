@@ -8,12 +8,11 @@
 
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
-		$scope.pathSearchQuery = "";
 
+		$scope.pathSearchQuery = "";
 		// search field "catcher"
-		var wrap = $("#path-list-area");
+		var wrap = $("#node-list-area");
 		var scrollProcessFn = function(e) {
-			console.log(this.scrollTop);
 			if (this.scrollTop > 0) {
 				wrap.addClass("fix-search");
 			} else {
