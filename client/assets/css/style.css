@@ -11,6 +11,12 @@
 .white-text {
   color: #ffffff;
 }
+.red-text {
+  color: #ff0000;
+}
+.green-text {
+  color: #00b200;
+}
 .node-badge-circle {
   fill: #00ce00;
   stroke: #00ce00;

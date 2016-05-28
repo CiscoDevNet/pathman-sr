@@ -32,6 +32,7 @@
     20160328, Niklas - ver 5.2 - Added SegmentRouting support
     20160411, Niklas - ver 5.2b - Verified both OSPF and ISIS support w xrvr-6.0.0
     20160510, Niklas - ver 5.3 - Added pcep and sr data to list and topo commands
+    20160528, Alexei Zverev - ver 5.3.1 - Added sr_enabled & pcep_enabled boolean flags to REST response
     """
 __author__ = 'niklas'
 
@@ -1355,12 +1356,16 @@ def getTopo(dict_subcommand, debug):
         temp_nodelist = []
 
         for node in node_list:
+            sr_enabled = True if node.sid != "" else False
+            pcep_enabled = True if node.pcc != "" else False
             node_dict = {'name': node.name,
                          'site': node.name,
                          'ipaddress': node.loopback,
                          'prefix': node.prefix,
                          'sid': node.sid,
-                         'pcc': node.pcc
+                         'pcc': node.pcc,
+                         'sr_enabled': sr_enabled,
+                         'pcep_enabled': pcep_enabled
                          }
             copyTopo(node_dict, topologyData['nodes'])
             temp_nodelist.append(node_dict)

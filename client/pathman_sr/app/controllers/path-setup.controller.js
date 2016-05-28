@@ -17,9 +17,13 @@
 		$scope.computedPaths = [];
 		$scope.computedMetrics = [];
 
-		$scope.filteredNodes = {
-			"pcepEnabled": [],
-			"srEnabled": []
+		$scope.nodeFilter = {
+			"pcepEnabled": {
+				"pcep_enabled": true
+			},
+			"srEnabled": {
+				"sr_enabled": "true"
+			}
 		};
 
 		// "scopify" shared data
@@ -230,31 +234,31 @@
 		}
 
 
-		$scope.$watch("shared.topologyData", function(topologyData){console.log(topologyData);
-
-			if(typeof topologyData === "object" && topologyData !== null){
-				if(topologyData.hasOwnProperty("nodes")){
-
-					topologyData.nodes.forEach(
-						function(node){
-
-							// check PCEP enabled
-							if(node.hasOwnProperty("pcc")){
-								$scope.filteredNodes.pcepEnabled.push(node);
-							}
-
-							// check SR enabled
-							if(node.hasOwnProperty("sid")){
-								$scope.filteredNodes.srEnabled.push(node);
-							}
-
-						}
-					);
-
-				}
-			}
-
-		});
+		//$scope.$watch("shared.topologyData", function(topologyData){console.log(topologyData);
+		//
+		//	if(typeof topologyData === "object" && topologyData !== null){
+		//		if(topologyData.hasOwnProperty("nodes")){
+		//
+		//			topologyData.nodes.forEach(
+		//				function(node){
+		//
+		//					// check PCEP enabled
+		//					if(node.hasOwnProperty("pcc")){
+		//						$scope.filteredNodes.pcepEnabled.push(node);
+		//					}
+		//
+		//					// check SR enabled
+		//					if(node.hasOwnProperty("sid")){
+		//						$scope.filteredNodes.srEnabled.push(node);
+		//					}
+		//
+		//				}
+		//			);
+		//
+		//		}
+		//	}
+		//
+		//});
 
 	};
 

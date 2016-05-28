@@ -218,7 +218,7 @@
 						srBoundMax = Math.max(srBound.width - 6, 1);
 						srBadgeBg.sets({
 							width: srBoundMax,
-							"class": model.get("sid") ? "node-badge-circle" : "node-badge-circle-inactive",
+							"class": model.get("sr_enabled") ? "node-badge-circle" : "node-badge-circle-inactive",
 							visible: true
 						});
 						srBadgeBg.setTransform(srBoundMax / -2);
@@ -257,7 +257,7 @@
 						pcepBoundMax = Math.max(pcepBound.width - 6, 1);
 						pcepBadgeBg.sets({
 							width: pcepBoundMax,
-							"class": model.get("pcc") ? "node-badge-circle" : "node-badge-circle-inactive",
+							"class": model.get("pcep_enabled") ? "node-badge-circle" : "node-badge-circle-inactive",
 							visible: true
 						});
 						pcepBadgeBg.setTransform(pcepBoundMax / -2);
@@ -483,11 +483,11 @@
 									},
 									{
 										label: "PCEP enabled",
-										value: ( model.pcc !== undefined ) ? "yes" : "no"
+										value: ( model.pcep_enabled !== undefined ) ? "yes" : "no"
 									},
 									{
 										label: "SR enabled",
-										value: ( model.sid !== undefined ) ? "yes" : "no"
+										value: ( model.sr_enabled !== undefined ) ? "yes" : "no"
 									},
 									{
 										label: "IP",
@@ -497,7 +497,7 @@
 								];
 
 								// display SID if available
-								if(model.sid !== undefined)
+								if(model.sr_enabled)
 									newModel.push({
 										label: "SID",
 										value: model.sid

@@ -37,7 +37,22 @@
 								 ng-click="openPanel('node-details', {nodeData: node})"
 								 flex>
 								<h3>{{ node.name }}</h3>
-								<p>(*)SR (*)PCEP</p>
+								<p>
+									<span ng-show="node.sr_enabled" class="green-text">
+										<i class="fa fa-check-circle" aria-hidden="true"></i>
+									</span>
+									<span ng-hide="node.sr_enabled" class="red-text">
+										<i class="fa fa-times-circle" aria-hidden="true"></i>
+									</span>
+									SR
+									<span ng-show="node.pcep_enabled" class="green-text">
+										<i class="fa fa-check-circle" aria-hidden="true"></i>
+									</span>
+									<span ng-hide="node.pcep_enabled" class="red-text">
+										<i class="fa fa-times-circle" aria-hidden="true"></i>
+									</span>
+									PCEP
+								</p>
 							</div>
 							<md-divider ng-if="!$last"></md-divider>
 						</md-list-item>
@@ -47,7 +62,6 @@
 						 ng-hide="filteredNodes.length">
 						No nodes match your query.
 					</div>
-
 				</section>
 
 				<div class="layout-padding" ng-hide="shared.pathListData.length" layout="row">
