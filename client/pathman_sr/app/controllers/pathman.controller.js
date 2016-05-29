@@ -101,6 +101,17 @@
 					}
 					break;
 
+				case "node-details":
+					if(typeof args === 'object' && args !== null){
+						if(args.hasOwnProperty("nodeData")){
+							SharedDataService.data.selectedNodeData = args.nodeData;
+
+							SharedDataService.data.sidePanel = true;
+							SharedDataService.data.sidePanelName = panelName;
+						}
+					}
+					break;
+
 				default:
 					SharedDataService.data.sidePanel = true;
 					SharedDataService.data.sidePanelName = panelName;

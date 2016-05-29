@@ -59,7 +59,7 @@ import datetime as _datetime
 from string import Template
 
 #==============================================================
-version = '5.2b'
+version = '5.3.1'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'

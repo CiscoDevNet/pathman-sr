@@ -16,6 +16,8 @@
 			topologyData: null,
 			pathListData: null,
 			selectedPathData: null,
+			selectedNodeData: null,
+			selectedLinkData: null,
 
 			// boolean markers
 			topologyInitd: false,
