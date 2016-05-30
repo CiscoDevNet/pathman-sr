@@ -33,6 +33,7 @@
     20160411, Niklas - ver 5.2b - Verified both OSPF and ISIS support w xrvr-6.0.0
     20160510, Niklas - ver 5.3 - Added pcep and sr data to list and topo commands
     20160528, Alexei Zverev - ver 5.3.1 - Added sr_enabled & pcep_enabled boolean flags to REST response
+    20160529, Niklas - ver 5.3.2 - loopback is no present even if pcep is not enabled.
     """
 __author__ = 'niklas'
 
@@ -59,7 +60,7 @@ import datetime as _datetime
 from string import Template
 
 #==============================================================
-version = '5.3.1'
+version = '5.3.2'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -572,8 +573,8 @@ def node_structure(my_topology, debug = 2):
         sid = ""
         for keys in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
             if keys == 'router-id':
-                if nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0] in loops:
-                    router_id = nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0]
+                router_id = nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0]
+                if router_id in loops:
                     index = loops.index(router_id)
                     pcc = pcc_list[index]['pcc']
                     pcep_type = pcc_list[index]['pcep_type']
