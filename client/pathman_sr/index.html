@@ -56,6 +56,10 @@
 						<i class="fa fa-share-alt" aria-hidden="true"></i>
 						Node List
 					</md-button>
+					<md-button ng-click="openPanel('link-list')">
+						<i class="fa fa-link" aria-hidden="true"></i>
+						Link List
+					</md-button>
 					<md-button>
 						<i class="fa fa-info-circle" aria-hidden="true"></i>
 						Help
@@ -81,6 +85,8 @@
 			<div class="h100" ng-show="shared.sidePanelName == 'path-details'" ng-include=" 'app/templates/path-details-panel.tpl.html' "></div>
 			<div class="h100" ng-show="shared.sidePanelName == 'node-list'" ng-include=" 'app/templates/node-list-panel.tpl.html' "></div>
 			<div class="h100" ng-show="shared.sidePanelName == 'node-details'" ng-include=" 'app/templates/node-details-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'link-list'" ng-include=" 'app/templates/link-list-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'link-details'" ng-include=" 'app/templates/link-details-panel.tpl.html' "></div>
 		</section>
 	</div>
 
@@ -97,10 +103,16 @@
 
 	<script type="text/javascript" src="app/controllers/error-handler.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/sidepanel.controller.js"></script>
+
 	<script type="text/javascript" src="app/controllers/node-details.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/node-list.controller.js"></script>
+
+	<script type="text/javascript" src="app/controllers/link-details.controller.js"></script>
+	<script type="text/javascript" src="app/controllers/link-list.controller.js"></script>
+
 	<script type="text/javascript" src="app/controllers/path-details.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/path-list.controller.js"></script>
+
 	<script type="text/javascript" src="app/controllers/path-setup.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/pathman.controller.js"></script>
 

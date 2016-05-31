@@ -112,6 +112,17 @@
 					}
 					break;
 
+				case "link-details":
+					if(typeof args === 'object' && args !== null){
+						if(args.hasOwnProperty("linkData")){
+							SharedDataService.data.selectedLinkData = args.linkData;
+
+							SharedDataService.data.sidePanel = true;
+							SharedDataService.data.sidePanelName = panelName;
+						}
+					}
+					break;
+
 				default:
 					SharedDataService.data.sidePanel = true;
 					SharedDataService.data.sidePanelName = panelName;

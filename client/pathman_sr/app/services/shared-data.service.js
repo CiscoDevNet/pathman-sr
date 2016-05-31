@@ -15,6 +15,8 @@
 		this.data = {
 			topologyData: null,
 			pathListData: null,
+
+			// for "details" panels
 			selectedPathData: null,
 			selectedNodeData: null,
 			selectedLinkData: null,
