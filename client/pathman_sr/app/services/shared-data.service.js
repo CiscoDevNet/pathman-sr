@@ -34,7 +34,10 @@
 
 			// NeXt library data
 			nxApp: null,
-			nxTopology: null
+			nxTopology: null,
+
+			// shared functions
+			openPanel: null
 		};
 
 		/* Implementation */

@@ -34,7 +34,7 @@
 							class="md-2-line"
 							ng-repeat="link in filteredLinks = (shared.topologyData.links | filter:linkSearchQuery)">
 							<div class="md-list-item-text pointer noselect"
-								 ng-click="openPanel('link-details', {'linkData': link})"
+								 ng-click="shared.openPanel('link-details', {'linkData': link})"
 								 flex>
 								<h3>{{ link.source }} &harr; {{ link.target }}</h3>
 								<p>

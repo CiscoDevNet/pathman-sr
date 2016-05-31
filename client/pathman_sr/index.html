@@ -65,12 +65,13 @@
 						Help
 					</md-button>
 					<span flex></span>
+
 				</div>
 			</md-toolbar>
 
 			<div class="content-wrapper">
 				<md-progress-linear ng-if="!shared.topologyInitd" md-mode="indeterminate"></md-progress-linear>
-				<div class="w100 h100">
+				<div class="w100 h100" ng-controller="NextTopologyCtrl">
 					<div id="topology-container" class="h100"></div>
 				</div>
 			</div>
@@ -115,6 +116,8 @@
 
 	<script type="text/javascript" src="app/controllers/path-setup.controller.js"></script>
 	<script type="text/javascript" src="app/controllers/pathman.controller.js"></script>
+
+	<script type="text/javascript" src="app/controllers/next-topology.controller.js"></script>
 
     </body>
 </html>

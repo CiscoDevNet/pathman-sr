@@ -24,6 +24,9 @@
 		 * Initialize application
 		 */
 		function init(){
+
+			SharedDataService.data.openPanel = $scope.openPanel;
+
 			$scope.initTopology();
 			$scope.initPathList();
 		}
@@ -85,6 +88,8 @@
 		 */
 		function openPanel(panelName, args){
 
+			console.log(panelName, args);
+
 			args = args || null;
 
 			// different actions for different panels
@@ -108,6 +113,9 @@
 
 							SharedDataService.data.sidePanel = true;
 							SharedDataService.data.sidePanelName = panelName;
+
+							console.log(SharedDataService.data);
+
 						}
 					}
 					break;

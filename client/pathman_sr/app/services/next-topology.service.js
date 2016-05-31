@@ -5,7 +5,7 @@
 	 The service encapsulates NeXt-specific logic. It does not perform any REST API calls.
 	 */
 
-	var NextTopologyService = function() {
+	var NextTopologyService = function(SharedDataService) {
 
 		var self = this;
 
@@ -91,7 +91,8 @@
 				"showIcon": true,
 				"nodeInstanceClass": "ExtendedNode",
 				"tooltipManagerConfig": {
-					"nodeTooltipContentClass": "ExtendedNodeTooltip"
+					"nodeTooltipContentClass": "ExtendedNodeTooltip",
+					"showLinkTooltip": false
 				}
 			});
 		}
@@ -280,9 +281,7 @@
 
 				}
 			});
-
 		}
-
 
 		/**
 		 * Highlight path by nodes' names
@@ -363,6 +362,11 @@
 			nxTopology.tooltipManager().tooltipPolicyClass('ExtendedTooltipPolicy');
 
 			nxTopology.attach(nxApp);
+
+			nxTopology.on("topologyGenerated", function(topo, event){
+				topo.registerScene('ev', 'ExtendedEvents');
+				topo.activateScene('ev');
+			});
 
 			return {
 				"nxApp": nxApp,
@@ -579,7 +583,7 @@
 
 	};
 
-	NextTopologyService.$inject = [];
+	NextTopologyService.$inject = ["SharedDataService"];
 	app.service("NextTopologyService", NextTopologyService);
 })(nx, app);
 
