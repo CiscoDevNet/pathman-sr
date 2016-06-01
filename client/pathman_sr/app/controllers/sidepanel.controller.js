@@ -13,6 +13,7 @@
 			SharedDataService.data.sidePanel = false;
 			SharedDataService.data.sidePanelName = null;
 			SharedDataService.data.selectedPathData = null;
+			SharedDataService.data.pathSetupMode = null;
 
 			// if topology ready
 			if(SharedDataService.data.topologyInitd){

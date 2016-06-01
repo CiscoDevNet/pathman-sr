@@ -1,12 +1,13 @@
 (function(app){
 
-	var NextTopologyCtrl = function($scope, NextTopologyService, SharedDataService) {
+	var NextTopologyCtrl = function($scope, $rootScope, NextTopologyService, SharedDataService) {
 
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
 		$scope.extendEvents = extendEvents;
 
 		$scope.extendEvents();
+
 
 
 		/* Implementation below */
@@ -19,9 +20,19 @@
 			nx.define('ExtendedEvents', nx.graphic.Topology.DefaultScene, {
 				methods: {
 					clickNode: function(sender, node){
-						$scope.$apply(function(){
-							$scope.openPanel("node-details", {"nodeData": node.model().getData()});
-						});
+
+						switch(SharedDataService.data.pathSetupMode){
+
+							case "manual":
+								// pass message to "PathSetupCtrl"
+								$scope.$root.$broadcast("topo-select-node-manual", {"nodeData": node});
+								break;
+							default:
+								$scope.$apply(function(){
+									$scope.openPanel("node-details", {"nodeData": node.model().getData()});
+								});
+								break;
+						}
 					},
 					clickLink: function(sender, link){
 						$scope.$apply(function(){
@@ -35,7 +46,7 @@
 
 	};
 
-	NextTopologyCtrl.$inject = ["$scope", "NextTopologyService", "SharedDataService"];
+	NextTopologyCtrl.$inject = ["$scope", "$rootScope", "NextTopologyService", "SharedDataService"];
 	app.controller("NextTopologyCtrl", NextTopologyCtrl);
 
 })(app);

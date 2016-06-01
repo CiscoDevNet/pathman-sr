@@ -40,7 +40,7 @@
 				function(data){
 
 					var nxData = NextTopologyService.initTopology("topology-container");
-					console.log(nxData);
+
 					SharedDataService.multiSet({
 						"nxApp": nxData.nxApp,
 						"nxTopology": nxData.nxTopology
@@ -88,12 +88,23 @@
 		 */
 		function openPanel(panelName, args){
 
-			console.log(panelName, args);
-
 			args = args || null;
+
+			if(panelName !== "path-setup" && SharedDataService.data.pathSetupMode == "manual"){
+				SharedDataService.data.pathSetupMode = null;
+			}
 
 			// different actions for different panels
 			switch(panelName){
+
+				case "path-setup":
+
+					SharedDataService.data.pathSetupMode = SharedDataService.data.pathSetupSelectedTab;
+
+					SharedDataService.data.sidePanel = true;
+					SharedDataService.data.sidePanelName = panelName;
+
+					break;
 
 				case "path-details":
 					if(typeof args === 'object' && args !== null){
@@ -113,9 +124,6 @@
 
 							SharedDataService.data.sidePanel = true;
 							SharedDataService.data.sidePanelName = panelName;
-
-							console.log(SharedDataService.data);
-
 						}
 					}
 					break;

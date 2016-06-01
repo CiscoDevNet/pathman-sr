@@ -36,7 +36,6 @@
 			}
 		};
 
-
 		/**
 		 * Fade in topology layers
 		 * @param topo {Object} NeXt topology object
@@ -364,8 +363,8 @@
 			nxTopology.attach(nxApp);
 
 			nxTopology.on("topologyGenerated", function(topo, event){
-				topo.registerScene('ev', 'ExtendedEvents');
-				topo.activateScene('ev');
+				topo.registerScene('extended-events', 'ExtendedEvents');
+				topo.activateScene('extended-events');
 			});
 
 			return {

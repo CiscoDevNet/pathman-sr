@@ -27,7 +27,7 @@
 
 				<!-- Deploy path -->
 				<div flex
-					 ng-show="shared.pathSetupMode == 'register-path'">
+					 ng-show="shared.autoPathSetupMode == 'register-path'">
 
 
 					<!-- Breadcrumbs -->
@@ -107,9 +107,10 @@
 				<!-- Path computation view -->
 				<md-tabs md-dynamic-height
 						 md-border-bottom class="w100"
-						 ng-show="shared.pathSetupMode == 'search'"
+						 ng-show="shared.autoPathSetupMode == 'search'"
+						 md-selected="selectedIndex"
 						 flex>
-					<md-tab label="Auto">
+					<md-tab label="Auto" md-on-select="onTabSelected('auto')">
 						<md-content>
 							<md-content class="layout-padding">
 								<form name="autoPathForm">
@@ -179,8 +180,10 @@
 							</div>
 						</md-content>
 					</md-tab>
-					<md-tab label="Manual">
+					<md-tab label="Manual" md-on-select="onTabSelected('manual')">
 						<md-content>
+
+							To build and deploy path manually you need to select
 
 						</md-content>
 					</md-tab>

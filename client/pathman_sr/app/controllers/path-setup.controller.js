@@ -11,6 +11,7 @@
 		$scope.removePathByType = removePathByType;
 		$scope.deployPath = deployPath;
 		$scope.refreshPathList = refreshPathList;
+		$scope.onTabSelected = onTabSelected;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
@@ -29,7 +30,18 @@
 		// "scopify" shared data
 		$scope.shared = SharedDataService.data;
 
-		SharedDataService.data.pathSetupMode = "search";
+		SharedDataService.data.autoPathSetupMode = "search";
+
+		// Manual path setup
+		$scope.$on("topo-select-node-manual", function(arg1, arg2){
+			console.log(arg1, arg2);
+		});
+
+
+
+
+
+
 
 		/* Implementation */
 
@@ -144,7 +156,7 @@
 
 		// Go to step 2: select a name and deploy path
 		function registerPath(topo, pathSet){
-			SharedDataService.data.pathSetupMode = "register-path";
+			SharedDataService.data.autoPathSetupMode = "register-path";
 			SharedDataService.data.pathDeploymentResult = "inprogress";
 
 			NextTopologyService.addPath(topo, pathSet, "pathListSelected");
@@ -161,7 +173,7 @@
 		 * @param topo
 		 */
 		function backToSetup(topo){
-			SharedDataService.data.pathSetupMode = "search";
+			SharedDataService.data.autoPathSetupMode = "search";
 			NextTopologyService.clearPathLayer(topo);
 		}
 
@@ -234,31 +246,18 @@
 		}
 
 
-		//$scope.$watch("shared.topologyData", function(topologyData){console.log(topologyData);
-		//
-		//	if(typeof topologyData === "object" && topologyData !== null){
-		//		if(topologyData.hasOwnProperty("nodes")){
-		//
-		//			topologyData.nodes.forEach(
-		//				function(node){
-		//
-		//					// check PCEP enabled
-		//					if(node.hasOwnProperty("pcc")){
-		//						$scope.filteredNodes.pcepEnabled.push(node);
-		//					}
-		//
-		//					// check SR enabled
-		//					if(node.hasOwnProperty("sid")){
-		//						$scope.filteredNodes.srEnabled.push(node);
-		//					}
-		//
-		//				}
-		//			);
-		//
-		//		}
-		//	}
-		//
-		//});
+		/**
+		 * Fired when a tab is selected
+		 * @param mode {String} Name of the tab/mode. May be "auto" or "manual"
+		 */
+		function onTabSelected(mode){
+
+			var allowedModes = ["auto", "manual"];
+
+			SharedDataService.data.pathSetupMode = SharedDataService.data.pathSetupSelectedTab
+				= (allowedModes.indexOf(mode) >= 0) ? mode : null;
+
+		}
 
 	};
 

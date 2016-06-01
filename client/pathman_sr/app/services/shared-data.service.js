@@ -29,7 +29,9 @@
 			sidePanel: false,
 			sidePanelName: null,
 
+			autoPathSetupMode: null,
 			pathSetupMode: null,
+			pathSetupSelectedTab: null,
 			pathDeploymentResult: null,
 
 			// NeXt library data
