@@ -34,13 +34,12 @@
     20160510, Niklas - ver 5.3 - Added pcep and sr data to list and topo commands
     20160528, Alexei Zverev - ver 5.3.1 - Added sr_enabled & pcep_enabled boolean flags to REST response
     20160529, Niklas - ver 5.3.2 - loopback is no present even if pcep is not enabled.
+    20160601, Niklas - ver 5.4 - Created two topologies, one bgp-ls based topo for display, one sr-based for paths
     """
 __author__ = 'niklas'
 
 import os, re, time, sys
 import requests
-#import urllib
-#import urllib2
 import json
 import logging
 import logging.config
@@ -49,18 +48,10 @@ from logging import Formatter
 from collections import namedtuple
 from copy import deepcopy
 from topo_data import topologyData
-#import lxml.etree
-#import lxml.builder
-#from ipaddress  import *
-#from name_lookup import name_check
 
-from pprint import pprint
-
-import datetime as _datetime
-from string import Template
 
 #==============================================================
-version = '5.3.2'
+version = '5.4'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -82,22 +73,7 @@ odl_user = odl_password = 'admin'
 Node = namedtuple('Node', ['name', 'id', 'loopback', 'portlist','pcc','pcep_type','prefix', 'sid'])
 LSP = namedtuple('LSP',['name', 'pcc', 'hoplist', 'iphoplist'])
 
-# for offline testing of 8-node topo
-net =   {u'0000.0000.0021': {u'0000.0000.0024': 10,
-                             u'0000.0000.0027': 10,
-                             u'0000.0000.0030': 10},
-         u'0000.0000.0022': {u'0000.0000.0027': 10, u'0000.0000.0030': 10},
-         u'0000.0000.0024': {u'0000.0000.0021': 10, u'0000.0000.0028': 10},
-         u'0000.0000.0026': {u'0000.0000.0028': 10, u'0000.0000.0029': 10},
-         u'0000.0000.0027': {u'0000.0000.0021': 10, u'0000.0000.0022': 10},
-         u'0000.0000.0028': {u'0000.0000.0024': 10,
-                             u'0000.0000.0026': 10,
-                             u'0000.0000.0030': 10},
-         u'0000.0000.0029': {u'0000.0000.0026': 10, u'0000.0000.0030': 10},
-         u'0000.0000.0030': {u'0000.0000.0021': 10,
-                             u'0000.0000.0022': 10,
-                             u'0000.0000.0028': 10,
-                             u'0000.0000.0029': 10}}
+
 
 get_topo = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/example-linkstate-topology' %(odl_ip, odl_port)
 get_pcep = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/pcep-topology' %(odl_ip, odl_port)
@@ -366,19 +342,8 @@ def node_sr_update(node_list):
         
         if len(temp_sid) >0:
             update(node, temp_sid)
-            '''
-                if 'value' in temp_sid.keys():
-                    node_list[node_list.index(node)] = node._replace(sid = temp_sid['value'])
-                    logging.info("SR sid updated for: %s" % node.name)
-                elif 'sid-value' in temp_sid.keys():
-                    node_list[node_list.index(node)] = node._replace(sid = temp_sid['sid-value'])
-                    logging.info("SR sid updated for: %s" % node.name)
-                else:
-                    logging.error("No sid value for: %s - %s" % (node.name,temp_sid))
-                    '''
         elif len(rid_sid) >0:
             update(node, rid_sid)
-                                    
         else:
             logging.error("No sid for: %s" % node.name)
 
@@ -610,22 +575,22 @@ def pseudo_net_build(node_list):
     logging.info(pseudo_net)
     return pseudo_net
 
-def node_links(my_topology, debug = 2):
+def node_links(my_topology, node_list, bgp=False, debug = 2):
     """ Dumps link info """
     net = {}
     link_list = []
-    #nprint2 (" Number of links: %s" % len(my_topology['topology'][0]['link']), debug)
+    sr_enabled = [node.id for node in node_list if node.sid != '']
     try:
         for link in my_topology['topology'][0]['link']:
             link_dict = html_style(link['link-id'])
             link_list.append(link_dict)
-            if link_dict['local-router'] in net.keys():
-                net[link_dict['local-router']].update({link_dict['remote-router']:link['l3-unicast-igp-topology:igp-link-attributes']['metric']})
 
-            else:
-                net.update({link_dict['local-router']:{link_dict['remote-router']:link['l3-unicast-igp-topology:igp-link-attributes']['metric']}})
-            #nprint2 ("Link: %s" % link['link-id'], debug)
-            #nprint2 ("Metric: %s" % link['l3-unicast-igp-topology:igp-link-attributes']['metric'], debug)
+            if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
+                if link_dict['local-router'] in net.keys():
+                    net[link_dict['local-router']].update({link_dict['remote-router']:link['l3-unicast-igp-topology:igp-link-attributes']['metric']})
+                else:
+                    net.update({link_dict['local-router']:{link_dict['remote-router']:link['l3-unicast-igp-topology:igp-link-attributes']['metric']}})
+
     except:
         logging.info("We have no links in our BGP-LS topology")
     return net, link_list
@@ -701,40 +666,6 @@ def list_pcep_lsp(node_list, debug):
         logging.info("We have no nodes in our PCEP Topology")
     return lsplist
 
-def list_pcep_lsp_old(node_list, debug):
-    """ reads pcep db from netowrk and provies a list of lsp's """
-    my_pcep = get_url(get_pcep)
-
-    lsplist = []
-    try:
-        for node in my_pcep['topology'][0]['node']:
-            pcc = node['network-topology-pcep:path-computation-client']['ip-address']
-            if 'reported-lsp' in node['network-topology-pcep:path-computation-client'].keys():
-                for path in node['network-topology-pcep:path-computation-client']['reported-lsp']:
-
-                    name = path['name']
-                    ip_hoplist = []
-                    if 'odl-pcep-ietf-stateful07:lsp' in path['path'][0].keys():
-                        if 'operational' in path['path'][0]['odl-pcep-ietf-stateful07:lsp'].keys():
-                            if path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational'] == 'up':
-                                for nexthop in path['path'][0]['ero']['subobject']:
-                                    ip_hoplist.append(nexthop['ip-prefix']['ip-prefix'])
-                                hoplist = []
-                                originate = name_from_pcc(pcc, node_list, debug)
-                                if originate != '':
-                                    hoplist.append(originate)
-                                for interface in ip_hoplist:
-                                    temp = find_node(node_list, interface,debug)
-                                    #if temp in pseudo_net:
-                                    success, pname = pseudo_net_check(interface)
-                                    if success:
-                                        hoplist.append(pname)
-                                    hoplist.append(temp)
-                                my_lsp = LSP(name,pcc,hoplist,ip_hoplist)
-                                lsplist.append(my_lsp)
-    except:
-        logging.info("We have no nodes in our PCEP Topology")
-    return lsplist
 def find_node(node_list, interface, debug):
     """ find which node and interface belongs to """
     for node in node_list:
@@ -987,11 +918,11 @@ def lsp_update_json(lsp_dict, path):
 
 def build_odl_topology(debug):
     """Build and inilaize our data structures """
-    global net
+    global net, bgp_net
     global pseudo_net
     global pseudo_list
     global node_list
-    global link_list
+    global link_list, bgp_link_list
     global my_topology
     try:
         my_topology = get_url(get_topo)
@@ -999,14 +930,16 @@ def build_odl_topology(debug):
         node_list = node_structure(my_topology, debug)
         pseudo_net = pseudo_net_build(node_list)
         pseudo_list = [ node for node in node_list if node.pcep_type == 'pseudonode']
-        net, link_list = node_links(my_topology, debug)
         node_sr_update(node_list)
+        bgp_net, bgp_link_list = node_links(my_topology, node_list, bgp=True, debug=debug)
+        net, link_list = node_links(my_topology, node_list, debug=debug)
         return True, 'all is well', len(net.keys())
 
     except :
         e = sys.exc_info()[0]
         logging.error(str(e))
         net = {}
+        bgp_net = {}
         node_list = []
         my_topology = {}
         pseudo_net = pseudo_list = []
@@ -1038,9 +971,7 @@ def postXml(url, data):
     import requests
     response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/xml'})
     print response.text
-    #f = urllib2.urlopen(req)
-    #response = f.read()
-    #f.close()
+
     return response.json()
 
 def getPathlist(dict_subcommand,debug):
@@ -1376,7 +1307,7 @@ def getTopo(dict_subcommand, debug):
 
         sorted_nodelist = sorted(temp_nodelist, key=lambda k: k['name'])
         topo_response = {'nodes':sorted_nodelist,'links':[]}
-        net_by_name =translate_topo(node_list, net, debug)
+        net_by_name = translate_topo(node_list, bgp_net, debug)
 
         for node in net_by_name.keys():
 
@@ -1535,7 +1466,7 @@ if __name__ == '__main__':
 #    logger.propagate = True
     #nprint('This is initializing the log',1)
     logging.config.dictConfig(LOGGING)
-    logging.config.fileConfig("pathman_logging.conf")
+    #logging.config.fileConfig("pathman_logging.conf")
     logging.info('//This is initializing the log')
     logging.info("//Python version is %s.%s.%s" % sys.version_info[:3])
     logging.info("//Program is %s" % sys.argv[0])
@@ -1546,7 +1477,9 @@ if __name__ == '__main__':
     node_list = node_structure(my_topology, debug)
     pseudo_net = pseudo_net_build(node_list)
     pseudo_list = [ node for node in node_list if node.pcep_type == 'pseudonode']
-    net, link_list = node_links(my_topology, debug)
+    bgp_net, link_list = node_links(my_topology, node_list, bgp=True, debug=debug)
+    net, link_list = node_links(my_topology, node_list, debug=debug)
+    #net, link_list = node_links(my_topology, node_list, debug)
 
     my_pcep = get_url(get_pcep)
     logging.info("hej")
