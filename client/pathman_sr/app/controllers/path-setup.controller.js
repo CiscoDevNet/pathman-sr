@@ -89,9 +89,26 @@
 				}
 			}
 
+			// draw the path on topology
+			$scope.highlightPath(
+				SharedDataService.data.nxTopology,
+				getNodeNamesOnly($scope.manualPath),
+				"pathListSelected"
+			);
+
 			// if router with the passed name exists
 			function findRouterByName(nodeObj){
 				return nodeObj.name === this.node.name;
+			}
+
+			function getNodeNamesOnly(manualPath){
+
+				var namesOnly = manualPath.map(function(node){
+					return node.name;
+				});
+
+				return namesOnly;
+
 			}
 
 		});
@@ -192,11 +209,16 @@
 		/**
 		 * Highlight path by nodes' names
 		 * @param topo {Object} NeXt topology object
-		 * @param pathList {Array}
+		 * @param nodeList {Array}
 		 * @param pathType
 		 */
-		function highlightPath(topo, pathList, pathType){
-			NextTopologyService.addPath(topo, pathList, pathType);
+		function highlightPath(topo, nodeList, pathType){
+			NextTopologyService.clearPathLayer(topo);
+			if(Array.isArray(nodeList)){
+				if(nodeList.length > 1){
+					NextTopologyService.addPath(topo, nodeList, pathType);
+				}
+			}
 		}
 
 		/**
