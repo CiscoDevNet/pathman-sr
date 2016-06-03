@@ -37,13 +37,27 @@
 		$scope.$on("topo-select-node-manual", function(event, data){
 
 			var node = data.nodeData,
-				foundIndex, neighbors, errObj;
+				foundIndex, neighbors, errObj, lastIndex;
 
 			foundIndex = ($scope.manualPath.findIndex(findRouterByName, {"node": node}));
 
 			// remove subpath if the node exists
 			if(foundIndex !== -1){
-				$scope.manualPath.splice(foundIndex);
+
+				lastIndex = $scope.manualPath.length - 1;
+
+				// if it was source
+				if(foundIndex == 0){
+					$scope.manualPath = [];
+				}
+				// if it's the last point (destination)
+				else if(foundIndex == lastIndex){
+					$scope.manualPath.splice(lastIndex, 1);
+				}
+				// intermediate
+				else{
+					$scope.manualPath.splice(foundIndex + 1);
+				}
 			}
 			// otherwise (if node is new to the path)...
 			else{
@@ -274,7 +288,6 @@
 				"path": $scope.pathSet
 			};
 
-			// todo: blinking???
 			// remove path for topology
 			NextTopologyService.removePathByType(topo, "pathListSelected");
 
@@ -287,8 +300,6 @@
 				SharedDataService.data.pathDeploymentResult = "success";
 
 				$scope.refreshPathList();
-
-				// todo: something else?
 			}
 
 			// error: path refused
