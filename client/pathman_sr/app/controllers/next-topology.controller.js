@@ -25,9 +25,12 @@
 
 							case "manual":
 								// pass message to "PathSetupCtrl"
-								$scope.$root.$broadcast("topo-select-node-manual", {"nodeData": node});
+								$scope.$apply(function(){
+									$scope.$root.$broadcast("topo-select-node-manual", {"nodeData": node.model().getData()});
+								});
 								break;
 							default:
+								// open panel
 								$scope.$apply(function(){
 									$scope.openPanel("node-details", {"nodeData": node.model().getData()});
 								});

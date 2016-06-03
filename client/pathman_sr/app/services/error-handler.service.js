@@ -28,7 +28,7 @@ If Object, it must have "type" property, which must be one of the following:
 - toast: depict as a small pop-up notification in a corner
 - default: same as if displayErrConfig === true, that is it choose default method
 - hide: same as if displayErrConfig === false, that is it hides the error from user
-As the Object it may have a boolean property allowTologInConsole, which determines if the message needs putting to console (true = put, false = do not)
+As the Object it may have a boolean property allowToLogInConsole, which determines if the message needs putting to console (true = put, false = do not)
  */
 
 (function(app){
@@ -130,10 +130,10 @@ As the Object it may have a boolean property allowTologInConsole, which determin
 						this.displayPopupByDefault(err);
 					}
 
-					// allowTologInConsole implementation
-					if(displayErrConfig.hasOwnProperty('allowTologInConsole')){
-						consoleMessagesAllowed = (typeof displayErrConfig.allowTologInConsole == 'boolean') ?
-							displayErrConfig.allowTologInConsole : false;
+					// allowToLogInConsole implementation
+					if(displayErrConfig.hasOwnProperty('allowToLogInConsole')){
+						consoleMessagesAllowed = (typeof displayErrConfig.allowToLogInConsole == 'boolean') ?
+							displayErrConfig.allowToLogInConsole : false;
 					}
 				}
 			}

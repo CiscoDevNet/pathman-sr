@@ -16,6 +16,8 @@
 		this.addPath = addPath;
 		this.removePathByType = removePathByType;
 		this.initTopology = initTopology;
+		this.findNeighborsByNodeName = findNeighborsByNodeName;
+		this.getNodeByParam = getNodeByParam;
 
 		// private methods
 		this._extendNodeClass = _extendNodeClass;
@@ -38,7 +40,7 @@
 
 		/**
 		 * Fade in topology layers
-		 * @param topo {Object} NeXt topology object
+		 * @param topo {nx.graphic.Topology} NeXt topology object
 		 */
 		function fadeInAllLayers(topo){
 			//fade out all layers
@@ -57,7 +59,7 @@
 
 		/**
 		 * Remove all paths from topology
-		 * @param topo {Object} NeXt topology object
+		 * @param topo {nx.graphic.Topology} NeXt topology object
 		 * @returns {Object} Path layer object
 		 */
 		function clearPathLayer(topo){
@@ -284,7 +286,7 @@
 
 		/**
 		 * Highlight path by nodes' names
-		 * @param topo {Object} NeXt topology object
+		 * @param topo {nx.graphic.Topology} NeXt topology object
 		 * @param hopListNames {Array} Array of names of hop routers
 		 * @param type {String} Type of a path. See color table above
 		 */
@@ -329,7 +331,7 @@
 
 		/**
 		 * Remove path by type from topology and internal path list
-		 * @param topo {Object} NeXt topology object
+		 * @param topo {nx.graphic.Topology} NeXt topology object
 		 * @param type {String} Path type
 		 */
 		function removePathByType(topo, type){
@@ -376,7 +378,7 @@
 
 		/**
 		 * Get array of links between the two nodes. Used for path deployment
-		 * @param topo {Object} NeXt topology object
+		 * @param topo {nx.graphic.Topology} NeXt topology object
 		 * @param src {Object} Source node object in NeXt format: nx.graphic.Topology.Node
 		 * @param dest {Object} Target/destination node object in NeXt format: nx.graphic.Topology.Node
 		 * @returns {*} Array of links if there are links, false otherwise
@@ -392,7 +394,7 @@
 
 		/**
 		 *
-		 * @param topo {Object} NeXt topology object
+		 * @param topo {nx.graphic.Topology} NeXt topology object
 		 * @param nodes {Array} Array of node objects (in NeXt format)
 		 * @returns {Array} Array of NeXt-like links
 		 * @private
@@ -578,6 +580,54 @@
 
 				}
 			});
+		}
+
+
+		/**
+		 *
+		 * @param topo {nx.graphic.Topology} NeXt topology object
+		 * @param paramName
+		 * @param paramValue
+		 * @returns {*} Object/null
+		 */
+		function getNodeByParam(topo, paramName, paramValue){
+
+			paramName = paramName || null;
+			paramValue = paramValue || null;
+
+			var ret = null;
+			topo.getLayer('nodes').nodes().forEach(function (node) {
+				var model = node.model().getData();
+
+				if (model[paramName] === paramValue) {
+					ret = node;
+				}
+
+			});
+			return ret;
+		}
+
+		/**
+		 * Find node's neighbor nodes by its name
+		 * @param topo {nx.graphic.Topology} NeXt topology object
+		 * @param name {String} Node's name
+		 * @return {Array} Neighbors (list of names)
+		 */
+		function findNeighborsByNodeName(topo, name){
+
+			var neighbors = [],
+				nodeInst;
+
+			nodeInst = self.getNodeByParam(topo, "name", name);
+
+			if(nodeInst !== null){
+				nodeInst.eachConnectedNode(function(conNode){
+					neighbors.push(conNode.model().getData().name);
+				});
+			}
+
+			return neighbors;
+
 		}
 
 	};

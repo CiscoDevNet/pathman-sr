@@ -1,6 +1,6 @@
 (function(app){
 
-	var PathSetupCtrl = function($scope, PathListService, NextTopologyService, SharedDataService) {
+	var PathSetupCtrl = function($scope, PathListService, NextTopologyService, SharedDataService, ErrorHandlerService) {
 
 		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
 		$scope.computePaths = computePaths;
@@ -17,6 +17,7 @@
 		$scope.autoPathFormLoadingStatus = false;
 		$scope.computedPaths = [];
 		$scope.computedMetrics = [];
+		$scope.manualPath = [];
 
 		$scope.nodeFilter = {
 			"pcepEnabled": {
@@ -33,14 +34,67 @@
 		SharedDataService.data.autoPathSetupMode = "search";
 
 		// Manual path setup
-		$scope.$on("topo-select-node-manual", function(arg1, arg2){
-			console.log(arg1, arg2);
+		$scope.$on("topo-select-node-manual", function(event, data){
+
+			var node = data.nodeData,
+				foundIndex, neighbors, errObj;
+
+			foundIndex = ($scope.manualPath.findIndex(findRouterByName, {"node": node}));
+
+			// remove subpath if the node exists
+			if(foundIndex !== -1){
+				$scope.manualPath.splice(foundIndex);
+			}
+			// otherwise (if node is new to the path)...
+			else{
+				// if the current node is a neighbor of the last added node (which must exist)
+				if($scope.manualPath.length > 0){
+					neighbors = NextTopologyService.findNeighborsByNodeName(
+						SharedDataService.data.nxTopology,
+						$scope.manualPath[$scope.manualPath.length - 1].name
+					);
+					if(neighbors.indexOf(node.name) !== -1){
+						// add if only node is SR enabled
+						if(node.sr_enabled){
+							$scope.manualPath.push(node);
+						}
+						else{
+							errObj = {
+								"errCode": "SR_ENABLED_ONLY",
+								"errTitle": "Only SR-capable routers can perform this operation.",
+								"errMsg": "SR-disabled routers cannot be destinations or intermediate points.",
+								"errResolution": "Try it with the SR-capable one.",
+								"errObj": node
+							};
+							ErrorHandlerService.log(errObj, {"type": "toast", "allowToLogInConsole": false});
+						}
+					}
+				}
+				// if the array is empty, add the node
+				else{
+					// add if only node is PCEP enabled
+					if(node.pcep_enabled){
+						$scope.manualPath.push(node);
+					}
+					else{
+						errObj = {
+							"errCode": "PCEP_ENABLED_ONLY",
+							"errTitle": "Only PCEP-capable routers can perform this operation.",
+							"errMsg": "PCEP-disabled routers cannot be sources for outgoing traffic.",
+							"errResolution": "Try it with the PCEP-capable one.",
+							"errObj": node
+						};
+						ErrorHandlerService.log(errObj, {"type": "toast", "allowToLogInConsole": false});
+					}
+				}
+			}
+
+			// if router with the passed name exists
+			function findRouterByName(nodeObj){
+				return nodeObj.name === this.node.name;
+			}
+
 		});
-
-
-
-
-
 
 
 		/* Implementation */
@@ -261,7 +315,7 @@
 
 	};
 
-	PathSetupCtrl.$inject = ["$scope", "PathListService", "NextTopologyService", "SharedDataService"];
+	PathSetupCtrl.$inject = ["$scope", "PathListService", "NextTopologyService", "SharedDataService", "ErrorHandlerService"];
 	app.controller("PathSetupCtrl", PathSetupCtrl);
 
 })(app);

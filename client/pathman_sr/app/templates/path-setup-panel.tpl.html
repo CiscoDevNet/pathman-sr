@@ -183,7 +183,37 @@
 					<md-tab label="Manual" md-on-select="onTabSelected('manual')">
 						<md-content>
 
-							To build and deploy path manually you need to select
+							<md-toolbar class="md-table-toolbar md-accent">
+								<div class="md-toolbar-tools white-text">
+									<h2>
+										<span>Manual path</span>
+									</h2>
+								</div>
+							</md-toolbar>
+
+							<div ng-show="manualPath.length">
+								<md-table-container>
+									<table md-table>
+										<tbody md-body>
+										<tr md-row ng-repeat="router in manualPath">
+											<td md-cell>{{ router.name }}</td>
+										</tr>
+										</tbody>
+									</table>
+								</md-table-container>
+							</div>
+
+							<div ng-hide="manualPath.length" layout-padding>
+								<p>
+									Your path is not set at this point. Select a source on the topology: just click a node once.
+									If you suddenly hit a wrong router, just click once more and the one will be removed from path.
+								</p>
+								<p>
+									Please note: only a PCEP-capable router can be a source, and only SR-capable ones can carry traffic from it.
+									Prohibited routers are disabled to click and are marked with red badges over their icons.
+									However, they will still be visible to you.
+								</p>
+							</div>
 
 						</md-content>
 					</md-tab>
