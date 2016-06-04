@@ -9,6 +9,7 @@
 
 		this.hasOwnPropertiesPath = hasOwnPropertiesPath;
 		this.debounce = debounce;
+		this.arraySum = arraySum;
 
 		/**
 		 * If an object "a" has a path [b, c, d], it verifies if the object a.b.c.d exists
@@ -51,6 +52,14 @@
 				timeout = setTimeout(later, wait);
 				if (callNow) func.apply(context, args);
 			};
+		}
+
+		function arraySum(arr){
+			var total = 0;
+			arr.forEach(function(el){
+				total += el;
+			});
+			return total;
 		}
 
 	};

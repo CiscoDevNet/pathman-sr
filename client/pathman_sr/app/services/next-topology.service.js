@@ -18,6 +18,7 @@
 		this.initTopology = initTopology;
 		this.findNeighborsByNodeName = findNeighborsByNodeName;
 		this.getNodeByParam = getNodeByParam;
+		this.getLinkBetweenNodesByNames = getLinkBetweenNodesByNames;
 
 		// private methods
 		this._extendNodeClass = _extendNodeClass;
@@ -627,6 +628,24 @@
 			}
 
 			return neighbors;
+
+		}
+
+
+		function getLinkBetweenNodesByNames(topo, srcName, destName){
+
+			var src, dest;
+
+			// get instances of nodes
+			src = self.getNodeByParam(topo, "name", srcName);
+			dest = self.getNodeByParam(topo, "name", destName);
+
+			// if wrong name of node, return error
+			if(!(src && dest))
+				return false;
+
+			// return link by node instances
+			return self._getLinksBetweenNodes(topo, src, dest)[0];
 
 		}
 

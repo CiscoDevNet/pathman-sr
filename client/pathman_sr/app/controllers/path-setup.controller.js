@@ -1,6 +1,6 @@
 (function(app){
 
-	var PathSetupCtrl = function($scope, PathListService, NextTopologyService, SharedDataService, ErrorHandlerService) {
+	var PathSetupCtrl = function($scope, PathListService, NextTopologyService, SharedDataService, ErrorHandlerService, HelpersService) {
 
 		$scope.isAutoPathFormInvalid = isAutoPathFormInvalid;
 		$scope.computePaths = computePaths;
@@ -12,12 +12,14 @@
 		$scope.deployPath = deployPath;
 		$scope.refreshPathList = refreshPathList;
 		$scope.onTabSelected = onTabSelected;
+		$scope.HelpersService = HelpersService;
 
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
 		$scope.computedPaths = [];
 		$scope.computedMetrics = [];
 		$scope.manualPath = [];
+		$scope.manualPathMetrics = [];
 
 		$scope.nodeFilter = {
 			"pcepEnabled": {
@@ -37,7 +39,8 @@
 		$scope.$on("topo-select-node-manual", function(event, data){
 
 			var node = data.nodeData,
-				foundIndex, neighbors, errObj, lastIndex;
+				foundIndex, neighbors, errObj, lastIndex,
+				prevHop, currentLink, currentLinkModel;
 
 			foundIndex = ($scope.manualPath.findIndex(findRouterByName, {"node": node}));
 
@@ -49,14 +52,18 @@
 				// if it was source
 				if(foundIndex == 0){
 					$scope.manualPath = [];
+					$scope.manualPathMetrics = [];
 				}
 				// if it's the last point (destination)
 				else if(foundIndex == lastIndex){
 					$scope.manualPath.splice(lastIndex, 1);
+					$scope.manualPathMetrics.splice(lastIndex - 1);
 				}
 				// intermediate
 				else{
 					$scope.manualPath.splice(foundIndex + 1);
+					$scope.manualPathMetrics.splice(foundIndex);
+
 				}
 			}
 			// otherwise (if node is new to the path)...
@@ -70,7 +77,29 @@
 					if(neighbors.indexOf(node.name) !== -1){
 						// add if only node is SR enabled
 						if(node.sr_enabled){
-							$scope.manualPath.push(node);
+
+							prevHop = $scope.manualPath[$scope.manualPath.length - 1];
+
+							currentLink = NextTopologyService.getLinkBetweenNodesByNames(
+								SharedDataService.data.nxTopology,
+								prevHop.name,
+								node.name
+							);
+
+							if(currentLink){
+
+								currentLinkModel = currentLink.model().getData();
+
+								if(currentLinkModel.source == prevHop.name){
+									$scope.manualPathMetrics.push(currentLinkModel.sourceTraffic);
+								}
+								else{
+									$scope.manualPathMetrics.push(currentLinkModel.targetTraffic);
+								}
+
+								$scope.manualPath.push(node);
+
+							}
 						}
 						else{
 							errObj = {
@@ -82,6 +111,16 @@
 							};
 							ErrorHandlerService.log(errObj, {"type": "toast", "allowToLogInConsole": false});
 						}
+					}
+					else{
+						errObj = {
+							"errCode": "NEIGHBORS_ONLY",
+							"errTitle": "Only neighborhood routers can be added to the path.",
+							"errMsg": "You can only add routers to the path, which are \"visible\" (neighbors of) the last added.",
+							"errResolution": "Choose a router from the last hop's neighborhood.",
+							"errObj": node
+						};
+						ErrorHandlerService.log(errObj, {"type": "toast", "allowToLogInConsole": false});
 					}
 				}
 				// if the array is empty, add the node
@@ -101,6 +140,7 @@
 						ErrorHandlerService.log(errObj, {"type": "toast", "allowToLogInConsole": false});
 					}
 				}
+
 			}
 
 			// draw the path on topology
@@ -348,7 +388,7 @@
 
 	};
 
-	PathSetupCtrl.$inject = ["$scope", "PathListService", "NextTopologyService", "SharedDataService", "ErrorHandlerService"];
+	PathSetupCtrl.$inject = ["$scope", "PathListService", "NextTopologyService", "SharedDataService", "ErrorHandlerService", "HelpersService"];
 	app.controller("PathSetupCtrl", PathSetupCtrl);
 
 })(app);
