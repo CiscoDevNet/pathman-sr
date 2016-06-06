@@ -308,6 +308,8 @@
 
 			pathLinkList = self._nodesToLinks(topo, hopList);
 
+			console.log(pathLinkList);
+
 			if(pathLinkList !== false){
 				// create a new Path entity
 				var path = new nx.graphic.Topology.Path({

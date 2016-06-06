@@ -94,6 +94,8 @@
 				SharedDataService.data.pathSetupMode = null;
 			}
 
+			clearPathLayerByTimeout();
+
 			// different actions for different panels
 			switch(panelName){
 
@@ -145,17 +147,21 @@
 					break;
 			}
 
-			if(SharedDataService.data.topologyInitd){
+			$scope.$root.$broadcast("openPanel", {"panelName": panelName});
 
-				// make topology fit into shrunk container
-				window.setTimeout(function(){
-					SharedDataService.data.nxTopology.adaptToContainer();
-				}, 100);
 
-				// clear path layers
-				NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
+			function clearPathLayerByTimeout(){
+				if(SharedDataService.data.topologyInitd){
+
+					// make topology fit into shrunk container
+					window.setTimeout(function(){
+						SharedDataService.data.nxTopology.adaptToContainer();
+					}, 100);
+
+					// clear path layers
+					NextTopologyService.clearPathLayer(SharedDataService.data.nxTopology);
+				}
 			}
-
 
 		}
 

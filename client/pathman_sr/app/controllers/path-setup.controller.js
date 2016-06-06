@@ -160,6 +160,26 @@
 		});
 
 
+		$scope.$on("openPanel", function(event, data){console.log("1 - openPanel", data);
+
+			if(data.panelName == "path-setup"){console.log("2 - path-setup");
+
+				if(SharedDataService.data.pathSetupMode == "manual"){console.log("3 - mode - manual", $scope.manualPath);
+
+					// draw the path on topology
+					$scope.highlightPath(
+						SharedDataService.data.nxTopology,
+						$scope.getNodeNamesOnly($scope.manualPath),
+						"pathListSelected"
+					);
+
+				}
+
+			}
+
+		});
+
+
 		/* Implementation */
 
 		/**
@@ -376,6 +396,16 @@
 
 			SharedDataService.data.pathSetupMode = SharedDataService.data.pathSetupSelectedTab
 				= (allowedModes.indexOf(mode) >= 0) ? mode : null;
+
+
+			if(SharedDataService.data.pathSetupMode == "manual" && $scope.manualPath.length > 0){
+				// draw the path on topology
+				$scope.highlightPath(
+					SharedDataService.data.nxTopology,
+					$scope.getNodeNamesOnly($scope.manualPath),
+					"pathListSelected"
+				);
+			}
 
 		}
 
