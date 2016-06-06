@@ -183,107 +183,111 @@
 					<md-tab label="Manual" md-on-select="onTabSelected('manual')">
 						<md-content>
 
-							<md-toolbar class="md-table-toolbar md-accent">
-								<div class="md-toolbar-tools white-text">
-									<h2>
-										<span>Summary</span>
-									</h2>
-								</div>
-							</md-toolbar>
+							<section>
+								<md-toolbar class="md-table-toolbar md-accent">
+									<div class="md-toolbar-tools white-text">
+										<h2>
+											<span>Summary</span>
+										</h2>
+									</div>
+								</md-toolbar>
 
-
-
-							<div>
-								<md-table-container>
-									<table md-table>
-										<tbody md-body>
-
-										<tr>
-											<td md-cell>
-												Hops:
-											</td>
-											<td md-cell>
-												{{ manualPathMetrics.length }}
-											</td>
-										</tr>
-
-										<tr>
-											<td md-cell>
-												IGP cost:
-											</td>
-											<td md-cell>
-												{{ HelpersService.arraySum(manualPathMetrics) }}
-											</td>
-										</tr>
-
-										</tbody>
-									</table>
-								</md-table-container>
-							</div>
-
-
-
-
-							<md-toolbar class="md-table-toolbar md-accent">
-								<div class="md-toolbar-tools white-text">
-									<h2>
-										<span>Manual path</span>
-									</h2>
-								</div>
-							</md-toolbar>
-
-							<div ng-show="manualPath.length">
 
 								<div>
-									<md-button class="md-warn">
-										Clear
-									</md-button>
-									<md-button class="md-primary">
-										Deploy
-									</md-button>
+									<md-table-container>
+										<table md-table>
+											<tbody md-body>
+
+											<tr md-row>
+												<td md-cell>
+													Hops:
+												</td>
+												<td md-cell>
+													{{ manualPathMetrics.length }}
+												</td>
+											</tr>
+
+											<tr md-row>
+												<td md-cell>
+													IGP cost:
+												</td>
+												<td md-cell>
+													{{ HelpersService.arraySum(manualPathMetrics) }}
+												</td>
+											</tr>
+
+											</tbody>
+										</table>
+									</md-table-container>
 								</div>
+							</section>
 
-								<md-table-container>
-									<table md-table>
+							<section>
+								<md-toolbar class="md-table-toolbar md-accent">
+									<div class="md-toolbar-tools white-text">
+										<h2>
+											<span>Manual path</span>
+										</h2>
+									</div>
+								</md-toolbar>
 
-										<thead md-head>
-										<tr md-row>
-											<th md-column><span>#</span></th>
-											<th md-column><span>Source</span></th>
-											<th md-column><span>Destination</span></th>
-											<th md-column>Cost</th>
-										</tr>
-										</thead>
+								<div ng-show="manualPath.length">
 
-										<tbody md-body>
-										<tr md-row ng-repeat="(index, router) in manualPath">
-											<!-- Index -->
-											<td md-cell>{{ $index }}</td>
-											<!-- Source -->
-											<td md-cell>{{ router.name }}</td>
-											<!-- Destination -->
-											<td md-cell>
-												<div ng-show="manualPath[index+1]">
-													{{ manualPath[index+1].name }}
-												</div>
-												<div ng-hide="manualPath[index+1]">
-													<i>Click to pick</i>
-												</div>
-											</td>
-											<!-- Cost -->
-											<td md-cell>
-												<div ng-show="manualPath[index+1]">
-													{{ manualPathMetrics[index] }}
-												</div>
-												<div ng-hide="manualPath[index+1]">
-													N/A
-												</div>
-											</td>
-										</tr>
-										</tbody>
-									</table>
-								</md-table-container>
-							</div>
+									<div>
+										<md-button class="md-warn" ng-click="clearCurrentPath(shared.nxTopology)">
+											<i class="fa fa-times" aria-hidden="true"></i>
+											Clear
+										</md-button>
+										<md-button class="md-primary" ng-click="registerPath(
+											shared.nxTopology,
+											getNodeNamesOnly(manualPath))">
+											<i class="fa fa-rocket" aria-hidden="true"></i>
+											Deploy
+										</md-button>
+									</div>
+
+									<md-table-container>
+										<table md-table>
+
+											<thead md-head>
+											<tr md-row>
+												<th md-column><span>#</span></th>
+												<th md-column><span>Source</span></th>
+												<th md-column><span>Destination</span></th>
+												<th md-column>Cost</th>
+											</tr>
+											</thead>
+
+											<tbody md-body>
+											<tr md-row ng-repeat="(index, router) in manualPath">
+												<!-- Index -->
+												<td md-cell>{{ $index + 1 }}</td>
+												<!-- Source -->
+												<td md-cell>{{ router.name }}</td>
+												<!-- Destination -->
+												<td md-cell>
+													<div ng-show="manualPath[index+1]">
+														{{ manualPath[index+1].name }}
+													</div>
+													<div ng-hide="manualPath[index+1]">
+														<i>Click to pick</i>
+													</div>
+												</td>
+												<!-- Cost -->
+												<td md-cell>
+													<div ng-show="manualPath[index+1]">
+														{{ manualPathMetrics[index] }}
+													</div>
+													<div ng-hide="manualPath[index+1]">
+														N/A
+													</div>
+												</td>
+											</tr>
+											</tbody>
+										</table>
+									</md-table-container>
+								</div>
+							</section>
 
 							<div ng-hide="manualPath.length" layout-padding>
 								<p>

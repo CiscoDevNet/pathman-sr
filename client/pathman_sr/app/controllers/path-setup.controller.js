@@ -12,8 +12,10 @@
 		$scope.deployPath = deployPath;
 		$scope.refreshPathList = refreshPathList;
 		$scope.onTabSelected = onTabSelected;
-		$scope.HelpersService = HelpersService;
+		$scope.clearCurrentPath = clearCurrentPath;
+		$scope.getNodeNamesOnly = getNodeNamesOnly;
 
+		$scope.HelpersService = HelpersService;
 		$scope.validCostMetrics = ['igp', 'hops'];
 		$scope.autoPathFormLoadingStatus = false;
 		$scope.computedPaths = [];
@@ -146,23 +148,13 @@
 			// draw the path on topology
 			$scope.highlightPath(
 				SharedDataService.data.nxTopology,
-				getNodeNamesOnly($scope.manualPath),
+				$scope.getNodeNamesOnly($scope.manualPath),
 				"pathListSelected"
 			);
 
 			// if router with the passed name exists
 			function findRouterByName(nodeObj){
 				return nodeObj.name === this.node.name;
-			}
-
-			function getNodeNamesOnly(manualPath){
-
-				var namesOnly = manualPath.map(function(node){
-					return node.name;
-				});
-
-				return namesOnly;
-
 			}
 
 		});
@@ -285,7 +277,8 @@
 
 
 		// Go to step 2: select a name and deploy path
-		function registerPath(topo, pathSet){
+		function registerPath(topo, pathSet, mode){
+
 			SharedDataService.data.autoPathSetupMode = "register-path";
 			SharedDataService.data.pathDeploymentResult = "inprogress";
 
@@ -384,6 +377,33 @@
 			SharedDataService.data.pathSetupMode = SharedDataService.data.pathSetupSelectedTab
 				= (allowedModes.indexOf(mode) >= 0) ? mode : null;
 
+		}
+
+
+		/**
+		 * Clears the path layer and all path info
+		 * @param topo
+		 */
+		function clearCurrentPath(topo){
+
+			$scope.manualPath = [];
+			$scope.manualPathMetrics = [];
+			NextTopologyService.clearPathLayer(topo);
+
+		}
+
+		/**
+		 * Get array of names out
+		 * @param manualPath {Array}
+		 * @returns {Array}
+		 */
+		function getNodeNamesOnly(manualPath){
+
+			var namesOnly = manualPath.map(function(node){
+				return node.name;
+			});
+
+			return namesOnly;
 		}
 
 	};
