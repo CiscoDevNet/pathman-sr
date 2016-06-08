@@ -1,0 +1,79 @@
+<section layout="column" class="h100" ng-controller="NodeListCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-share-alt"></i>
+						Nodes
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex  id="node-list-area">
+
+			<div layout-fill layout="column">
+
+				<section ng-show="shared.topologyData.nodes.length">
+					<div class="search-dock"></div>
+					<div class="search">
+						<div layout="row">
+							<md-icon class="material-icons ng-isolate-scope">search</md-icon>
+							<div class="search-input-container" flex>
+								<input type="search" placeholder="Search for node" ng-model="nodeSearchQuery" />
+							</div>
+						</div>
+					</div>
+					<div class="search-dock-placeholder"></div>
+
+					<md-list flex>
+						<md-list-item
+							ng-click="null"
+							class="md-2-line"
+							ng-repeat="node in filteredNodes = (shared.topologyData.nodes | filter:nodeSearchQuery)">
+							<div class="md-list-item-text pointer noselect"
+								 ng-click="openPanel('node-details', {nodeData: node})"
+								 flex>
+								<h3>{{ node.name }}</h3>
+								<p>
+									<span ng-show="node.sr_enabled" class="green-text">
+										<i class="fa fa-check-circle" aria-hidden="true"></i>
+									</span>
+									<span ng-hide="node.sr_enabled" class="red-text">
+										<i class="fa fa-times-circle" aria-hidden="true"></i>
+									</span>
+									SR
+									<span ng-show="node.pcep_enabled" class="green-text">
+										<i class="fa fa-check-circle" aria-hidden="true"></i>
+									</span>
+									<span ng-hide="node.pcep_enabled" class="red-text">
+										<i class="fa fa-times-circle" aria-hidden="true"></i>
+									</span>
+									PCEP
+								</p>
+							</div>
+							<md-divider ng-if="!$last"></md-divider>
+						</md-list-item>
+					</md-list>
+
+					<div class="layout-padding"
+						 ng-hide="filteredNodes.length">
+						No nodes match your query.
+					</div>
+				</section>
+
+				<div class="layout-padding" ng-hide="shared.topologyData.nodes.length" layout="row">
+					<div ng-show="!shared.topologyDataInitd" layout="row">
+						<md-progress-circular md-mode="indeterminate" md-diameter="20px"></md-progress-circular> Loading topology data
+					</div>
+					<div ng-show="shared.topologyDataInitd">
+						No nodes found.
+					</div>
+				</div>
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

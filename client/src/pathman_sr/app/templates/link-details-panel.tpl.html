@@ -1,0 +1,91 @@
+<section layout="column" class="h100" ng-controller="LinkDetailsCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-link"></i>
+						Link details
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex>
+			<div layout-fill>
+
+				<section>
+
+					<!-- Breadcrumbs -->
+					<div layout="row">
+						<ul class="breadcrumbs">
+							<li class="breadcrumb" ng-click="openPanel('link-list')">Link list</li>
+							<li class="breadcrumb separator">/</li>
+							<li class="breadcrumb active">Link details</li>
+						</ul>
+					</div>
+					<!-- / Breadcrumbs -->
+
+				</section>
+
+
+				<section>
+
+					<md-toolbar class="md-table-toolbar md-accent">
+						<div class="md-toolbar-tools white-text">
+							<h2>
+								<span>Summary</span>
+							</h2>
+						</div>
+					</md-toolbar>
+
+					<md-table-container>
+						<table md-table>
+							<tbody md-body>
+
+							<tr md-row>
+								<td md-cell>
+									Node A
+								</td>
+								<td md-cell>
+									{{ linkData.source }}
+								</td>
+							</tr>
+
+							<tr md-row>
+								<td md-cell>
+									Node B
+								</td>
+								<td md-cell>
+									{{ linkData.target }}
+								</td>
+							</tr>
+
+							<tr md-row>
+								<td md-cell>
+									Metric (A &rarr; B)
+								</td>
+								<td md-cell>
+									{{ linkData.sourceTraffic }}
+								</td>
+							</tr>
+
+							<tr md-row>
+								<td md-cell>
+									Metric (B &rarr; A)
+								</td>
+								<td md-cell>
+									{{ linkData.targetTraffic }}
+								</td>
+							</tr>
+
+							</tbody>
+						</table>
+					</md-table-container>
+				</section>
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

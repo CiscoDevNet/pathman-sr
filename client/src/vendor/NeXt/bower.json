@@ -1,0 +1,23 @@
+{
+  "name": "next-bower",
+  "homepage": "http://next-ui.com",
+  "authors": [
+    "Aikepaer Abuduweili <aaikepae@cisco.com>"
+  ],
+  "description": "NeXt UI Toolkit bower and npm distribution.",
+  "main": [
+  "js/next.js",
+  "css/next.css"
+  ],
+  "moduleType": [],
+  "keywords": [
+    "NeXt",
+    "topology",
+    "SDN"
+  ],
+  "dependencies": {
+  },
+  "ignore": [],
+  "version": "0.9.0",
+  "license": "EPL-1.0"
+}

@@ -1,0 +1,77 @@
+<section layout="column" class="h100" ng-controller="PathListCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-exchange"></i>
+						Deployed SR-Paths
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex  id="path-list-area">
+
+			<div layout-fill layout="column">
+
+				<section ng-show="shared.pathListData.length">
+					<div class="search-dock"></div>
+					<div class="search">
+						<div layout="row">
+							<md-icon class="material-icons ng-isolate-scope">search</md-icon>
+							<div class="search-input-container" flex>
+								<input type="search" placeholder="Search for path" ng-model="pathSearchQuery" />
+							</div>
+						</div>
+					</div>
+					<div class="search-dock-placeholder"></div>
+
+					<md-list flex>
+						<md-list-item
+							ng-click="null"
+							class="md-2-line"
+							ng-repeat="path in filteredPaths = (shared.pathListData | filter:pathSearchQuery)"
+							ng-mouseover="highlightPath(shared.nxTopology, path.path, 'pathListHover')">
+							<div class="md-list-item-text" layout="row">
+								<div
+									ng-click="openPanel('path-details', {pathData: path})"
+									class="pointer noselect"
+									flex>
+									<h3>{{ path.name }}</h3>
+									<p>{{ path.path.join(" &rarr; ") }}</p>
+								</div>
+								<div>
+									<md-button
+										ng-click="removePathConfirmDialog($event, shared.nxTopology, path.name, path.path)"
+										class="md-button md-warn">
+										<md-icon aria-hidden="true">clear</md-icon>
+										Delete
+									</md-button>
+								</div>
+							</div>
+							<md-divider ng-if="!$last"></md-divider>
+						</md-list-item>
+					</md-list>
+
+					<div class="layout-padding"
+						 ng-hide="filteredPaths.length">
+						No paths match your query.
+					</div>
+
+				</section>
+
+				<div class="layout-padding" ng-hide="shared.pathListData.length" layout="row">
+					<div ng-show="!shared.pathListInitd" layout="row">
+						<md-progress-circular md-mode="indeterminate" md-diameter="20px"></md-progress-circular> Loading path data
+					</div>
+					<div ng-show="shared.pathListInitd">
+						No paths found.
+					</div>
+				</div>
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

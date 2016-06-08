@@ -1,3 +1,4 @@
 .idea/
 *.pyc
 *.xcodeproj
+client/node_modules/
