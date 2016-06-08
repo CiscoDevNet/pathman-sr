@@ -1,29 +1,46 @@
 {
-  "name": "pathman-sr-client",
-  "description": "Frontend app for Pathman SR",
-  "main": "gulpfile.js",
-  "authors": [
-    "Alexei Zverev <me@azverev.com>"
-  ],
-  "license": "MIT",
-  "keywords": [
-    "pathman",
-    "segment",
-    "routing",
-    "pathman",
-    "sr",
-    "cisco",
-    "opendaylight",
-    "odl",
-    "sdn"
-  ],
-  "homepage": "https://developer.cisco.com/site/devnetlabs/",
-  "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ]
+	"name": "pathman-sr",
+	"version": "1.0.0",
+	"dependencies": {
+		"angular": "~1.5.0",
+		"angular-animate": "~1.5.0",
+		"angular-aria": "~1.5.0",
+		"angular-material": "1.0.5",
+		"angular-route": "~1.5.0",
+		"angular-translate": "^2.9.1",
+		"angular-translate-loader-partial": "^2.9.1",
+		"font-awesome": "fontawesome#~4.5.0",
+		"requirejs": "~2.1.22",
+		"restangular": "1.5.2",
+		"angular-material-data-table": "~0.9.11",
+		"NeXt": "~0.9.1",
+		"jquery": "latest"
+	},
+	"authors": [
+		"Alexei Zverev <me@azverev.com>"
+	],
+	"license": "MIT",
+	"keywords": [
+		"pathman",
+		"segment",
+		"routing",
+		"pathman",
+		"sr",
+		"cisco",
+		"opendaylight",
+		"odl",
+		"sdn"
+	],
+	"homepage": "https://developer.cisco.com/site/devnetlabs/",
+	"private": true,
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"test",
+		"tests"
+	],
+	"resolutions": {
+		"angular-translate": "~2.10.0"
+	}
 }
