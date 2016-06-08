@@ -58,10 +58,10 @@ class Commands(object):
         ##tuple_register2 = (txt_uri, CommandHandler2, dict(debug=debug))
         tuple_register_sr = (txt_uri_sr, CommandHandlerSR, dict(debug=debug))
 
-        application = tornado.web.Application([ tuple_register_sr,
-                                                #tuple_register2, # For regular Pathman
-                                                (r'/pathman/client/(.*)', tornado.web.StaticFileHandler, {"path": "client"}),
-                                                #(r'/pathman/topology', dataHandler), # For BGP APP
+        application = tornado.web.Application([ tuple_register_sr,  # For Pathman_sr backend
+                                                #tuple_register2,  # For regular Pathman backend
+                                                (r'/cisco-ctao/apps/(.*)', tornado.web.StaticFileHandler, {"path": "client"}),  # For UI
+                                                #(r'/pathman/topology', dataHandler),  # For BGP APP
                                                 ], dict(debug=debug))
         """
             http_server = tornado.httpserver.HTTPServer(application, ssl_options={
