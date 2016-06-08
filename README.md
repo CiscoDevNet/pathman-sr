@@ -3,6 +3,18 @@
 ## Overview
 PathMan Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
 
+![](demo/setup-path-panel.png)
+Figure 1. Search for an optimal path
+
+![](demo/path-deployed-message.png)
+Figure 2. Path has been deployed
+
+![](demo/deployed-path-list.png)
+Figure 3. List of all deployed paths
+
+![](demo/node-details.png)
+Figure 4. Random node info. Link and/or path details are also available in one-two-click
+
 ## Prerequisites
 ### For Pathman SR users
 You need to have Python 2.7 installed on your PC/Mac.
