@@ -1,9 +1,9 @@
 #! /usr/bin/env python2.7
 """
-    * Copyright (c) 2014 by Cisco Systems, Inc.
+    * Copyright (c) 2016 by Cisco Systems, Inc.
     * All rights reserved.
 
-    Pathman
+    Pathman SR
 
     Niklas Montin, 20140705, niklas@cisco.com
 
@@ -35,6 +35,7 @@
     20160528, Alexei Zverev - ver 5.3.1 - Added sr_enabled & pcep_enabled boolean flags to REST response
     20160529, Niklas - ver 5.3.2 - loopback is no present even if pcep is not enabled.
     20160601, Niklas - ver 5.4 - Created two topologies, one bgp-ls based topo for display, one sr-based for paths
+    20160608, Niklas - ver 5.5 - Added fixes from Pathman project: metrics, asymmetric links
     """
 __author__ = 'niklas'
 
@@ -51,7 +52,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.4'
+version = '5.5'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -62,12 +63,7 @@ log_level = 'INFO'
 #log_level = 'DEBUG'
 
 from pathman_ini import *
-odl_ip = '198.18.1.80'
-odl_port = '8181'
-odl_user = odl_password = 'admin'
-#odl_ip = '198.18.134.26'
-#odl_port = '8181'
-#odl_user = odl_password = ''
+
 
 #==============================================================
 Node = namedtuple('Node', ['name', 'id', 'loopback', 'portlist','pcc','pcep_type','prefix', 'sid'])
@@ -577,6 +573,16 @@ def pseudo_net_build(node_list):
 
 def node_links(my_topology, node_list, bgp=False, debug = 2):
     """ Dumps link info """
+    def metric_test(attributes):
+        """ Pick a metric to return """
+        if 'metric' in attributes.keys():
+            return attributes['metric']
+        elif 'ospf-topology:ospf-link-attributes' in attributes.keys() and 'ted' in attributes['ospf-topology:ospf-link-attributes']:
+            return attributes['ospf-topology:ospf-link-attributes']['ted'].get('te-default-metric', 10)
+        elif 'isis-topology:isis-link-attributes' in attributes.keys() and 'ted' in attributes['isis-topology:isis-link-attributes']:
+            return attributes['isis-topology:isis-link-attributes'].get('te-default-metric', 10)
+        else:
+            return 10
     net = {}
     link_list = []
     sr_enabled = [node.id for node in node_list if node.sid != '']
@@ -587,9 +593,9 @@ def node_links(my_topology, node_list, bgp=False, debug = 2):
 
             if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
                 if link_dict['local-router'] in net.keys():
-                    net[link_dict['local-router']].update({link_dict['remote-router']:link['l3-unicast-igp-topology:igp-link-attributes']['metric']})
+                    net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'])})
                 else:
-                    net.update({link_dict['local-router']:{link_dict['remote-router']:link['l3-unicast-igp-topology:igp-link-attributes']['metric']}})
+                    net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'])}})
 
     except:
         logging.info("We have no links in our BGP-LS topology")
@@ -963,14 +969,14 @@ def sort_paths(pathlist, metriclist, type):
 def postUrl(url, data):
     import requests
     response = requests.get(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/json'})
-    print response.text
+    # print response.text
     return response.json()
 
 def postXml(url, data):
     """ post our lsp creation commands """
     import requests
     response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/xml'})
-    print response.text
+    # print response.text
 
     return response.json()
 
@@ -1317,9 +1323,12 @@ def getTopo(dict_subcommand, debug):
                     link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
                     link_dict["source"]=node
                     link_dict["target"]=hop
-                    link_dict["sourceTraffic"] = net_by_name[node][hop]
-                    link_dict["targetTraffic"] = net_by_name[hop][node]
-                    topo_response['links'].append(link_dict)
+                    try:
+                        link_dict["sourceTraffic"] = net_by_name[node][hop]
+                        link_dict["targetTraffic"] = net_by_name[hop][node]
+                        topo_response['links'].append(link_dict)
+                    except KeyError:
+                        logging.error("bgp-ls link missing between {0} and {1}".format(hop, node))
 
         logging.info("Topo build with %s nodes" % num_nodes)
         return True, 'another sunny day', topo_response
