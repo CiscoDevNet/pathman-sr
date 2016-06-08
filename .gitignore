@@ -2,3 +2,4 @@
 *.pyc
 *.xcodeproj
 client/node_modules/
+client/src/vendor/
