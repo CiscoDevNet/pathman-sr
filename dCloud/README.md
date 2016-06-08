@@ -34,13 +34,13 @@ Note that any newer ODL demo should work fine as well.
 
 Now you are done and you should have a session being started for you.
 
-# How do I configure my APPs to talk to my dCloud ODL + topology?
+# How do I configure my APP to talk to my dCloud ODL + topology?
 
-Note:
+**Note:**
+The Pathman_SR app has been tested with Lithium SR3 and Beryllium SR1 ans SR2
 
-These apps have been adapted to the Lithium release of Opendaylight.
 
-**No changes are needed to run these apps towards the above-mentioned topology in dCloud.**
+**No changes are needed to run this app towards the above-mentioned topology in dCloud.**
 
 For other setups, you may need to change ip/port/auth details.
 
@@ -64,7 +64,7 @@ Depending on where you have installed the apps, you may want to consider differe
 
 1. Cisco Anyconnect Client - [http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html](http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html)
 
-2. Openconnect – see https://wiki.archlinux.org/index.php/OpenConnect
+2. Openconnect – see [https://wiki.archlinux.org/index.php/OpenConnect](https://wiki.archlinux.org/index.php/OpenConnect)
 
 Regardless of client, you will need to check the access details for your session.
 
@@ -139,9 +139,9 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 
 7. Open your Chrome Browser
 
-8. URL to launch Pathman_SR: [http://localhost:8020/pathman/client/pathman_sr/index.html](http://localhost:8020/pathman/client/pathman_sr/index.html). This assumes that your app is running on your local host.
+8. URL to launch Pathman_SR: [http://localhost:8020/cisco-ctao/apps/pathman_sr/index.html](http://localhost:8020/cisco-ctao/apps/pathman_sr/index.html). This assumes that your app is running on your local host.
 
-**NOTE**: Current code may need this url: [http://localhost:8020/pathman/client/build/index.html](http://localhost:8020/pathman/client/build/index.html)
+**NOTE**: Current code may use this url: [http://localhost:8020/cisco-ctao/apps/build/index.html](http://localhost:8020/cisco-ctao/apps/build/index.html)
 
 # What if I don't have Cisco Anyconnect installed?
 
