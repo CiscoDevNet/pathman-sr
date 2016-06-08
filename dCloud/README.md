@@ -132,7 +132,7 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 6. Type in the following command to start the rest_server:
 
  ``` 
- python rest\_server\_v5.py. 
+ python rest_server_v6.py. 
  ```
  
  This launches the "backend" of the Pathman_sr app.
@@ -171,3 +171,58 @@ odl_password = 'c561cc'    # your sessions anyconnect password
 3. Should you share your access cedentials with everyone through my blog/Facebook or other? **No**, that is probably **not** a good idea.
 4. Can I choose to collaborate with few others? **Yes**, you can either share your demo with them through the **Share** button on the dCloud UI, or share your sessions access credentials. Just remember that once shared, they have learned your credentials and can access your setup at any time.
 5. How long can I have my topology running? Your session can be scheduled to run for, from 1h to 4 Days.
+
+
+# Troubleshooting
+For any issues, first take a look at the **/tmp/pathman.log** file
+
+##Things to look for in the log
+1. Did I connect to my odl controller? This should be the first lines in your log.
+ 
+ ```
+ 71679 2016-06-08 21:14:40.033 UTC root:<module>     INFO: This is initializing the log
+ 71679 2016-06-08 21:14:40.263 UTC root:get_url      INFO: Url get Status: 200
+ 71679 2016-06-08 21:14:40.464 UTC root:get_url      INFO: Url get Status: 200
+ ```
+ This is what Failure could look like, once the url's timeout.
+ 
+ ```
+ 71987 2016-06-08 21:16:20.277 UTC root:<module>     INFO: This is initializing the log
+71987 2016-06-08 21:17:35.985 UTC root:get_url      ERROR: Connection Error: ('Connection aborted.', error(60, 'Operation timed out'))
+71987 2016-06-08 21:18:51.357 UTC root:get_url      ERROR: Connection Error: ('Connection aborted.', error(60, 'Operation timed out'))
+71987 2016-06-08 21:18:51.357 UTC root:get_pcep_type INFO: We have no nodes in our PCEP Topology
+71987 2016-06-08 21:18:51.357 UTC root:node_structure INFO: We have no nodes in our BGP-LS topology
+71987 2016-06-08 21:18:51.357 UTC root:pseudo_net_build INFO: []
+71987 2016-06-08 21:20:06.631 UTC root:get_url      ERROR: Connection Error: ('Connection aborted.', error(60, 'Operation timed out'))
+71987 2016-06-08 21:20:06.632 UTC root:netconf_list ERROR: format error in netconf node-list: {}
+71987 2016-06-08 21:20:06.632 UTC root:node_links   INFO: We have no links in our BGP-LS topology
+71987 2016-06-08 21:20:06.632 UTC root:node_links   INFO: We have no links in our BGP-LS topology
+ ```
+ 
+2. Did I learn any nodes from the controller? Early in the log you want to see somehting like this - one node statement per node:
+
+ ```
+ 65632 2016-06-08 20:34:31.496 UTC root:node_structure INFO: New node: Node(name='sjc', id=u'3323134238', loopback=u'198.19.1.30', portlist=[u'57.0.0.30', u'49.0.0.30', u'55.0.0.30', u'46.0.0.30', u'56.0.0.30'], pcc='', pcep_type='', prefix=[u'57.0.0.0/24', u'46.0.0.0/24', u'56.0.0.0/24', u'55.0.0.0/24', u'49.0.0.0/24', u'198.19.1.30/32'], sid='')
+ ```
+ 
+ ```
+65632 2016-06-08 20:34:39.039 UTC root:getTopo      INFO: Topo build with 8 nodes
+```
+3. Did I enable Segment Routing? You should see a line per router saying that the SID has been set.
+
+ ```
+ 65632 2016-06-08 20:34:39.035 UTC root:update       INFO: SR sid updated for: sjc
+ ```
+4. Could I see any LSPs?  Below is an example for what you should see in the log as you start your server, after the above output.
+
+ ```
+ 65632 2016-06-08 20:34:39.041 UTC root:rest_interface_parser INFO: Commands Recieved: {u'option': u'list_all'}
+65632 2016-06-08 20:34:39.238 UTC root:get_url      INFO: Url get Status: 200
+65632 2016-06-08 20:34:39.238 UTC root:listAllLsp   INFO: list: [], formatted: []
+```
+5. Did my REST server start? If it did startok, you should see this in the log.
+
+ ```
+ 65632 2016-06-08 20:24:56.003 UTC root:__init__     INFO: patterned to '/pathman'
+ 65632 2016-06-08 20:24:56.006 UTC root:__init__     INFO: Pathman REST API Launched on port 8020
+```
