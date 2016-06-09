@@ -1,4 +1,5 @@
 # Running your OpenDaylight APPs towards a Topology
+Updated: 20160609
 
 The BGP and PCEP (Pathman) apps assume that you can connect to an OpenDaylight (ODL) Controller.
 
@@ -9,7 +10,7 @@ You will need the following information:
 
 You topology would also need to be configured to interact with the ODL controller; BGP peering with BGP-LS speaker (i.e. one of the routers configured with BGP-LS) and PCEP peering enabled in all routers.
 
-To simplify this step, we have implement a demonstration ODL controller and network topology available at dcloud .cisco.com. Below you will find the information required to have these apps interact with dCLoud.
+To simplify this step, we have implement a demonstration ODL controller and network topology available at [dCloud](dcloud.cisco.com). Below you will find the information required to have these apps interact with dCloud.
 
 # Accessing OpenDaylight Beryllium SR1/SR2 at dCloud
 
@@ -37,7 +38,7 @@ Now you are done and you should have a session being started for you.
 # How do I configure my APP to talk to my dCloud ODL + topology?
 
 **Note:**
-The Pathman_SR app has been tested with Lithium SR3 and Beryllium SR1 ans SR2
+The Pathman_SR app has been tested with Lithium SR3 and Beryllium SR1 and SR2
 
 
 **No changes are needed to run this app towards the above-mentioned topology in dCloud.**
@@ -55,14 +56,14 @@ odl_user = 'admin'
 odl_password = 'admin'
 ```
 
-These values are fine once you have anyconnected in to the dCloud session.
+These values are fine once you have any-connected in to the dCloud session.
 (To use your own topology, edit these values to point to your local controller.)
 
 # How do I connect my laptop to the dCloud topology?
 
 Depending on where you have installed the apps, you may want to consider different options to access your active dCloud session.
 
-1. Cisco Anyconnect Client - [http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html](http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html)
+1. Cisco AnyConnect Client - [http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html](http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html)
 
 2. Openconnect – see [https://wiki.archlinux.org/index.php/OpenConnect](https://wiki.archlinux.org/index.php/OpenConnect)
 
@@ -70,7 +71,7 @@ Regardless of client, you will need to check the access details for your session
 
 At dcloud.cisco.com, and the datacenter you have selected – click _My Dashboard_ and you will find your active session(s) listed there.
 
-Select you session's '_View'_ button and then '_Review Session Info_', which takes you to _Session Details_. In Session Details, you will find your anyconnect credentials.
+Select you session's '_View'_ button and then '_Review Session Info_', which takes you to _Session Details_. In Session Details, you will find your AnyConnect credentials.
 
 And if you 'click here for available options', you will see a view like this:
 
@@ -145,15 +146,15 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 
 # What if I don't have Cisco Anyconnect installed?
 
-There are two options; either you use an alternate client, or you use dlcouds public ip solution.
+There are two options; either you use an alternate client, or you use dCloud's public ip solution.
 
 ## Alternate Anyconnect client
 -If your client can't run Cisco Anyconnect, you want to try another client like OpenConnect.
 
 ## dCloud Topology Public IP Access
-For some of our demos, we have enabled public IP access. In the picure below, you see how to find your public_ip address, and your anyconnect credentials.
+For some of our demos, we have enabled public IP access. In the picture below, you see how to find your public_ip address, and your anyconnect credentials.
 
-You can use them directly from your Pathman_SR app, byt changing the pathman\_ini.py file as decsribed below.
+You can use them directly from your Pathman_SR app, by changing the pathman\_ini.py file as described below.
 
 ```
 odl_ip = '64.100.10.119'   # from Public Address
@@ -167,10 +168,11 @@ odl_password = 'c561cc'    # your sessions anyconnect password
 
 ### FAQ on Public IP and dCloud Demos
 1. Can more than one app run towards the same topology from your machine - **Yes**
-2. Can someone else access your topology? - **No**, unless you share access credential with them.
-3. Should you share your access cedentials with everyone through my blog/Facebook or other? **No**, that is probably **not** a good idea.
+2. Can someone else access your topology? - **No**, unless you share access credentials with them.
+3. Should you share your access credentials with everyone through my blog/Facebook or other? **No**, that is probably **not** a good idea.
 4. Can I choose to collaborate with few others? **Yes**, you can either share your demo with them through the **Share** button on the dCloud UI, or share your sessions access credentials. Just remember that once shared, they have learned your credentials and can access your setup at any time.
-5. How long can I have my topology running? Your session can be scheduled to run for, from 1h to 4 Days.
+5. How long can I have my topology running? Your session can be scheduled to run for, from 1h to 5 Days.
+6. Is there a charge for using dCloud? - **No**, currently there is no charge for using dcloud for this purpose.
 
 
 # Troubleshooting
@@ -199,7 +201,7 @@ For any issues, first take a look at the **/tmp/pathman.log** file
 71987 2016-06-08 21:20:06.632 UTC root:node_links   INFO: We have no links in our BGP-LS topology
  ```
  
-2. Did I learn any nodes from the controller? Early in the log you want to see somehting like this - one node statement per node:
+2. Did I learn any nodes from the controller? Early in the log you want to see something like this - one node statement per node:
 
  ```
  65632 2016-06-08 20:34:31.496 UTC root:node_structure INFO: New node: Node(name='sjc', id=u'3323134238', loopback=u'198.19.1.30', portlist=[u'57.0.0.30', u'49.0.0.30', u'55.0.0.30', u'46.0.0.30', u'56.0.0.30'], pcc='', pcep_type='', prefix=[u'57.0.0.0/24', u'46.0.0.0/24', u'56.0.0.0/24', u'55.0.0.0/24', u'49.0.0.0/24', u'198.19.1.30/32'], sid='')

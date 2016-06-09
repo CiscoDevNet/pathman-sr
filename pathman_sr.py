@@ -1354,8 +1354,7 @@ def rest_interface_parser(list_subcommands, debug):
     try:
 
         for dict_subcommand in list_subcommands:
-            #nprint("Commands Recieved: %s" % dict_subcommand, debug=debug)
-            logging.info("Commands Recieved: %s" % dict_subcommand)
+            logging.info("Commands Relieved: %s" % dict_subcommand)
             if 'path' == dict_subcommand['option']:
                 Success, Cause, Pathlist, Metriclist = getPathlist(dict_subcommand,debug=debug)
                 if Success:
