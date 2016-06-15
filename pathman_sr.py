@@ -36,6 +36,8 @@
     20160529, Niklas - ver 5.3.2 - loopback is no present even if pcep is not enabled.
     20160601, Niklas - ver 5.4 - Created two topologies, one bgp-ls based topo for display, one sr-based for paths
     20160608, Niklas - ver 5.5 - Added fixes from Pathman project: metrics, asymmetric links
+    20160614, Niklas - ver 5.6 - added update function for SR paths
+                        included a pathman fix for missing termination-points
     """
 __author__ = 'niklas'
 
@@ -121,6 +123,22 @@ lsp_sr_xml = '''<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep"
           </ipv4>
           <processing-rule>true</processing-rule>
         </endpoints-obj>
+       <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+        <pst>1</pst>
+       </path-setup-type>
+       <ero>{ero}</ero>
+     </arguments>
+     <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+    </input>'''
+
+lsp_sr_update_xml = '''<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+     <node>{pcc}</node>
+     <name>{name}</name>
+     <arguments>
+       <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+        <delegate>true</delegate>
+        <administrative>true</administrative>
+       </lsp>
        <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
         <pst>1</pst>
        </path-setup-type>
@@ -520,12 +538,15 @@ def node_structure(my_topology, debug = 2):
                 prefix_array.append(prefix['prefix'])
                 #logging.debug("prefix: %s, metric: %s " % (prefix['prefix'],prefix['metric']))
         node_ports = []
-        for link in nodes['termination-point']:
-            #logging.debug("port: %s " % link['tp-id'])
-            if 'tp-id' in link.keys():
-                port_dict = html_style(link['tp-id'])
-                if 'ipv4' in port_dict.keys():
-                    node_ports.append(port_dict['ipv4'])
+        if 'termination-point' in nodes.keys():
+            for link in nodes['termination-point']:
+                #logging.debug("port: %s " % link['tp-id'])
+                if 'tp-id' in link.keys():
+                    port_dict = html_style(link['tp-id'])
+                    if 'ipv4' in port_dict.keys():
+                        node_ports.append(port_dict['ipv4'])
+        else:
+            logging.error("Node {0} is missing 'termination-point' ".format(node_dict['router']))
         index = -1
         router_id = ""
         name = ""
@@ -868,6 +889,21 @@ def lsp_create_xml_sr(src, dst, name_of_lsp , pcc, hoplist, sid_list, debug):
     new_lsp_xml_sr = lsp_sr_xml.format(**new_lsp)
     return new_lsp_xml_sr
 
+def lsp_update_xml_sr(src, dst, name_of_lsp , pcc, hoplist, sid_list, debug):
+    """ build a xml structure to update LSPs """
+    hop_xml_list = []
+
+    for hop, sid in zip(hoplist, sid_list):
+        step = {"hop":hop, "sid":sid}
+        new_xml = ero_sr_xml.format(**step)
+        hop_xml_list.append(new_xml)
+
+
+    ero = "".join(hop_xml_list)
+    new_lsp = {"pcc":pcc,"name":name_of_lsp,"src":src,"dst":dst,"ero":ero}
+    new_lsp_xml_sr = lsp_sr_update_xml.format(**new_lsp)
+    return new_lsp_xml_sr
+
 def lsp_update_xml_07(src, dst, name_of_lsp , pcc, hoplist, debug):
     """ build a xml structure to update a LSPs """
     hop_xml_list = []
@@ -1149,30 +1185,67 @@ def createSRtunnel(dict_subcommand,debug):
         cause = "Nodes not found"
     return success, cause
 
-def deleteLsp_old(dict_subcommand,debug):
+def matchLSP(lsp_name, pcc, pcep_type):
+    lsplist = list_pcep_lsp(node_list, debug)
+    for lsp in lsplist:
+        if 'pcc://{0}'.format(lsp.pcc) == pcc and lsp.name == lsp_name and pcep_type == '07':
+            return lsp
+    return None
+
+def updateSRtunnel(dict_subcommand, debug):
     """ called from REST Server
-        - Deleta a LSP by name  """
+        - Change an existing LSP to a new path """
+    # 1. Get current LSP list - match the
 
+    # 2. Check delegate
+
+    path = dict_subcommand['path']
     lsp_name = dict_subcommand['name']
+    #success, cause, hoplist = getHoplist(dict_subcommand,debug)
+    loop_list = get_loop_list(path)
+    sid_list = get_sid_list(path)
+    if len(loop_list) >0 and len(sid_list) >0:
+        startid = map_name2node(node_list, path[0])
+        stopid = map_name2node(node_list, path[-1])
+        for node in node_list:
+            if startid == node.id:
+                #pcc = node.loopback
+                pcc = node.pcc
+                pcep_type = node.pcep_type
+                start_loopback = node.loopback
+            if stopid == node.id:
+                stop_loopback = node.loopback
+        # Check for existing LSP match
 
-    startid = map_name2node(node_list, dict_subcommand['node'])
-    pcc = ''
-    for node in node_list:
-        if startid == node.id:
-            pcc = node.loopback
+        lsp = matchLSP(lsp_name, pcc, pcep_type)
 
-    if len(pcc) >0 :
-        remove_my_lsp = lsp_delete_json(lsp_name,'pcc://'+pcc, debug)
-        dict_reply = postUrl(delete_lsp, json.dumps(remove_my_lsp))
-        logging.info("Delete LSP response: %s" % dict_reply)
-        if dict_reply['output'] == {}:
-
-            return True, 'Yes, we did it'
-
+        if lsp:
+            my_sr_xml = lsp_update_xml_sr(start_loopback, stop_loopback, lsp_name, pcc, loop_list, sid_list, debug)
+            print my_sr_xml
+            dict_reply = postXml(update_lsp, my_sr_xml)
+            logging.info("Update SR Tunnel response: %s" % dict_reply)
+            #
+            # Delay to overcome write/read issue in ODL
+            # - should be removed once fixed
+            time.sleep(2)
+            if 'output' in dict_reply.keys():
+                if dict_reply['output'] == {}:
+                    return True, 'Yes, we did it'
+                else:
+                    success = False
+                    cause = dict_reply['output']
+            elif 'errors' in dict_reply.keys():
+                logging.error("Update Failed")
+                success =  False
+                cause = dict_reply['errors']
         else:
+            logging.info("pcep type wrong for %s - missing pcep session?" % path[0])
             success = False
-            cause = dict_reply['output']
-    return False, 'no pcc found'
+            cause = "Bad PCEP data"
+    else:
+        success = False
+        cause = "Nodes not found"
+    return success, cause
 
 def deleteLsp(dict_subcommand,debug):
     """ called from REST Server
@@ -1380,7 +1453,14 @@ def rest_interface_parser(list_subcommands, debug):
                             'success':Success,
                             'name':dict_subcommand['name']
                             }
-
+            elif 'change' == dict_subcommand['option']:
+                #Success, Cause = createLsp(dict_subcommand,debug=debug)
+                Success, Cause = updateSRtunnel(dict_subcommand, debug=debug)
+                if Success:
+                    temp = {'option': dict_subcommand['option'],
+                            'success':Success,
+                            'name':dict_subcommand['name']
+                            }
             elif 'delete' == dict_subcommand['option']:
                 Success, Cause = deleteLsp(dict_subcommand,debug=debug)
                 if Success:
