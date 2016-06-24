@@ -1,5 +1,20 @@
 #PathMan SR
 
+# OpenDaylight Pathman-SR App
+
+OpenDaylight (ODL) is an open-source application development and delivery platform. Segment Route (SR) is a new and scalable method for forwarding packkets across MPLS or IPv6 networks. It employs of forwarding packets Pathman-SR is an application developed on top of ODL enabling the proga Manager are two applications developed to run on top of ODL to visualize topologies and program MPLS traffic engineering (TE) paths.
+
+## Team:
+
+- Chris Metz
+- Niklas Montin
+- Tyler Levine
+- Sergey Madaminov
+- Giles Heron
+- Aikepaer Abuduweili
+- Bimal Grewal
+
+
 ## Overview
 PathMan Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
 
