@@ -27,7 +27,7 @@ Beta
 
 ### Application Overview
 
-A brief description of segment routing is contained in the abstract of ...
+A brief description of segment routing is contained in the abstract of [segment routing architecture draft](https://tools.ietf.org/html/draft-filsfils-spring-segment-routing):
 
 "..Segment Routing (SR) leverages the source routing paradigm.  A node
    steers a packet through an ordered list of instructions, called
