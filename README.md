@@ -42,7 +42,7 @@ A general overview of the architecture laid out in [Pathman](https://github.com/
 
 For completeness the architecture for Pathman-SR is depicted here.
 
-![](demo/pathman-SR-arch.png)
+
 Figure 1. Pathman-SR Architecture
 
 more text ...
