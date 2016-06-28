@@ -27,7 +27,7 @@ Beta
 
 ### Application Overview
 
-A brief description of segment routing is contained in the abstract of [segment routing architecture draft](https://tools.ietf.org/html/draft-filsfils-spring-segment-routing):
+A brief description of segment routing is contained in the abstract of [Segment Routing Architecture draft](https://tools.ietf.org/html/draft-filsfils-spring-segment-routing):
 
 "..Segment Routing (SR) leverages the source routing paradigm.  A node
    steers a packet through an ordered list of instructions, called
@@ -36,6 +36,9 @@ A brief description of segment routing is contained in the abstract of [segment 
    global within an SR domain.  SR allows to enforce a flow through any
    topological path and service chain while maintaining per-flow state
    only at the ingress node to the SR domain.."
+
+Pathman-SR is an extension of the Pathman application but in this case, it is used to program SR paths through the network.
+A general overview of the architecture laid out in [Pathman](https://github.com/CiscoDevNet/Opendaylight-BGP-Pathman-apps) is applicable to Pathman-SR so won't be repeated here. 
 
 PathMan Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
 
