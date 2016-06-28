@@ -25,7 +25,18 @@ January 2016
 
 Beta
 
-## Overview
+### Application Overview
+
+A brief description of segment routing is contained in the abstract of ...
+
+"..Segment Routing (SR) leverages the source routing paradigm.  A node
+   steers a packet through an ordered list of instructions, called
+   segments.  A segment can represent any instruction, topological or
+   service-based.  A segment can have a local semantic to an SR node or
+   global within an SR domain.  SR allows to enforce a flow through any
+   topological path and service chain while maintaining per-flow state
+   only at the ingress node to the SR domain.."
+
 PathMan Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
 
 ![](demo/setup-path-panel.png)
