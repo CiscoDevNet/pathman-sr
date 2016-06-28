@@ -1,5 +1,5 @@
 # Running your OpenDaylight APPs towards a Topology
-Updated: 20160609
+Updated: 20160627
 
 The BGP and PCEP (Pathman) apps assume that you can connect to an OpenDaylight (ODL) Controller.
 
@@ -130,7 +130,13 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 
 5. Next modify the pathman\_ini.py file to point to the remote ODL instance. No change is required if you are using a dcloud ODL session.
 
-6. Type in the following command to start the rest_server:
+6. As you are installing this on the UserVM inside the demo, we will need to change the clients UI link:
+
+ ```
+[cisco@user_vm pathman_sr]$ sed -i 's/localhost/198.18.1.80/g' client/build/js/app.js[cisco@user_vm pathman_sr]$
+ ```
+
+7. Type in the following command to start the rest_server:
 
  ``` 
  python rest_server_v6.py. 
@@ -138,11 +144,11 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
  
  This launches the "backend" of the Pathman_sr app.
 
-7. Open your Chrome Browser
+8. Open your Chrome Browser
 
-8. URL to launch Pathman_SR: [http://localhost:8020/cisco-ctao/apps/pathman_sr/index.html](http://localhost:8020/cisco-ctao/apps/pathman_sr/index.html). This assumes that your app is running on your local host.
+9. URL to launch Pathman_SR: [http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html](http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html). This assumes that your app is running on your local host.
 
-**NOTE**: Current code may use this url: [http://localhost:8020/cisco-ctao/apps/build/index.html](http://localhost:8020/cisco-ctao/apps/build/index.html)
+**NOTE**: Current code may use this url: [http://198.18.1.80:8020/cisco-ctao/apps/build/index.html](http://198.18.1.80:8020/cisco-ctao/apps/build/index.html)
 
 # What if I don't have Cisco Anyconnect installed?
 
