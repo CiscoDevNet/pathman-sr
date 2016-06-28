@@ -38,7 +38,16 @@ A brief description of segment routing is contained in the abstract of [Segment 
    only at the ingress node to the SR domain.."
 
 Pathman-SR is an extension of the Pathman application but in this case, it is used to program SR paths through the network.
-A general overview of the architecture laid out in [Pathman](https://github.com/CiscoDevNet/Opendaylight-BGP-Pathman-apps) is applicable to Pathman-SR so won't be repeated here. 
+A general overview of the architecture laid out in [Pathman](https://github.com/CiscoDevNet/Opendaylight-BGP-Pathman-apps) is applicable to Pathman-SR so text won't be repeated here. 
+
+For completeness the architecture for Pathman-SR is depicted here.
+
+![](demo/pathman-SR-arch.png)
+Figure 1. Pathman-SR Architecture
+
+more text ...
+
+### Pathman-SR Examples
 
 PathMan Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
 
