@@ -1,6 +1,6 @@
 # OpenDaylight Pathman SR App
 
-OpenDaylight (ODL) is an open-source application development and delivery platform. Segment Route (SR) is a new and scalable method for forwarding packets across MPLS or IPv6 networks. It employs a form of source routing by appending to each packet a header representing different nodes, links, etc. that the packet should be routed through. Pathman SR is an application developed on top of ODL enabling the user to program SR paths through the network. 
+OpenDaylight (ODL) is an open-source application development and delivery platform. Segment Route (SR) is a new and scalable method for forwarding packets across MPLS or IPv6 networks. It employs a form of source routing by appending to each packet a header representing different segments (e.g.nodes, links, etc.) that the packet should be routed through. Pathman SR is an application developed on top of ODL enabling the user to program SR paths through the network. 
 
 ## Team:
 
@@ -55,10 +55,11 @@ The front-end of the app uses:
  
 The back-end of the app employs a number of Python modules that among other things compute SR path candidates and execute RESTCONF API calls directly to ODL. The combination of the Pathman-SR front-end and back-end provide an excellent example of working ODL application.
 
+A final note: some or all of the routers must support segmenting routing (software configuration knob). In this example all routers have SR turned on. In actual deployments a subset of the routers would have SR turned. 
 
 ### Pathman-SR Examples
 
-PathMan Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
+PathMan-SR employs a simple, staight up interface enabling for managing SR paths in a segmented routed network. the  Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
 
 ![](demo/setup-path-panel.png)
 Figure 1. Search for an optimal path
