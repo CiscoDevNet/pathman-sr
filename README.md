@@ -45,7 +45,16 @@ For completeness the architecture for Pathman-SR is depicted here.
 ![](demo/pathman-SR-arch.png)
 Figure 1. Pathman-SR Architecture
 
-more text ...
+As deduced the Pathman-SR architecture is quite similar to the Pathman architecture. It uses BGP-LS to collect and render the network. It uses PCEP to program SR segment stacks on the ingress router which define the path of segments packets should traverse. 
+
+A little color was added on some of the components of the app itself. This might help those who are reviewing the code better understand some of the pieces. 
+
+The front-end of the app uses:
+- NeXt is the UI framework used to render topologies and graphs. This is open source and a formal ODL project.
+- AngularJS is a popular UI framework based on the model-view-controller (MVC) paradigm. This enables efficient/modularized development/testing of the code.
+ 
+The back-end of the app employs a number of Python modules that among other things compute SR path candidates and execute RESTCONF API calls directly to ODL. The combination of the Pathman-SR front-end and back-end provide an excellent example of working ODL application.
+
 
 ### Pathman-SR Examples
 
