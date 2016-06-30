@@ -145,7 +145,7 @@ Config goes in pathman_ini.py
 
 ## Run Pathman SR
 
-Once your system meets the prerequisites requirements above, you're ready to spin up a web-server for Pathman SR. This gives you the way to interact with 
+Once your system meets the prerequisites requirements above, you're ready to spin up a web-server for Pathman SR. This gives you the way of interaction between the app's modules. 
 
 To start the server, type the following command to CLI and run it (caution: your need to run it in context of the app's root folder):
 
