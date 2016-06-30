@@ -59,11 +59,13 @@ A final note: some or all of the routers must support segmenting routing (softwa
 
 ### Pathman-SR Examples
 
-The following are example screenshots from Pathman-SR illustating the look/feel of specific functions.
+The following are example screenshots from Pathman-SR illustating the look/feel of specific functions. The nodes shown in the topology display a "PC" icon meaning it supports PCEP (for MPLS TE tunnel setup supported in the original Pathman) and an "SR" indicating it supports segmenting routing. Just to avoid any confusion Pathman-SR only supports SR-path management.
 
 
 ![](demo/setup-path-panel.png)
-Figure 2. Search for an optimal path
+Figure 3. Search for an optimal path
+
+In this example an SR-path between atl and chi has been requested. This panel shows the SR-paths computed. The path selected on the right is highlighted in the topology on the left. 
 
 ![](demo/path-deployed-message.png)
 Figure 2. Path has been deployed
