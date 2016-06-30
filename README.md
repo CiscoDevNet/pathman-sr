@@ -53,16 +53,17 @@ The front-end of the app uses:
 - NeXt is the UI framework used to render topologies and graphs. This is open source and a [formal ODL project](https://wiki.opendaylight.org/view/NeXt:Main).
 - [AngularJS](https://angularjs.org/) is a popular UI framework based on the model-view-controller (MVC) paradigm. This enables efficient/modularized development/testing of the code.
  
-The back-end of the app employs a number of Python modules that among other things compute SR path candidates and execute RESTCONF API calls directly to ODL. The combination of the Pathman-SR front-end and back-end provide an excellent example of working ODL application.
+The back-end of the app employs a number of Python modules that among other things compute SR path candidates and execute RESTCONF API calls directly to ODL. The combination of the Pathman-SR application front-end and back-end provide an excellent example of a working ODL application.
 
 A final note: some or all of the routers must support segmenting routing (software configuration knob). In this example all routers have SR turned on. In actual deployments a subset of the routers would have SR turned. 
 
 ### Pathman-SR Examples
 
-PathMan-SR employs a simple, staight up interface enabling for managing SR paths in a segmented routed network. the  Segment Routing (SR) is set up to run the exact same way as the PathMan and BGP app.
+The following are example screenshots from Pathman-SR illustating the look/feel of specific functions.
+
 
 ![](demo/setup-path-panel.png)
-Figure 1. Search for an optimal path
+Figure 2. Search for an optimal path
 
 ![](demo/path-deployed-message.png)
 Figure 2. Path has been deployed
