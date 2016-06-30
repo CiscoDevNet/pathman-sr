@@ -42,19 +42,19 @@
 					<span class="product-label">
 						Pathman SR
 					</span>
-					<md-button ng-click="openPanel('path-setup')">
+					<md-button ng-click="openPanel('path-setup')" ng-class="{'selected-item': shared.sidePanelName === 'path-setup'}">
 						<i class="fa fa-wrench" aria-hidden="true"></i>
 						Path setup
 					</md-button>
-					<md-button ng-click="openPanel('path-list')">
+					<md-button ng-click="openPanel('path-list')" ng-class="{'selected-item': shared.sidePanelName === 'path-list' || shared.sidePanelName === 'path-details'}">
 						<i class="fa fa-exchange" aria-hidden="true"></i>
 						Path List
 					</md-button>
-					<md-button ng-click="openPanel('node-list')">
+					<md-button ng-click="openPanel('node-list')" ng-class="{'selected-item': shared.sidePanelName === 'node-list' || shared.sidePanelName === 'node-details'}">
 						<i class="fa fa-share-alt" aria-hidden="true"></i>
 						Node List
 					</md-button>
-					<md-button ng-click="openPanel('link-list')">
+					<md-button ng-click="openPanel('link-list')" ng-class="{'selected-item': shared.sidePanelName === 'link-list' || shared.sidePanelName === 'link-details'}">
 						<i class="fa fa-link" aria-hidden="true"></i>
 						Link List
 					</md-button>
