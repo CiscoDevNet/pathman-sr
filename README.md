@@ -1,6 +1,6 @@
 # OpenDaylight Pathman SR App
 
-OpenDaylight (ODL) is an open-source application development and delivery platform. Segment Route (SR) is a new and scalable method for forwarding packets across MPLS or IPv6 networks. It employs a form of source routing by appending to each packet a header representing different segments (e.g.nodes, links, etc.) that the packet should be routed through. Pathman SR is an application developed on top of ODL enabling the user to program SR paths through the network. 
+OpenDaylight (ODL) is an open-source application development and delivery platform. Segment Route (SR) is a new and scalable method for forwarding packets across MPLS or IPv6 networks. It employs a form of source routing by appending to each packet a header representing different segments (e.g.nodes, links, etc.) that the packet should be routed through. Pathman-SR is an application developed on top of ODL enabling the user to program SR-paths through the network. 
 
 ## Team:
 
@@ -37,25 +37,25 @@ A brief description of segment routing is contained in the abstract of [Segment 
    topological path and service chain while maintaining per-flow state
    only at the ingress node to the SR domain.."
 
-Pathman-SR is an extension of the Pathman application but in this case, it is used to program SR paths through the network.
-A general overview of the architecture laid out in [Pathman](https://github.com/CiscoDevNet/Opendaylight-BGP-Pathman-apps) is applicable to Pathman-SR so text won't be repeated here. 
+Pathman-SR is an extension of the Pathman application but in this case, it is used to program SR-paths only through the network.
+An overview of the architecture laid out in [Pathman](https://github.com/CiscoDevNet/Opendaylight-BGP-Pathman-apps) is applicable to Pathman-SR so the text won't be repeated here. 
 
 For completeness the architecture for Pathman-SR is depicted here.
 
 ![](demo/pathman-SR-arch.png)
 Figure 1. Pathman-SR Architecture
 
-As deduced the Pathman-SR architecture is quite similar to the Pathman architecture. It uses BGP-LS to collect and render the network. It uses PCEP to program SR segment stacks on the ingress router which define the path of segments packets should traverse. 
+The Pathman-SR architecture is similar to the Pathman architecture. It uses BGP-LS to collect and render the network. It uses PCEP to program SR segment stacks on the ingress router which define the path of segments packets should traverse (aka SR-path) 
 
-A little color was added on some of the components of the app itself. This might help those who are reviewing the code better understand some of the pieces. 
+A little color is added below on some of the components of the app itself. This might help those who are reviewing the code to better understand some of the pieces. 
 
 The front-end of the app uses:
 - NeXt is the UI framework used to render topologies and graphs. This is open source and a [formal ODL project](https://wiki.opendaylight.org/view/NeXt:Main).
 - [AngularJS](https://angularjs.org/) is a popular UI framework based on the model-view-controller (MVC) paradigm. This enables efficient/modularized development/testing of the code.
  
-The back-end of the app employs a number of Python modules that among other things compute SR path candidates and execute RESTCONF API calls directly to ODL. The combination of the Pathman-SR application front-end and back-end provide an excellent example of a working ODL application.
+The back-end of the app employs a number of Python modules that among other things compute SR-path candidates and execute RESTCONF API calls directly to ODL. The combination of the Pathman-SR application front-end and back-end provide an excellent example of a working ODL application.
 
-A final note: some or all of the routers must support segmenting routing (software configuration knob). In this example all routers have SR turned on. In actual deployments a subset of the routers would have SR turned. 
+A final note: some or all of the routers must support segmenting routing (software configuration knob). In this example all routers have SR turned on (denoted by a small "SR" icon). In actual deployments a subset of the routers would have SR turned. 
 
 ### Pathman-SR Examples
 
@@ -63,18 +63,26 @@ The following are example screenshots from Pathman-SR illustating the look/feel 
 
 
 ![](demo/setup-path-panel.png)
-Figure 3. Search for an optimal path
+Figure 2. Search for an optimal path
+
+This shows the selected path that was in turn deployed (programmed) into the network.
 
 In this example an SR-path between atl and chi has been requested. This panel shows the SR-paths computed. The path selected on the right is highlighted in the topology on the left. 
 
 ![](demo/path-deployed-message.png)
-Figure 2. Path has been deployed
+Figure 3. Path has been deployed
+
+This shows the selected path that was in turn deployed (programmed) into the network.
 
 ![](demo/deployed-path-list.png)
-Figure 3. List of all deployed paths
+Figure 4. List of all deployed paths
+
+This panel shows the list of deployed (active) SR-paths on right and the selected one is highlighted in the topology.
 
 ![](demo/node-details.png)
-Figure 4. Random node info. Link and/or path details are also available in one-two-click
+Figure 5. Random node info. Link and/or path details are also available in one-two-click
+
+And finally the panel provides information on specific nodes.
 
 ## Prerequisites
 ### For Pathman SR users
