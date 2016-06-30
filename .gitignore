@@ -1,5 +1,5 @@
 .idea/
 *.pyc
 *.xcodeproj
-client/node_modules/
-client/src/vendor/
+client-src/pathman_sr/node_modules/
+client-src/pathman_sr/src/vendor/
