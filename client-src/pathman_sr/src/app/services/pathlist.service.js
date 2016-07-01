@@ -10,6 +10,7 @@
 		this.refreshPathList = refreshPathList;
 		this.computePathListByConfig = computePathListByConfig;
 		this.deployPath = deployPath;
+		this.updatePath = updatePath;
 		this.removePath = removePath;
 
 		/**
@@ -139,12 +140,26 @@
 			}).then(
 
 				// success
-				function (data) {console.log(data);
-					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0"])) {
-						successCbk(data.response[0]);
+				function (data) {
+					var errData;
+					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0", "success"])) {
+						if(data.response[0].success == true){
+							successCbk(data.response[0]);
+						}
+						else{
+							errData = {
+								"errCode": "DEPLOY_PATH_UNSUCCESSFUL",
+								"errTitle": "Couldn't deploy path",
+								"errMsg": "Response indicated the error in frontend-backend communication.",
+								"errResolution": "Review detailed response.",
+								"errObj": data
+							};
+							errorCbk(errData);
+						}
+
 					}
 					else {
-						var errData = {
+						errData = {
 							"errCode": "DEPLOY_PATH_INVALID",
 							"errTitle": "Couldn't deploy path",
 							"errMsg": "Response was invalid when was trying to deploy path. Path is likely to not be deployed.",
@@ -161,6 +176,63 @@
 						"errCode": "DEPLOY_PATH",
 						"errTitle": "Couldn't deploy path",
 						"errMsg": "You tried to deploy path, but for some reason it is being complicated at this point.",
+						"errResolution": "Check your connection, otherwise make sure if controller is up.",
+						"errObj": err
+					};
+
+					errorCbk(errData);
+
+				}
+			);
+
+		}
+
+
+		/**
+		 * Update path
+		 * @param config {Object} Configuration: "path" is list of hops, "name" is the name of path
+		 * @param successCbk {Function} Success callback
+		 * @param errorCbk {Function} Error callback
+		 */
+		function updatePath(config, successCbk, errorCbk){
+
+			console.log(config);
+
+			var restObj = Restangular.all("pathman_sr");
+
+			restObj.customPOST({
+				"request": [
+					{
+						"option": "update",
+						"name": config.name,
+						"path": config.path
+					}
+				]
+			}).then(
+
+				// success
+				function (data) {console.log(data);
+					if (HelpersService.hasOwnPropertiesPath(data, ["response", "0", "success"])) {
+						successCbk(data.response[0]);
+					}
+					else{
+						errData = {
+							"errCode": "UPDATE_PATH_UNSUCCESSFUL",
+							"errTitle": "Couldn't update path",
+							"errMsg": "Response indicated the error in frontend-backend communication.",
+							"errResolution": "Review detailed response.",
+							"errObj": data
+						};
+						errorCbk(errData);
+					}
+				},
+
+				// error
+				function (err) {console.log(err);
+					var errData = {
+						"errCode": "UPDATE_PATH",
+						"errTitle": "Couldn't update path",
+						"errMsg": "You tried to update path, but for some reason it is being complicated at this point.",
 						"errResolution": "Check your connection, otherwise make sure if controller is up.",
 						"errObj": err
 					};

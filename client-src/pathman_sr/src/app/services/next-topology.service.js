@@ -308,8 +308,6 @@
 
 			pathLinkList = self._nodesToLinks(topo, hopList);
 
-			console.log(pathLinkList);
-
 			if(pathLinkList !== false){
 				// create a new Path entity
 				var path = new nx.graphic.Topology.Path({
@@ -415,7 +413,6 @@
 						var link = self._getLinksBetweenNodes(topo, lastNode, node);
 
 						if(typeof link === false){
-							console.error("ERROR: path must be valid!");
 							return false;
 						}
 

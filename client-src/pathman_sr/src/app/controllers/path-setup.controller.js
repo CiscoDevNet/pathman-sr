@@ -38,7 +38,12 @@
 		SharedDataService.data.autoPathSetupMode = "search";
 
 		// Manual path setup
-		$scope.$on("topo-select-node-manual", function(event, data){
+		$scope.$on("topo-select-node-manual", onManualPathSetup);
+		$scope.$on("openPanel", onOpenPanel);
+
+		/* Implementation */
+
+		function onManualPathSetup(event, data){
 
 			var node = data.nodeData,
 				foundIndex, neighbors, errObj, lastIndex,
@@ -157,30 +162,32 @@
 				return nodeObj.name === this.node.name;
 			}
 
-		});
+		}
 
-
-		$scope.$on("openPanel", function(event, data){console.log("1 - openPanel", data);
-
-			if(data.panelName == "path-setup"){console.log("2 - path-setup");
-
-				if(SharedDataService.data.pathSetupMode == "manual"){console.log("3 - mode - manual", $scope.manualPath);
-
+		function onOpenPanel(event, data){
+			if(data.panelName == "path-setup"){
+				if(SharedDataService.data.pathSetupMode == "manual"){
 					// draw the path on topology
 					$scope.highlightPath(
 						SharedDataService.data.nxTopology,
 						$scope.getNodeNamesOnly($scope.manualPath),
 						"pathListSelected"
 					);
+				}
+
+				// when a user is updating the path
+				if(SharedDataService.data.pathSetupUpdateData.mode == "update"){
+					console.log(SharedDataService.data.pathSetupUpdateData);
+
+					$scope.psForm = {
+						"source": SharedDataService.data.pathSetupUpdateData.pathDetails.source,
+						"destination": SharedDataService.data.pathSetupUpdateData.pathDetails.destination
+					};
 
 				}
 
 			}
-
-		});
-
-
-		/* Implementation */
+		}
 
 		/**
 		 * Test form elements if input is invalid
@@ -344,8 +351,14 @@
 			// remove path for topology
 			NextTopologyService.removePathByType(topo, "pathListSelected");
 
-			// make REST call to deploy path on controller
-			PathListService.deployPath(pathConfig, deployPathSuccessCbk, deployPathErrorCbk);
+			if(SharedDataService.data.pathSetupUpdateData.mode == "update"){
+				// make REST call to change route of path's intermediate routers
+				PathListService.updatePath(pathConfig, deployPathSuccessCbk, deployPathErrorCbk);
+			}
+			else{
+				// make REST call to deploy path on controller
+				PathListService.deployPath(pathConfig, deployPathSuccessCbk, deployPathErrorCbk);
+			}
 
 			// success: path deployed
 			function deployPathSuccessCbk(data){

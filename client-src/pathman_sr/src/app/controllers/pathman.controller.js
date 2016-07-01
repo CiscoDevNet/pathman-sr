@@ -102,7 +102,8 @@
 				case "path-setup":
 
 					SharedDataService.data.pathSetupMode = SharedDataService.data.pathSetupSelectedTab;
-
+					SharedDataService.data.pathSetupUpdateData = (typeof args === 'object' && args !== null) ?
+						args : {"mode": "default"};
 					SharedDataService.data.sidePanel = true;
 					SharedDataService.data.sidePanelName = panelName;
 

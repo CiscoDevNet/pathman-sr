@@ -33,6 +33,7 @@
 			pathSetupMode: null,
 			pathSetupSelectedTab: null,
 			pathDeploymentResult: null,
+			pathSetupUpdateData: null,
 
 			// NeXt library data
 			nxApp: null,

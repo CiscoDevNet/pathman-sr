@@ -5,7 +5,12 @@
 				<h2>
 					<span>
 						<i class="fa fa-wrench" aria-hidden="true"></i>
-						Setup SR-path
+						<span ng-show="shared.pathSetupUpdateData.mode == 'default'">
+							Setup SR-path
+						</span>
+						<span ng-show="shared.pathSetupUpdateData.mode == 'update'">
+							Modify SR-path
+						</span>
 					</span>
 				</h2>
 				<span flex></span>
@@ -18,7 +23,6 @@
 			<div ng-show="!shared.topologyInitd"  class="layout-padding" layout="row">
 				<md-progress-circular md-mode="indeterminate"
 									  md-diameter="20px">
-
 				</md-progress-circular>
 				Loading data...
 			</div>
@@ -28,7 +32,6 @@
 				<!-- Deploy path -->
 				<div flex
 					 ng-show="shared.autoPathSetupMode == 'register-path'">
-
 
 					<!-- Breadcrumbs -->
 					<div layout="row">
@@ -120,8 +123,9 @@
 											<label>Source</label>
 											<md-select ng-model="psForm.source"
 													   ng-required="true"
-													   name="source">
-												<md-option ng-repeat="node in shared.topologyData.nodes | filter: nodeFilter.pcepEnabled" value="{{node.name}}">
+													   name="source"
+													   ng-disabled="shared.pathSetupUpdateData.mode === 'update'">
+												<md-option ng-repeat="node in shared.topologyData.nodes | filter: nodeFilter.pcepEnabled" value="{{ node.name }}">
 													{{ node.name }}
 												</md-option>
 											</md-select>
@@ -131,8 +135,9 @@
 											<label>Destination</label>
 											<md-select ng-model="psForm.destination"
 													   ng-required="true"
-													   name="destination">
-												<md-option ng-repeat="node in shared.topologyData.nodes | filter: nodeFilter.srEnabled" value="{{node.name}}">
+													   name="destination"
+													   ng-disabled="shared.pathSetupUpdateData.mode === 'update'">
+												<md-option ng-repeat="node in shared.topologyData.nodes | filter: nodeFilter.srEnabled" value="{{ node.name }}">
 													{{ node.name }}
 												</md-option>
 											</md-select>
