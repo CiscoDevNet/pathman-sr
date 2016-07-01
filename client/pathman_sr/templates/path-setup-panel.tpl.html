@@ -186,7 +186,7 @@
 						</md-content>
 					</md-tab>
 					<md-tab label="Manual" md-on-select="onTabSelected('manual')">
-						<md-content>
+						<md-content ng-show="shared.pathSetupUpdateData.mode == 'default'">
 
 							<section>
 								<md-toolbar class="md-table-toolbar md-accent">
@@ -306,6 +306,9 @@
 								</p>
 							</div>
 
+						</md-content>
+						<md-content ng-show="shared.pathSetupUpdateData.mode == 'update'" layout-padding>
+							Manual path setup is unavailable in "Update" mode.
 						</md-content>
 					</md-tab>
 				</md-tabs>
