@@ -353,7 +353,7 @@ def node_sr_update(node_list):
     for node in node_list:
         temp_sid = node_configs.get(node.name,{})
         rid_sid = rid_dict.get(node.loopback,{})
-        
+
         if len(temp_sid) >0:
             update(node, temp_sid)
         elif len(rid_sid) >0:
@@ -361,8 +361,8 @@ def node_sr_update(node_list):
         else:
             logging.error("No sid for: %s" % node.name)
 
-    return node_list               
-        
+    return node_list
+
 
 def get_loop_list(path_list):
     """ get loopbacks for nodes in pathlist"""
@@ -403,7 +403,7 @@ def get_sid_list(path_list):
     logging.info("SID list: %s" % sid_list)
     return sid_list
 
-   
+
 ##########
 
 def name_check(address):
@@ -425,18 +425,18 @@ def ipv4_in_network(ip, network):
 
     mask = network.split('/')[-1]
     net = network.split('/')[0]
-    
+
     ip_oct = ip.split('.')
     net_oct = net.split('.')
     oct, bits = mask_check(int(mask))
-    
+
     for i in range(oct):
         if ip_oct[i] != net_oct[i]:
             return False
     # Are you still here?
     if oct == 4 or bits == 0:
         return True
-    
+
     ip_bin = bin(int(ip_oct[oct]))
     net_bin = bin(int(net_oct[oct]))
     if ip_bin[2:bits+2] == net_bin[2:bits+2]:
@@ -451,7 +451,7 @@ def get_url(url):
     try:
         response =  requests.get(url, headers = headers, auth = (odl_user,odl_password), verify=False)
         logging.info("Url get Status: %s" % response.status_code)
-        
+
         if response.status_code in [200]:
             return response.json()
         else:
@@ -465,7 +465,7 @@ def locations_of_substring(string,target, offset=0):
     '''recursive counter of all occurances'''
     temp = []
     start = string.find(target)
-    
+
     if start != -1:
         temp = [start+offset]
         temp += locations_of_substring(string[start+len(target):],target, offset +start+len(target))
@@ -573,7 +573,7 @@ def node_structure(my_topology, debug = 2):
         node_list.append(node)
     logging.info(node_list)
     return node_list
-    
+
 def pseudo_net_build(node_list):
     pseudo_net = []
     for node in node_list:
@@ -642,7 +642,7 @@ def pseudo_net_check(address):
 def list_pcep_lsp(node_list, debug):
     """ reads pcep db from netowrk and provies a list of lsp's """
     my_pcep = get_url(get_pcep)
-    
+
     loops = [pnode.loopback for pnode in node_list]
 
     lsplist = []
@@ -665,13 +665,13 @@ def list_pcep_lsp(node_list, debug):
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:ip-address'])
                                         elif nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-adjacency':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:remote-ip-address'])
-                                            
-                                    
+
+
                                 hoplist = []
                                 originate = name_from_pcc(pcc, node_list, debug)
                                 if originate != '':
                                     hoplist.append(originate)
-                                    
+
                                 for interface in ip_hoplist:
                                     temp = find_node(node_list, interface,debug)
                                     if temp == None:
@@ -680,7 +680,7 @@ def list_pcep_lsp(node_list, debug):
                                             temp = node_list[index].name
                                         except ValueError:
                                             logging.error("Interface not found: %s" % interface)
-                    
+
                                     logging.info("interface: %s, temp: %s" %(interface, temp))
                                     #if temp in pseudo_net:
                                     success, pname = pseudo_net_check(interface)
@@ -877,7 +877,7 @@ def lsp_create_xml_07(src, dst, name_of_lsp , pcc, hoplist, debug):
 def lsp_create_xml_sr(src, dst, name_of_lsp , pcc, hoplist, sid_list, debug):
     """ build a xml structure to create LSPs """
     hop_xml_list = []
-    
+
     for hop, sid in zip(hoplist, sid_list):
         step = {"hop":hop, "sid":sid}
         new_xml = ero_sr_xml.format(**step)
@@ -921,7 +921,7 @@ def lsp_update_xml_07(src, dst, name_of_lsp , pcc, hoplist, debug):
 
 def lsp_delete_json(name_of_lsp, pcc, debug):
     """ build a json strtucture for lsp delete """
-    
+
     lsp_dict = {}
     lsp_dict.update({"input":{}})
     lsp_dict["input"].update({"node":pcc,
@@ -1109,7 +1109,7 @@ def createLsp(dict_subcommand,debug):
     if success:
         startid = map_name2node(node_list, path[0])
         stopid = map_name2node(node_list, path[-1])
-        
+
         for node in node_list:
             if startid == node.id:
                 #pcc = node.loopback
@@ -1417,8 +1417,8 @@ def listSRnodes(debug):
     for node in node_list:
         if node.sid != 0:
             reply.append({'name': node.name, 'sid':node.sid})
-    return True, reply           
- 
+    return True, reply
+
 
 def rest_interface_parser(list_subcommands, debug):
     """ interface module for rest API
@@ -1453,7 +1453,7 @@ def rest_interface_parser(list_subcommands, debug):
                             'success':Success,
                             'name':dict_subcommand['name']
                             }
-            elif 'change' == dict_subcommand['option']:
+            elif 'update' == dict_subcommand['option']:
                 #Success, Cause = createLsp(dict_subcommand,debug=debug)
                 Success, Cause = updateSRtunnel(dict_subcommand, debug=debug)
                 if Success:

@@ -196,8 +196,6 @@
 		 */
 		function updatePath(config, successCbk, errorCbk){
 
-			console.log(config);
-
 			var restObj = Restangular.all("pathman_sr");
 
 			restObj.customPOST({

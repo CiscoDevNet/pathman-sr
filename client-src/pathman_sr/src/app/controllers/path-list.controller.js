@@ -68,13 +68,10 @@
 				PathListService.removePath(removePathConfig, removePathSuccessCbk, removePathErrorCbk);
 
 				function removePathSuccessCbk(data){
-
-
-
 					PathListService.refreshPathList(
-						function(data){
+						function(pathListData){
 							// record path list data
-							SharedDataService.data.pathListData = data;
+							SharedDataService.data.pathListData = pathListData;
 							// path list initialized = true
 							SharedDataService.data.pathListInitd = true;
 						},
@@ -84,12 +81,6 @@
 
 						}
 					);
-
-
-
-
-					SharedDataService.data.pathListData = data;
-					SharedDataService.data.pathListInitd = true;
 				}
 
 				function removePathErrorCbk(err){
