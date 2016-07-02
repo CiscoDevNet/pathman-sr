@@ -1186,7 +1186,7 @@ def createSRtunnel(dict_subcommand,debug):
     return success, cause
 
 def matchLSP(lsp_name, pcc, pcep_type):
-    lsplist = list_pcep_lsp(node_list, debug)
+    lsplist = list_pcep_lsp(node_list, 1)
     for lsp in lsplist:
         if 'pcc://{0}'.format(lsp.pcc) == pcc and lsp.name == lsp_name and pcep_type == '07':
             return lsp
