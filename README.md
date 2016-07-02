@@ -136,8 +136,7 @@ Once finished, you may want to reassemble frontend code. There are the two ways 
 2. To clean the build folder and rebuild the code, run the following commands:
 	
 	```
-	gulp clean
-	gulp build
+	gulp clean && gulp build
 	```
 
 ### Configuration
