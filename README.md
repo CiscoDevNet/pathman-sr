@@ -13,6 +13,10 @@ OpenDaylight (ODL) is an open-source application development and delivery platfo
 
 [https://github.com/CiscoDevNet/pathman-sr](https://github.com/CiscoDevNet/pathman-sr)
 
+### Contact Email:
+
+<pathman-sr@external.cisco.com>
+
 ### Social Tags:
 
 SDN, Open Source, NexT, IP, MPLS, BGP, BGP-LS, OSPF, ISIS, Traffic Engineering, RESTCONF API, YANG, Segment Routing
