@@ -184,6 +184,14 @@
 						"destination": SharedDataService.data.pathSetupUpdateData.pathDetails.destination
 					};
 
+					// reset settings
+					SharedDataService.data.autoPathSetupMode = "search";
+
+					$scope.computedPaths = [];
+					$scope.computedMetrics = [];
+					$scope.manualPath = [];
+					$scope.manualPathMetrics = [];
+
 				}
 
 			}
@@ -312,9 +320,19 @@
 			NextTopologyService.addPath(topo, pathSet, "pathListSelected");
 
 			$scope.pathSet = pathSet;
-			$scope.prForm = {
-				"pathName": pathSet[0] + " -> " + pathSet[pathSet.length - 1]
-			};
+
+			switch(SharedDataService.data.pathSetupUpdateData.mode){
+				case "default":
+					$scope.prForm = {
+						"pathName": pathSet[0] + " -> " + pathSet[pathSet.length - 1]
+					};
+					break;
+				case "update":
+					$scope.prForm = {
+						"pathName": SharedDataService.data.pathSetupUpdateData.pathDetails.name
+					};
+					break;
+			}
 
 		}
 

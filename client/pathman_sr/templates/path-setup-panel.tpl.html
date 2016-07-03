@@ -89,7 +89,8 @@
 										   name="pathName"
 										   title="Path name"
 										   ng-model="prForm.pathName"
-										   ng-required>
+										   ng-required
+										   ng-disabled="shared.pathSetupUpdateData.mode === 'update'">
 								</md-input-container>
 
 								<md-button class = "md-primary md-raised"
