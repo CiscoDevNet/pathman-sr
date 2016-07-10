@@ -6,10 +6,8 @@ configFn = function($mdThemingProvider, RestangularProvider) {
 	$mdThemingProvider.theme("default")
 		.primaryPalette("blue")
 		.accentPalette("light-blue");
-
-
-	// todo: make URL dynamic
-	RestangularProvider.setBaseUrl("http://localhost:8020");
+	
+	RestangularProvider.setBaseUrl(window.location.origin);
 };
 configFn.$inject = ["$mdThemingProvider", "RestangularProvider"];
 
