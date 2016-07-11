@@ -1,5 +1,5 @@
 # Running your OpenDaylight APPs towards a Topology
-Updated: 20160627
+Updated: 20160711
 
 The BGP and PCEP (Pathman) apps assume that you can connect to an OpenDaylight (ODL) Controller.
 
@@ -12,28 +12,28 @@ You topology would also need to be configured to interact with the ODL controlle
 
 To simplify this step, we have implement a demonstration ODL controller and network topology available at [dCloud](dcloud.cisco.com). Below you will find the information required to have these apps interact with dCloud.
 
-# Accessing OpenDaylight Beryllium SR1/SR2 at dCloud
+# Accessing OpenDaylight Beryllium at dCloud
 
-First, you need to connect to [dcloud.cisco.com](http://dcloud.cisco.com) and signup. If you are a new user, you may need to first signup at [cco.cisco.com](http://cco.cisco.com), and then at [dcloud](http://dcloud.cisco.com).
+1. First, you need to connect to [dcloud.cisco.com](http://dcloud.cisco.com) and signup. If you are a new user, you may need to first signup at [cco.cisco.com](http://cco.cisco.com), and then at [dcloud](http://dcloud.cisco.com).
 
-When connecting to dcloud, you will first be prompted to select a datacenter near you (shown in 1). After that you will be prompted to set up a profile.
+2. When connecting to dcloud, you will first be prompted to select a datacenter near you (shown in 1). After that you will be prompted to set up a profile.
 
-- If you have any trouble in getting your profile setup, please consult the Help tab.
-
-
-![](media/image5.png)
-Figure 1 dCloud data center selection screen
-
-Once connected to [dCloud](http://dcloud.cisco.com), you will see the content overview. From there, select Service Provider, and locate the [OpenDayLight Beryllium SR1 with Apps with 8 nodes v1.](https://dcloud-cms.cisco.com/demo/opendaylight-beryllium-sr1-with-apps-with-8-nodes-v1) demo.
-
-Note that any newer ODL demo should work fine as well.
-
-- --Then select Start/Schedule and pick a time for when you want to have access to the topology, or now.
-- --Select the Session End time.
-- --Click Next and answer the "use" questions.
+ - If you have any trouble in getting your profile setup, please consult the Help tab.
 
 
-Now you are done and you should have a session being started for you.
+ ![](media/image5.png)
+ Figure 1 dCloud data center selection screen
+
+3. Once connected to [dCloud](http://dcloud.cisco.com), you will see the content overview. From there, select Service Provider, and locate the [OpenDayLight Beryllium SR2 with Apps with 8 nodes v1.](https://dcloud-cms.cisco.com/demo/opendaylight-beryllium-sr2-with-apps-with-8-nodes-v1) demo.
+
+ **Note that any newer ODL demo should work fine as well.**
+
+4. Then select Start/Schedule and pick a time for when you want to have access to the topology, or now.
+5. Select the Session End time.
+6. Click Next and answer the "use" questions.
+
+
+**Now you are done and you should have a session being started for you.**
 
 # How do I configure my APP to talk to my dCloud ODL + topology?
 
@@ -64,6 +64,7 @@ These values are fine once you have any-connected in to the dCloud session.
 Depending on where you have installed the apps, you may want to consider different options to access your active dCloud session.
 
 1. Cisco AnyConnect Client - [http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html](http://www.cisco.com/c/en/us/products/security/anyconnect-secure-mobility-client/index.html)
+	- [Show Me How to connect](https://dcloud-cms.cisco.com/help/install_anyconnect_pc_mac) 
 
 2. Openconnect – see [https://wiki.archlinux.org/index.php/OpenConnect](https://wiki.archlinux.org/index.php/OpenConnect)
 
@@ -77,19 +78,22 @@ And if you 'click here for available options', you will see a view like this:
 
 
 ![](media/image6.png)
+
 Figure 2 Anyconnect session credentials screen
 
-Once connected, your laptop will be in the same network as the routers in your topology and the Lithium ODL controller.
+Once connected, your laptop will be in the same network as the routers in your topology and the ODL controller.
 
-Routers are at: 198.18.1.30 – 37. Username/password is cisco/cisco
+### dCloud Topology access details:
 
-Your ODL controller is at 198.18.1.80, ssh to port 8022 user/pass: cisco/cisco
+|                 | IP              | Port          | Username | Password | Notes                            |
+|-----------------|-----------------|---------------|----------|----------|----------------------------------|
+| **Karaf**       | 198.18.1.80     | 8101          | karaf    | karaf    | SSH exit command: ‘shell:logout’ |
+| **ODL host**    | 198.18.1.80     | 8022          | cisco    | cisco    | SSH                              |
+| **User VM**    | 198.18.1.80     | 8222          | cisco    | cisco    | SSH                              |
+| **Restconf**    | 198.18.1.80     | 8080 and 8181 | admin    | admin    |                                  |
+| **XRV Routers** | 198.18.1.30-.37 | 23            | cisco    | cisco    | Telnet                           |
 
-Karaf is at 198.18.1.80, ssh to port 8101, user/password: karaf/karaf
-
-RESTCONF API access to ODL is at 198.18.1.80, port 8181, user/password: admin/admin
-
-# How to Configure and Launch BGP-LS Manager and Pathman Apps
+# How to Configure and Launch Pathman_SR
 
 1. Software prerequisites (above and beyond what is required for dCloud access):
 
@@ -128,13 +132,14 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 -rw-r--r--   1 staff  24140 Jun  8 11:10 topo_data.py
 ```
 
-5. Next modify the pathman\_ini.py file to point to the remote ODL instance. No change is required if you are using a dcloud ODL session.
+5. Next modify the **pathman\_ini.py** file to point to the remote ODL instance. No change is required if you are using a dcloud ODL session via AnyConnect.
 
 6. As you are installing this on the UserVM inside the demo, we will need to change the clients UI link:
 
  ```
 [cisco@user_vm pathman_sr]$ sed -i 's/localhost/198.18.1.80/g' client/build/js/app.js[cisco@user_vm pathman_sr]$
  ```
+ The UI needs to know where to find the backend app - rest\_sever\_v6.
 
 7. Type in the following command to start the rest_server:
 
@@ -146,9 +151,9 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 
 8. Open your Chrome Browser
 
-9. URL to launch Pathman_SR: [http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html](http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html). This assumes that your app is running on your local host.
+9. URL to launch Pathman_SR: [http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html](http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html). 
 
-**NOTE**: Current code may use this url: [http://198.18.1.80:8020/cisco-ctao/apps/build/index.html](http://198.18.1.80:8020/cisco-ctao/apps/build/index.html)
+**NOTE**: IF you installed the app on lyour local host, then the IP address above would need to be _localhost_.
 
 # What if I don't have Cisco Anyconnect installed?
 

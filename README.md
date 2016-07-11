@@ -159,12 +159,14 @@ python ./rest_server_v6.py
 If your system is asking you to give permission for incomming connection, approve them.
 
 In about a moment, the URL of Pathman would be <http://localhost:8020/cisco-ctao/apps/pathman_sr/index.html>
-**Note**: The current url is <http://localhost:8020/cisco-ctao/apps/build/index.html>, but it will be changed to the above.
 
 Run log goes to pathman.log
 
 ## For Use with dCloud Topology, Setup and Troubleshooting hints
 Go here for [details](https://github.com/CiscoDevNet/pathman-sr/tree/master/dCloud)
+
+## To use with Docker
+Go here for [details](https://github.com/CiscoDevNet/pathman-sr/tree/master/docker)
 
 
 
