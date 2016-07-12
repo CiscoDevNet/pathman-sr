@@ -99,12 +99,16 @@ Once connected, your laptop will be in the same network as the routers in your t
 
     - Chrome Version 45.0.2454.101 (64-bit) or higher
     - Python 2.7 or 2.6
-    - Tornado 4.2.1
-    - requests 2.6.0
+    - Tornado 4.2.1 or higher
+    - requests 2.6.0 or higher
 
 2. Schedule and have a dCloud Beryllium ODL demo (per the above).
 
-3. Download BGP-LS Manager and Pathman apps from github located at [CiscoDevnet's Github](https://github.com/CiscoDevNet/pathman-sr)
+3. Access your demo and start a UserVM. For details, see dCloud Demo instructions for Pathman_SR:
+ - <http://198.18.133.1:8087/#scenario-7-pathman-segment-routing> - If AnyConnect to your demo
+ - <http://{public_ip}:15000/docs/#scenario-7-pathman-segment-routing> - If using [public ip access](#dcloud-topology-public-ip-access)
+
+4. Download BGP-LS Manager and Pathman apps from github located at [CiscoDevnet's Github](https://github.com/CiscoDevNet/pathman-sr)
 
  ```
  mkdir pathman_sr
@@ -113,7 +117,7 @@ Once connected, your laptop will be in the same network as the routers in your t
  git pull https://github.com/CiscoDevNet/pathman-sr
  ```
 
-4. You should the following in your current directory (pathman_sr).
+5. You should the following in your current directory (pathman_sr).
 
  ```
 drwxr-xr-x  13 staff    442 Jun  8 11:10 .git
@@ -132,16 +136,16 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 -rw-r--r--   1 staff  24140 Jun  8 11:10 topo_data.py
 ```
 
-5. Next modify the **pathman\_ini.py** file to point to the remote ODL instance. No change is required if you are using a dcloud ODL session via AnyConnect.
+6. Next modify the **pathman\_ini.py** file to point to the remote ODL instance. No change is required if you are using a dcloud ODL session via AnyConnect.
 
-6. As you are installing this on the UserVM inside the demo, we will need to change the clients UI link:
+7. As you are installing this on the UserVM inside the demo, we will need to change the clients UI link:
 
  ```
 [cisco@user_vm pathman_sr]$ sed -i 's/localhost/198.18.1.80/g' client/build/js/app.js[cisco@user_vm pathman_sr]$
  ```
  The UI needs to know where to find the backend app - rest\_sever\_v6.
 
-7. Type in the following command to start the rest_server:
+8. Type in the following command to start the rest_server:
 
  ``` 
  python rest_server_v6.py. 
@@ -149,9 +153,9 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
  
  This launches the "backend" of the Pathman_sr app.
 
-8. Open your Chrome Browser
+9. Open your Chrome Browser
 
-9. URL to launch Pathman_SR: [http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html](http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html). 
+10. URL to launch Pathman_SR: [http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html](http://198.18.1.80:8020/cisco-ctao/apps/pathman_sr/index.html). 
 
 **NOTE**: IF you installed the app on lyour local host, then the IP address above would need to be _localhost_.
 
