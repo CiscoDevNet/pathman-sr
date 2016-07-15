@@ -43,10 +43,10 @@ Supporting files in ./files:
 Pathman SR is avilable at <https://hub.docker.com/r/nikmon2/pathman_sr>
 
 ```
-docker pull nikmon2/pathman-sr
+docker pull nikmon2/pathman_sr
 ```
 
 ### How to Run
 ```
-docker run -d -p 8222:22 -p 8020:8020 -t nikmon2/pathman-sr
+docker run -d -p 8222:22 -p 8020:8020 -t nikmon2/pathman_sr
 ```
