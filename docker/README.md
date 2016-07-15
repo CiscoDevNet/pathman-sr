@@ -39,7 +39,7 @@ Supporting files in ./files:
 ```
 
 
-## Hot to pull from Docker Hub
+## How to pull from Docker Hub
 Pathman SR is avilable at <https://hub.docker.com/r/nikmon2/pathman_sr>
 
 ```
