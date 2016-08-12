@@ -38,6 +38,8 @@
     20160608, Niklas - ver 5.5 - Added fixes from Pathman project: metrics, asymmetric links
     20160614, Niklas - ver 5.6 - added update function for SR paths
                         included a pathman fix for missing termination-points
+    20160811, Niklas - ver 5.7 - Changed Netconf url's to avoid mount point issues. tested w xrv 6.0.0, 6.0.1
+                            - Added sid_list to LSP to not list false SR LSPs
     """
 __author__ = 'niklas'
 
@@ -54,7 +56,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.5'
+version = '5.7'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -69,7 +71,7 @@ from pathman_ini import *
 
 #==============================================================
 Node = namedtuple('Node', ['name', 'id', 'loopback', 'portlist','pcc','pcep_type','prefix', 'sid'])
-LSP = namedtuple('LSP',['name', 'pcc', 'hoplist', 'iphoplist'])
+LSP = namedtuple('LSP',['name', 'pcc', 'hoplist', 'iphoplist', 'sid_list'])
 
 
 
@@ -80,6 +82,10 @@ update_lsp = 'http://%s:%s/restconf/operations/network-topology-pcep:update-lsp'
 delete_lsp = 'http://%s:%s/restconf/operations/network-topology-pcep:remove-lsp' %(odl_ip, odl_port)
 get_nodes = 'http://%s:%s/restconf/config/opendaylight-inventory:nodes' %(odl_ip, odl_port)
 get_node_config = 'http://%s:%s/restconf/config/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/' %(odl_ip, odl_port)
+get_node_isis_config = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/Cisco-IOS-XR-clns-isis-cfg:isis' %(odl_ip, odl_port)
+get_node_ospf_config = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/Cisco-IOS-XR-ipv4-ospf-cfg:ospf' %(odl_ip, odl_port)
+get_node_bgp_config = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/Cisco-IOS-XR-ipv4-bgp-cfg:bgp' %(odl_ip, odl_port)
+
 curl_cmd = 'curl -X POST -H Content-Type:application/json  -d '
 
 
@@ -292,17 +298,26 @@ def netconf_list():
 
 def get_netconf():
     '''get configs for nodes added to controller'''
+    def get_config(url_list, match):
+        for url in url_list:
+            result = get_url(url.format(**temp))
+            if result != {}:
+                reply = keyd_dict_walker(result, match)
+                if reply != -1:
+                    return reply
+        return -1
     netconf_nodes = netconf_list()
     node_configs = {}
     rid_dict = {}
     for node in netconf_nodes:
         if node != "controller-config":
             temp = {'node':node}
+            
             try:
-                result = get_url(get_node_config.format(**temp))
-                sid = keyd_dict_walker(result, 'prefix-sid')
-                rid = keyd_dict_walker(result, 'router-id')
-                logging.info("router-id: %s" % rid)
+                sid = get_config([get_node_isis_config, get_node_ospf_config], 'prefix-sid')
+                rid = get_config([get_node_bgp_config], 'router-id')
+                logging.info('rid: %s, sid: %s' %(rid, sid))
+
                 if sid != -1:
                     node_configs.update({node:sid})
                     logging.info("got netconf data for: %s" % node)
@@ -654,6 +669,7 @@ def list_pcep_lsp(node_list, debug):
 
                     name = path['name']
                     ip_hoplist = []
+                    sid_list = []
                     if 'odl-pcep-ietf-stateful07:lsp' in path['path'][0].keys():
                         if 'operational' in path['path'][0]['odl-pcep-ietf-stateful07:lsp'].keys():
                             if path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational'] == 'up':
@@ -663,9 +679,10 @@ def list_pcep_lsp(node_list, debug):
                                     if 'odl-pcep-segment-routing:sid-type' in nexthop.keys():
                                         if nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-node-id':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:ip-address'])
+                                            sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
                                         elif nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-adjacency':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:remote-ip-address'])
-
+                                            sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
 
                                 hoplist = []
                                 originate = name_from_pcc(pcc, node_list, debug)
@@ -687,7 +704,7 @@ def list_pcep_lsp(node_list, debug):
                                     if success:
                                         hoplist.append(pname)
                                     hoplist.append(temp)
-                                my_lsp = LSP(name,pcc,hoplist,ip_hoplist)
+                                my_lsp = LSP(name, pcc, hoplist, ip_hoplist, sid_list)
                                 lsplist.append(my_lsp)
     except:
         logging.info("We have no nodes in our PCEP Topology")
@@ -1221,7 +1238,7 @@ def updateSRtunnel(dict_subcommand, debug):
 
         if lsp:
             my_sr_xml = lsp_update_xml_sr(start_loopback, stop_loopback, lsp_name, pcc, loop_list, sid_list, debug)
-            print my_sr_xml
+            # print my_sr_xml
             dict_reply = postXml(update_lsp, my_sr_xml)
             logging.info("Update SR Tunnel response: %s" % dict_reply)
             #
@@ -1308,7 +1325,8 @@ def listAllLsp(dict_subcommand, debug):
         lsp_dict.update({'pcc': lsp.pcc})
         lsp_dict.update({'path': lsp.hoplist})
         lsp_dict.update({'hops': lsp.iphoplist})
-        lsp_dict.update({'sids': get_sid_list(lsp.hoplist)})
+        #lsp_dict.update({'sids': get_sid_list(lsp.hoplist)})
+        lsp_dict.update({'sids': lsp.sid_list})
         lspdictlist.append(lsp_dict)
 
     logging.info("list: %s, formatted: %s" %(lsplist,lspdictlist))
