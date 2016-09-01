@@ -1,5 +1,5 @@
 # Running your OpenDaylight APPs towards a Topology
-Updated: 20160711
+Updated: 20160718
 
 The BGP and PCEP (Pathman) apps assume that you can connect to an OpenDaylight (ODL) Controller.
 
@@ -141,7 +141,8 @@ drwxr-xr-x   6 staff    204 Jun  8 11:10 demo
 7. As you are installing this on the UserVM inside the demo, we will need to change the clients UI link:
 
  ```
-[cisco@user_vm pathman_sr]$ sed -i 's/localhost/198.18.1.80/g' client/build/js/app.js[cisco@user_vm pathman_sr]$
+[cisco@user_vm pathman_sr]$ sed -i 's/localhost/198.18.1.80/g' client/pathman_sr/js/app.js
+[cisco@user_vm pathman_sr]$
  ```
  The UI needs to know where to find the backend app - rest\_sever\_v6.
 

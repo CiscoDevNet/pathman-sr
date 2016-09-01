@@ -40,6 +40,7 @@
                         included a pathman fix for missing termination-points
     20160811, Niklas - ver 5.7 - Changed Netconf url's to avoid mount point issues. tested w xrv 6.0.0, 6.0.1
                             - Added sid_list to LSP to not list false SR LSPs
+    20160831, Niklas - ver 5.7b - added pseudo node fix from Pathman project
     """
 __author__ = 'niklas'
 
@@ -598,7 +599,7 @@ def pseudo_net_build(node_list):
                     pseudo_network = '0.0.0.0/32'
                     for network in owner.prefix:
                         #logging.info("calling ipv4_in_network for: %s - owner:%s" %(node.name,owner.name))
-                        if ipv4_in_network(node.portlist[0], network):
+                        if node.portlist != [] and ipv4_in_network(node.portlist[0], network):
                             pseudo_network = network
                     node_list[node_list.index(node)] = node._replace(name= owner.name+node.id[len(owner.id):],pcep_type="pseudonode",prefix=pseudo_network)
                     pseudo_net += node.portlist
