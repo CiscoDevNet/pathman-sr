@@ -1,5 +1,5 @@
 # Running your OpenDaylight APPs towards a Topology
-Updated: 20160718
+Updated: 20160906
 
 The BGP and PCEP (Pathman) apps assume that you can connect to an OpenDaylight (ODL) Controller.
 
@@ -38,8 +38,12 @@ To simplify this step, we have implement a demonstration ODL controller and netw
 # How do I configure my APP to talk to my dCloud ODL + topology?
 
 **Note:**
-The Pathman_SR app has been tested with Lithium SR3 and Beryllium SR1 and SR2
-
+The Pathman_SR app has been tested with:
+ - Lithium SR3
+ - Beryllium SR1
+ - Beryllium SR2
+ - Beryllium SR3
+ - Boron 0.5.0 Snapshot
 
 **No changes are needed to run this app towards the above-mentioned topology in dCloud.**
 

@@ -41,6 +41,7 @@
     20160811, Niklas - ver 5.7 - Changed Netconf url's to avoid mount point issues. tested w xrv 6.0.0, 6.0.1
                             - Added sid_list to LSP to not list false SR LSPs
     20160831, Niklas - ver 5.7b - added pseudo node fix from Pathman project
+    20160905, Niklas - ver 5.8 - Added ODL version detection and new netconf urls for Boron.
     """
 __author__ = 'niklas'
 
@@ -57,7 +58,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.7'
+version = '5.8'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -75,13 +76,14 @@ Node = namedtuple('Node', ['name', 'id', 'loopback', 'portlist','pcc','pcep_type
 LSP = namedtuple('LSP',['name', 'pcc', 'hoplist', 'iphoplist', 'sid_list'])
 
 
-
+get_version = 'http://%s:%s/restconf/modules' %(odl_ip, odl_port)
 get_topo = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/example-linkstate-topology' %(odl_ip, odl_port)
 get_pcep = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/pcep-topology' %(odl_ip, odl_port)
 create_lsp = 'http://%s:%s/restconf/operations/network-topology-pcep:add-lsp' %(odl_ip, odl_port)
 update_lsp = 'http://%s:%s/restconf/operations/network-topology-pcep:update-lsp' %(odl_ip, odl_port)
 delete_lsp = 'http://%s:%s/restconf/operations/network-topology-pcep:remove-lsp' %(odl_ip, odl_port)
 get_nodes = 'http://%s:%s/restconf/config/opendaylight-inventory:nodes' %(odl_ip, odl_port)
+get_node_topo = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/topology-netconf' %(odl_ip, odl_port)
 get_node_config = 'http://%s:%s/restconf/config/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/' %(odl_ip, odl_port)
 get_node_isis_config = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/Cisco-IOS-XR-clns-isis-cfg:isis' %(odl_ip, odl_port)
 get_node_ospf_config = 'http://%s:%s/restconf/operational/network-topology:network-topology/topology/topology-netconf/node/{node}/yang-ext:mount/Cisco-IOS-XR-ipv4-ospf-cfg:ospf' %(odl_ip, odl_port)
@@ -95,6 +97,12 @@ pcep_toplevel_parts = ['topology']
 pcep_topology_parts = ['topology-id', 'topology-types', 'node']
 
 string = "bgpls://IsisLevel2:1/type=node&as=65504&domain=505290270&router=0000.0000.0029"
+
+odl_version_dict = {'beryllium':{'name':"odl-rsvp-parser-spi-cfg", 'revision':"2015-08-26"},
+                    'lithium':{'name':"aaa-authn-model", 'revision':"2014-10-29"},
+                    'helium':{'name':"opendaylight-topology", 'revision':"2013-10-30"},
+                    'boron':{'name': "openconfig-interfaces", 'revision': "2016-04-12"},
+                    }
 
 lsp07_xml = '''<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
     <node>{pcc}</node>
@@ -284,7 +292,8 @@ LOGGING = {
         'handlers': ['logtofile']
         },
 }
-def netconf_list():
+
+def netconf_list_old():
     '''get nodes from netconf'''
     result = get_url(get_nodes)
     conf_list = []
@@ -295,6 +304,53 @@ def netconf_list():
         except:
             logging.error("format error in netconf node-list: %s" % str(result))
             pass
+    return conf_list
+
+def version_check():
+    """modified from odl_gateway"""
+    url = get_version
+    
+    result = get_url(url)
+
+    if True:
+        name_list = [mod['name'] for mod in result['modules']['module']]
+        rev_list = [mod['revision'] for mod in result['modules']['module']]
+        for odl_ver in odl_version_dict.keys():
+            if odl_version_dict[odl_ver]['name'] in name_list:
+                if odl_version_dict[odl_ver]['revision'] == rev_list[name_list.index(odl_version_dict[odl_ver]['name'])]:
+                    logging.info("Found ODL Release: %s" % odl_ver)
+                    return odl_ver
+    return ""
+
+
+def netconf_list(dummy=None):
+    '''modified from from odl_gateway'''
+    
+    odl_version = version_check()
+    
+    if odl_version in ['beryllium', 'boron']:
+        url = get_node_topo
+    else:
+        url = get_nodes
+    
+    result = get_url(url)
+    conf_list = []
+    if True:
+        if isinstance(result, dict):
+            if 'nodes' in result.keys():
+                try:
+                    for node in result['nodes']['node']:
+                        conf_list.append(node['id'])
+                except:
+                    logging.error("format error in netconf node-list: %s" % str(result))
+                    pass
+            elif 'topology' in result.keys():
+                try:
+                    for node in result['topology'][0]['node']:
+                        conf_list.append(node['node-id'])
+                except:
+                    logging.error("format error in netconf node-list: %s" % str(result))
+                    pass
     return conf_list
 
 def get_netconf():
