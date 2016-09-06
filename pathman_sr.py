@@ -42,6 +42,7 @@
                             - Added sid_list to LSP to not list false SR LSPs
     20160831, Niklas - ver 5.7b - added pseudo node fix from Pathman project
     20160905, Niklas - ver 5.8 - Added ODL version detection and new netconf urls for Boron.
+    20160906, Giles  - ver 5.9 - Fixed TE metric get for ISIS
     """
 __author__ = 'niklas'
 
@@ -673,7 +674,7 @@ def node_links(my_topology, node_list, bgp=False, debug = 2):
         elif 'ospf-topology:ospf-link-attributes' in attributes.keys() and 'ted' in attributes['ospf-topology:ospf-link-attributes']:
             return attributes['ospf-topology:ospf-link-attributes']['ted'].get('te-default-metric', 10)
         elif 'isis-topology:isis-link-attributes' in attributes.keys() and 'ted' in attributes['isis-topology:isis-link-attributes']:
-            return attributes['isis-topology:isis-link-attributes'].get('te-default-metric', 10)
+            return attributes['isis-topology:isis-link-attributes']['ted'].get('te-default-metric', 10)
         else:
             return 10
     net = {}
