@@ -42,7 +42,8 @@
                             - Added sid_list to LSP to not list false SR LSPs
     20160831, Niklas - ver 5.7b - added pseudo node fix from Pathman project
     20160905, Niklas - ver 5.8 - Added ODL version detection and new netconf urls for Boron.
-    20160906, Giles  - ver 5.9 - Fixed TE metric get for ISIS
+    20160906, Giles  - ver 5.9 - Fixed TE metric get for ISIS,
+    20160906, Niklas  - ver 5.9 - Added topologies for TE and IGP metrics
     """
 __author__ = 'niklas'
 
@@ -59,7 +60,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.8'
+version = '5.9b'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -665,7 +666,7 @@ def pseudo_net_build(node_list):
     logging.info(pseudo_net)
     return pseudo_net
 
-def node_links(my_topology, node_list, bgp=False, debug = 2):
+def node_links(my_topology, node_list, bgp=False, metric='igp'):
     """ Dumps link info """
     def metric_test(attributes):
         """ Pick a metric to return """
@@ -1035,7 +1036,7 @@ def lsp_update_json(lsp_dict, path):
 
 def build_odl_topology(debug):
     """Build and inilaize our data structures """
-    global net, bgp_net
+    global net, bgp_net, te_net
     global pseudo_net
     global pseudo_list
     global node_list
@@ -1048,14 +1049,16 @@ def build_odl_topology(debug):
         pseudo_net = pseudo_net_build(node_list)
         pseudo_list = [ node for node in node_list if node.pcep_type == 'pseudonode']
         node_sr_update(node_list)
-        bgp_net, bgp_link_list = node_links(my_topology, node_list, bgp=True, debug=debug)
-        net, link_list = node_links(my_topology, node_list, debug=debug)
+        bgp_net, bgp_link_list = node_links(my_topology, node_list, bgp=True)
+        net, link_list = node_links(my_topology, node_list, metric='igp')
+        te_net, link_list = node_links(my_topology, node_list, metric='te')
         return True, 'all is well', len(net.keys())
 
     except :
         e = sys.exc_info()[0]
         logging.error(str(e))
         net = {}
+        te_net = {}
         bgp_net = {}
         node_list = []
         my_topology = {}
@@ -1065,7 +1068,7 @@ def build_odl_topology(debug):
 def sort_paths(pathlist, metriclist, type):
     """ lets sort the pathlist """
 
-    if type == 'igp':
+    if type in ['igp', 'te']:
         newpathlist = [path for (metric,path) in sorted(zip(metriclist,pathlist), key=lambda pair: pair[0])]
         newmetriclist = deepcopy(metriclist)
         newmetriclist.sort()
@@ -1079,7 +1082,7 @@ def sort_paths(pathlist, metriclist, type):
 
 def postUrl(url, data):
     import requests
-    response = requests.get(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/json'})
+    response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/json'})
     # print response.text
     return response.json()
 
@@ -1104,7 +1107,10 @@ def getPathlist(dict_subcommand,debug):
     if startid == '0000.0000.0000' or stopid == '0000.0000.0000':
         return False, 'no such node', []
 
-    dut = Puck(id=startid, end=stopid, topo = net)
+    if metrictype == 'te':
+        dut = Puck(id=startid, end=stopid, topo=te_net)
+    else:
+        dut = Puck(id=startid, end=stopid, topo=net)
     dut.pathlist = []
     dut.metriclist = []
 
@@ -1434,7 +1440,7 @@ def topoCheck(temp_nodelist):
     return temp_nodelist
 
 
-def getTopo(dict_subcommand, debug):
+def getTopo_old(dict_subcommand, debug):
     """ called from REST Server
         - Get UI a topo to work with """
     #topo_response = {'nodes':[],'links':[]}
@@ -1485,6 +1491,60 @@ def getTopo(dict_subcommand, debug):
         logging.info("Failed to get topo: %s" % cause)
         return False, cause, []
 
+def getTopo(dict_subcommand, debug):
+    """ called from REST Server
+        - Get UI a topo to work with """
+    def get_links(node_list, network):
+        net_by_name = translate_topo(node_list, network, debug)
+        links = []
+
+        for node in net_by_name.keys():
+            for hop in net_by_name[node].keys():
+                if hop_not_source(links, hop):
+                    link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
+                    link_dict["source"] = node
+                    link_dict["target"] = hop
+                    try:
+                        link_dict["sourceTraffic"] = net_by_name[node][hop]
+                        link_dict["targetTraffic"] = net_by_name[hop][node]
+                        links.append(link_dict)
+                    except KeyError:
+                        logging.error("Network link missing between {0} and {1}".format(hop, node))
+        return links
+
+    # New topo_response = {'nodes':[],'links':[], te-links':[]}
+    success, cause, num_nodes = build_odl_topology(debug)
+    if success:
+        temp_nodelist = []
+
+        for node in node_list:
+            sr_enabled = True if node.sid != "" else False
+            pcep_enabled = True if node.pcc != "" else False
+            node_dict = {'name': node.name,
+                         'site': node.name,
+                         'ipaddress': node.loopback,
+                         'prefix': node.prefix,
+                         'sid': node.sid,
+                         'pcc': node.pcc,
+                         'sr_enabled': sr_enabled,
+                         'pcep_enabled': pcep_enabled
+                         }
+            copyTopo(node_dict, topologyData['nodes'])
+            temp_nodelist.append(node_dict)
+            #topo_response['nodes'].append(node_dict)
+
+        temp_nodelist = topoCheck(temp_nodelist)
+
+        sorted_nodelist = sorted(temp_nodelist, key=lambda k: k['name'])
+        topo_response = {'nodes': sorted_nodelist,
+                         'links': get_links(node_list, bgp_net),
+                         'te-links': get_links(node_list, te_net)}
+
+        logging.info("Topo build with %s nodes" % num_nodes)
+        return True, 'another sunny day', topo_response
+    else:
+        logging.info("Failed to get topo: %s" % cause)
+        return False, cause, []
 
 def listSRnodes(debug):
     """Lists existing SR Nodes
@@ -1641,9 +1701,10 @@ if __name__ == '__main__':
     node_list = node_structure(my_topology, debug)
     pseudo_net = pseudo_net_build(node_list)
     pseudo_list = [ node for node in node_list if node.pcep_type == 'pseudonode']
-    bgp_net, link_list = node_links(my_topology, node_list, bgp=True, debug=debug)
-    net, link_list = node_links(my_topology, node_list, debug=debug)
-    #net, link_list = node_links(my_topology, node_list, debug)
+    bgp_net, link_list = node_links(my_topology, node_list, bgp=True)
+    net, link_list = node_links(my_topology, node_list, metric='igp')
+    te_net, link_list = node_links(my_topology, node_list, metric='te')
+    #net, link_list = node_links(my_topology, node_list)
 
     my_pcep = get_url(get_pcep)
     logging.info("hej")
