@@ -43,7 +43,8 @@
     20160831, Niklas - ver 5.7b - added pseudo node fix from Pathman project
     20160905, Niklas - ver 5.8 - Added ODL version detection and new netconf urls for Boron.
     20160906, Giles  - ver 5.9 - Fixed TE metric get for ISIS,
-    20160906, Niklas  - ver 5.9 - Added topologies for TE and IGP metrics
+    20160906, Niklas  - ver 5.9b - Added topologies for TE and IGP metrics
+    20160912, Niklas - ver 5.9c - Fixed Boron version check from false positives
     """
 __author__ = 'niklas'
 
@@ -60,7 +61,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9b'
+version = '5.9c'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -100,11 +101,12 @@ pcep_topology_parts = ['topology-id', 'topology-types', 'node']
 
 string = "bgpls://IsisLevel2:1/type=node&as=65504&domain=505290270&router=0000.0000.0029"
 
-odl_version_dict = {'beryllium':{'name':"odl-rsvp-parser-spi-cfg", 'revision':"2015-08-26"},
-                    'lithium':{'name':"aaa-authn-model", 'revision':"2014-10-29"},
-                    'helium':{'name':"opendaylight-topology", 'revision':"2013-10-30"},
-                    'boron':{'name': "openconfig-interfaces", 'revision': "2016-04-12"},
-                    }
+odl_version_list = [
+                    {'boron':{'name': "openconfig-interfaces", 'revision': "2016-04-12"}},
+                    {'beryllium':{'name':"odl-rsvp-parser-spi-cfg", 'revision':"2015-08-26"}},
+                    {'lithium':{'name':"aaa-authn-model", 'revision':"2014-10-29"}},
+                    {'helium':{'name':"opendaylight-topology", 'revision':"2013-10-30"}},
+                    ]
 
 lsp07_xml = '''<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
     <node>{pcc}</node>
@@ -317,13 +319,13 @@ def version_check():
     if True:
         name_list = [mod['name'] for mod in result['modules']['module']]
         rev_list = [mod['revision'] for mod in result['modules']['module']]
-        for odl_ver in odl_version_dict.keys():
-            if odl_version_dict[odl_ver]['name'] in name_list:
-                if odl_version_dict[odl_ver]['revision'] == rev_list[name_list.index(odl_version_dict[odl_ver]['name'])]:
-                    logging.info("Found ODL Release: %s" % odl_ver)
-                    return odl_ver
+        for odl_ver in odl_version_list:
+            version = odl_ver.keys()[0]
+            if odl_ver[version]['name'] in name_list:
+                if odl_ver[version]['revision'] == rev_list[name_list.index(odl_ver[version]['name'])]:
+                    logging.info("Found ODL Release: %s" % version)
+                    return version
     return ""
-
 
 def netconf_list(dummy=None):
     '''modified from from odl_gateway'''
@@ -731,8 +733,15 @@ def list_pcep_lsp(node_list, debug):
                     sid_list = []
                     if 'odl-pcep-ietf-stateful07:lsp' in path['path'][0].keys():
                         if 'operational' in path['path'][0]['odl-pcep-ietf-stateful07:lsp'].keys():
-                            if path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational'] == 'up':
-                                for nexthop in path['path'][0]['ero']['subobject']:
+                            oper = path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational']
+                            # if path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational'] == 'up':
+                            if oper == 'up' or oper == 'active':
+                                if 'rro' in path['path'][0].keys():
+                                    route_obj = path['path'][0]['rro']['subobject']
+                                else:
+                                    route_obj = path['path'][0]['ero']['subobject']
+                                # for nexthop in path['path'][0]['ero']['subobject']:
+                                for nexthop in route_obj:
                                     if 'ip-prefix' in nexthop.keys():
                                         ip_hoplist.append(nexthop['ip-prefix']['ip-prefix'])
                                     if 'odl-pcep-segment-routing:sid-type' in nexthop.keys():
