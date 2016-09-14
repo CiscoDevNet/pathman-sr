@@ -6,7 +6,7 @@ OpenDaylight (ODL) is an open-source application development and delivery platfo
 ![](demo/pahtmanlogo.png)
 
 
-Figure 1. Pathman-SR Architecture
+Figure 0. Pathman-SR Logo
 ## Team:
 
 - Niklas Montin
