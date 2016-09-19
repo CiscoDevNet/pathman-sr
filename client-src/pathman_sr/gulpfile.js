@@ -112,7 +112,7 @@ gulp.task('vendor:build', function(){
 		.pipe(gulp.dest(path.build.vendor))
 });
 
-gulp.task('build', [
+gulp.task('build-full', [
 	'html:build', // compile index.html
 	'js:build', // assemble and minify js
 	'style:build', // assemble and minify less/css
@@ -120,6 +120,12 @@ gulp.task('build', [
 	'vendor:build' // copy vendor files
 ]);
 
+gulp.task('build', [
+	'html:build', // compile index.html
+	'js:build', // assemble and minify js
+	'style:build', // assemble and minify less/css
+	'image:build' // just copy images
+]);
 
 gulp.task('watch', function(){
 	watch([path.watch.index, path.watch.templates], function(event, cb) {
