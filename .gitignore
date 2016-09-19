@@ -3,3 +3,4 @@
 *.xcodeproj
 client-src/pathman_sr/node_modules/
 client-src/pathman_sr/src/vendor/
+client/

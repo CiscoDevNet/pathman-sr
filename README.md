@@ -122,10 +122,10 @@ npm install gulp -g
 
 *Bower* is a package manager for frontend, and *Gulp* is a frontend compilation tool. *-g* is flag that will install the packages globally and will reserve the CLI commands.
 
-Assuming you are currently in the root directory of the project, navigate to *client* directory with *cd*:
+Assuming you are currently in the root directory of the project, navigate to *client-src/pathman-sr/* directory with *cd*:
 
 ```
-cd client
+cd client-src/pathman-sr
 ```
 
 All GUI files are located in here.
