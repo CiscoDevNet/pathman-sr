@@ -17,7 +17,7 @@
 		$scope.countTotalByMetrics = countTotalByMetrics;
 
 		$scope.HelpersService = HelpersService;
-		$scope.validCostMetrics = ['igp', 'hops'];
+		$scope.validCostMetrics = ['igp', 'hops', 'te'];
 		$scope.autoPathFormLoadingStatus = false;
 		$scope.computedPaths = [];
 		$scope.computedMetrics = [];
@@ -79,10 +79,6 @@
 
 							metricType = $scope.manualPathMetrics[lastIndex - 1].type;
 
-							console.log(metricType, $scope.manualPathMetricsTotal[metricName],
-								$scope.manualPathMetrics[lastIndex - 1],
-								$scope.manualPathMetrics[lastIndex - 1].metric[metricName][metricType]);
-
 							$scope.manualPathMetricsTotal[metricName] =
 								$scope.manualPathMetricsTotal[metricName] - $scope.manualPathMetrics[lastIndex - 1].metric[metricName][metricType];
 
@@ -91,9 +87,6 @@
 
 					$scope.manualPath.splice(lastIndex, 1);
 					$scope.manualPathMetrics.splice(lastIndex - 1);
-
-					console.log("last", $scope.manualPathMetricsTotal, $scope.manualPathMetrics);
-
 				}
 
 				// intermediate
@@ -111,8 +104,7 @@
 
 						for ( metricName in metric.metric) {
 							if( metric.metric.hasOwnProperty( metricName ) ) {
-								console.log("metricName", metricName);
-								console.log("metricType", metricType);
+
 								metricType = metric.type;
 
 								$scope.manualPathMetricsTotal[metricName] =
@@ -121,7 +113,6 @@
 							}
 						}
 
-						console.log(metric);
 					});
 
 				}
@@ -259,7 +250,6 @@
 
 				// when a user is updating the path
 				if(SharedDataService.data.pathSetupUpdateData.mode == "update"){
-					console.log(SharedDataService.data.pathSetupUpdateData);
 
 					$scope.psForm = {
 						"source": SharedDataService.data.pathSetupUpdateData.pathDetails.source,
