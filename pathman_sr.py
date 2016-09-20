@@ -45,6 +45,7 @@
     20160906, Giles  - ver 5.9 - Fixed TE metric get for ISIS,
     20160906, Niklas  - ver 5.9b - Added topologies for TE and IGP metrics
     20160912, Niklas - ver 5.9c - Fixed Boron version check from false positives
+    20160919, Niklas - ver 5.9d - getTopo reply format changed
     """
 __author__ = 'niklas'
 
@@ -61,7 +62,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9c'
+version = '5.9d'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -1500,28 +1501,38 @@ def getTopo_old(dict_subcommand, debug):
         logging.info("Failed to get topo: %s" % cause)
         return False, cause, []
 
+
 def getTopo(dict_subcommand, debug):
     """ called from REST Server
         - Get UI a topo to work with """
-    def get_links(node_list, network):
+    def get_links(node_list, network, type='igp'):
         net_by_name = translate_topo(node_list, network, debug)
         links = []
-
         for node in net_by_name.keys():
             for hop in net_by_name[node].keys():
                 if hop_not_source(links, hop):
-                    link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
+                    # link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
+                    link_dict = {}
                     link_dict["source"] = node
                     link_dict["target"] = hop
                     try:
-                        link_dict["sourceTraffic"] = net_by_name[node][hop]
-                        link_dict["targetTraffic"] = net_by_name[hop][node]
+                        link_dict["metric"] = {type: {'tx':  net_by_name[node][hop]}}
+                        link_dict["metric"][type].update({'rx': net_by_name[hop][node]})
                         links.append(link_dict)
-                    except KeyError:
+                    except KeyError as e:
+                        logging.error(e.message)
                         logging.error("Network link missing between {0} and {1}".format(hop, node))
         return links
 
-    # New topo_response = {'nodes':[],'links':[], te-links':[]}
+    def merge_links(master, extra):
+        """All links exist in master, and only once """
+        for item in master:
+            for link in extra:
+                if item['source'] == link['source'] and item['target'] == link['target']:
+                    # print "match", item['source'], item['target']
+                    item['metric'].update(link['metric'])
+        return master
+
     success, cause, num_nodes = build_odl_topology(debug)
     if success:
         temp_nodelist = []
@@ -1545,15 +1556,17 @@ def getTopo(dict_subcommand, debug):
         temp_nodelist = topoCheck(temp_nodelist)
 
         sorted_nodelist = sorted(temp_nodelist, key=lambda k: k['name'])
+        links = get_links(node_list, bgp_net)
+        te_links = get_links(node_list, te_net, type='te')
         topo_response = {'nodes': sorted_nodelist,
-                         'links': get_links(node_list, bgp_net),
-                         'te-links': get_links(node_list, te_net)}
+                         'links': merge_links(links, te_links)}
 
         logging.info("Topo build with %s nodes" % num_nodes)
         return True, 'another sunny day', topo_response
     else:
         logging.info("Failed to get topo: %s" % cause)
         return False, cause, []
+
 
 def listSRnodes(debug):
     """Lists existing SR Nodes
