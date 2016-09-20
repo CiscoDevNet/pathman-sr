@@ -1,0 +1,148 @@
+<section layout="column" class="h100" ng-controller="NodeDetailsCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-exchange"></i>
+						Node details
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex>
+			<div layout-fill>
+
+				<section>
+
+					<!-- Breadcrumbs -->
+					<div layout="row">
+						<ul class="breadcrumbs">
+							<li class="breadcrumb" ng-click="openPanel('node-list')">Node list</li>
+							<li class="breadcrumb separator">/</li>
+							<li class="breadcrumb active">Node details</li>
+						</ul>
+					</div>
+					<!-- / Breadcrumbs -->
+
+				</section>
+
+
+				<section>
+
+					<md-toolbar class="md-table-toolbar md-accent">
+						<div class="md-toolbar-tools white-text">
+							<h2>
+								<span>Summary</span>
+							</h2>
+						</div>
+					</md-toolbar>
+
+					<md-table-container>
+						<table md-table>
+							<tbody md-body>
+
+								<tr md-row>
+									<td md-cell>
+										Node name
+									</td>
+									<td md-cell>
+										{{ nodeData.name }}
+									</td>
+								</tr>
+
+								<tr md-row>
+									<td md-cell>
+										SR enabled
+									</td>
+									<td md-cell>
+										<span ng-show="nodeData.sr_enabled" class="green-text">
+											<i class="fa fa-check-circle" aria-hidden="true"></i>
+										</span>
+										<span ng-hide="nodeData.sr_enabled" class="red-text">
+											<i class="fa fa-times-circle" aria-hidden="true"></i>
+										</span>
+									</td>
+								</tr>
+
+								<tr md-row>
+									<td md-cell>
+										PCEP enabled
+									</td>
+									<td md-cell>
+										<span ng-show="nodeData.pcep_enabled" class="green-text">
+											<i class="fa fa-check-circle" aria-hidden="true"></i>
+										</span>
+										<span ng-hide="nodeData.pcep_enabled" class="red-text">
+											<i class="fa fa-times-circle" aria-hidden="true"></i>
+										</span>
+									</td>
+								</tr>
+
+								<tr md-row>
+									<td md-cell>
+										IP address
+									</td>
+									<td md-cell>
+										{{ nodeData.ipaddress }}
+									</td>
+								</tr>
+
+								<tr md-row ng-show="nodeData.pcep_enabled">
+									<td md-cell>
+										PCC
+									</td>
+									<td md-cell>
+										{{ nodeData.pcc }}
+									</td>
+								</tr>
+
+								<tr md-row ng-show="nodeData.sr_enabled">
+									<td md-cell>
+										SID
+									</td>
+									<td md-cell>
+										{{ nodeData.sid }}
+									</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</md-table-container>
+				</section>
+
+				<section>
+
+					<md-toolbar class="md-table-toolbar md-accent">
+						<div class="md-toolbar-tools white-text">
+							<h2>
+								<span>Prefixes</span>
+							</h2>
+						</div>
+					</md-toolbar>
+
+					<!-- Table -->
+
+					<md-table-container>
+						<table md-table>
+							<tbody md-body>
+							<tr md-row ng-repeat="(index, prefix) in nodeData.prefix |
+							 	limitTo: prefixQuery.limit : (prefixQuery.page -1) * prefixQuery.limit">
+								<td md-cell>{{ prefix }}</td>
+							</tr>
+							</tbody>
+						</table>
+					</md-table-container>
+
+					<md-table-pagination md-limit="prefixQuery.limit" md-limit-options="[5, 10, 15]" md-page="prefixQuery.page" md-total="{{ nodeData.prefix.length }}" md-page-select></md-table-pagination>
+
+					<!-- / Table -->
+
+				</section>
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

@@ -54,10 +54,14 @@
 			};
 		}
 
-		function arraySum(arr){
+		function arraySum(arr, callback){
 			var total = 0;
-			arr.forEach(function(el){
-				total += el;
+			arr.forEach(function(el, index){
+
+				if(callback === undefined)
+					total += el;
+				else
+					total += callback(el, index, arr)
 			});
 			return total;
 		}

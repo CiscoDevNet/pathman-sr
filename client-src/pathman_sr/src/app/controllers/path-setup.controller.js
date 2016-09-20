@@ -14,6 +14,7 @@
 		$scope.onTabSelected = onTabSelected;
 		$scope.clearCurrentPath = clearCurrentPath;
 		$scope.getNodeNamesOnly = getNodeNamesOnly;
+		$scope.countTotalByMetrics = countTotalByMetrics;
 
 		$scope.HelpersService = HelpersService;
 		$scope.validCostMetrics = ['igp', 'hops'];
@@ -22,6 +23,7 @@
 		$scope.computedMetrics = [];
 		$scope.manualPath = [];
 		$scope.manualPathMetrics = [];
+		$scope.manualPathMetricsTotal = {};
 
 		$scope.nodeFilter = {
 			"pcepEnabled": {
@@ -47,7 +49,8 @@
 
 			var node = data.nodeData,
 				foundIndex, neighbors, errObj, lastIndex,
-				prevHop, currentLink, currentLinkModel;
+				prevHop, currentLink, currentLinkModel,
+				metricName, metricType;
 
 			foundIndex = ($scope.manualPath.findIndex(findRouterByName, {"node": node}));
 
@@ -60,18 +63,69 @@
 				if(foundIndex == 0){
 					$scope.manualPath = [];
 					$scope.manualPathMetrics = [];
+
+					for ( metricName in $scope.manualPathMetricsTotal) {
+						if( $scope.manualPathMetricsTotal.hasOwnProperty( metricName ) ) {
+							$scope.manualPathMetricsTotal[metricName] = 0;
+						}
+					}
+
 				}
-				// if it's the last point (destination)
+				// if it's the last point (current destination)
 				else if(foundIndex == lastIndex){
+
+					for ( metricName in $scope.manualPathMetricsTotal) {
+						if( $scope.manualPathMetricsTotal.hasOwnProperty( metricName ) ) {
+
+							metricType = $scope.manualPathMetrics[lastIndex - 1].type;
+
+							console.log(metricType, $scope.manualPathMetricsTotal[metricName],
+								$scope.manualPathMetrics[lastIndex - 1],
+								$scope.manualPathMetrics[lastIndex - 1].metric[metricName][metricType]);
+
+							$scope.manualPathMetricsTotal[metricName] =
+								$scope.manualPathMetricsTotal[metricName] - $scope.manualPathMetrics[lastIndex - 1].metric[metricName][metricType];
+
+						}
+					}
+
 					$scope.manualPath.splice(lastIndex, 1);
 					$scope.manualPathMetrics.splice(lastIndex - 1);
+
+					console.log("last", $scope.manualPathMetricsTotal, $scope.manualPathMetrics);
+
 				}
+
 				// intermediate
 				else{
 					$scope.manualPath.splice(foundIndex + 1);
 					$scope.manualPathMetrics.splice(foundIndex);
 
+					for ( metricName in $scope.manualPathMetricsTotal) {
+						if( $scope.manualPathMetricsTotal.hasOwnProperty( metricName ) ) {
+							$scope.manualPathMetricsTotal[metricName] = 0;
+						}
+					}
+
+					$scope.manualPathMetrics.forEach(function(metric){
+
+						for ( metricName in metric.metric) {
+							if( metric.metric.hasOwnProperty( metricName ) ) {
+								console.log("metricName", metricName);
+								console.log("metricType", metricType);
+								metricType = metric.type;
+
+								$scope.manualPathMetricsTotal[metricName] =
+									$scope.manualPathMetricsTotal[metricName] + metric.metric[metricName][metricType];
+
+							}
+						}
+
+						console.log(metric);
+					});
+
 				}
+
 			}
 			// otherwise (if node is new to the path)...
 			else{
@@ -98,10 +152,38 @@
 								currentLinkModel = currentLink.model().getData();
 
 								if(currentLinkModel.source == prevHop.name){
-									$scope.manualPathMetrics.push(currentLinkModel.sourceTraffic);
+
+									metricType = "tx";
+
+									$scope.manualPathMetrics.push({
+										metric: angular.copy(currentLinkModel.metric),
+										type: metricType
+									});
+
+
+
 								}
 								else{
-									$scope.manualPathMetrics.push(currentLinkModel.targetTraffic);
+
+									metricType = "rx";
+
+									$scope.manualPathMetrics.push({
+										metric: angular.copy(currentLinkModel.metric),
+										type: metricType
+									});
+								}
+
+								// add up to total
+								for ( metricName in currentLinkModel.metric) {
+									if( currentLinkModel.metric.hasOwnProperty( metricName ) ) {
+
+										if(!$scope.manualPathMetricsTotal.hasOwnProperty(metricName))
+											$scope.manualPathMetricsTotal[metricName] = 0;
+
+										$scope.manualPathMetricsTotal[metricName] =
+											$scope.manualPathMetricsTotal[metricName] + currentLinkModel.metric[metricName][metricType];
+
+									}
 								}
 
 								$scope.manualPath.push(node);
@@ -449,6 +531,7 @@
 
 			$scope.manualPath = [];
 			$scope.manualPathMetrics = [];
+			$scope.manualPathMetricsTotal = {};
 			NextTopologyService.clearPathLayer(topo);
 
 		}
@@ -465,6 +548,10 @@
 			});
 
 			return namesOnly;
+		}
+
+		function countTotalByMetrics(){
+
 		}
 
 	};
