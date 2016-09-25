@@ -20,7 +20,7 @@
     
     """
 #odl_ip = '127.0.0.1'
-odl_ip = '198.18.133.1'
+odl_ip = '198.18.1.80'
 odl_port = '8181'
 log_file = '/tmp/pathman.log'
 log_size = 2000000
