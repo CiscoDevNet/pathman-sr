@@ -314,9 +314,8 @@
 					"pathWidth": 3,
 					"links": pathLinkList,
 					"arrow": "cap",
-					"pathStyle": {
-						"fill": pathColor
-					}
+					"sourceNode": hopList[0],
+					"color": pathColor
 				});
 
 				// add the path

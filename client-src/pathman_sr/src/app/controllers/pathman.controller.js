@@ -48,6 +48,10 @@
 
 					// record the topology data
 					SharedDataService.data.topologyData = data;
+
+					console.log(SharedDataService.data.topologyData);
+
+
 					// render topology
 					SharedDataService.data.nxTopology.data(SharedDataService.data.topologyData);
 					// topology initialized = true

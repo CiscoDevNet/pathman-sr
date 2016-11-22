@@ -45,6 +45,8 @@
     20160906, Giles  - ver 5.9 - Fixed TE metric get for ISIS,
     20160906, Niklas  - ver 5.9b - Added topologies for TE and IGP metrics
     20160912, Niklas - ver 5.9c - Fixed Boron version check from false positives
+    20160919, Niklas - ver 5.9d - getTopo reply format changed
+    20160924, Niklas - ver 5.9e - Updated metrics selection
     """
 __author__ = 'niklas'
 
@@ -61,7 +63,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9c'
+version = '5.9e'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -297,18 +299,6 @@ LOGGING = {
         },
 }
 
-def netconf_list_old():
-    '''get nodes from netconf'''
-    result = get_url(get_nodes)
-    conf_list = []
-    if True:
-        try:
-            for node in result['nodes']['node']:
-                conf_list.append(node['id'])
-        except:
-            logging.error("format error in netconf node-list: %s" % str(result))
-            pass
-    return conf_list
 
 def version_check():
     """modified from odl_gateway"""
@@ -670,16 +660,24 @@ def pseudo_net_build(node_list):
 
 def node_links(my_topology, node_list, bgp=False, metric='igp'):
     """ Dumps link info """
-    def metric_test(attributes):
+    def metric_test(attributes, metric):
         """ Pick a metric to return """
+        temp = {'te-isis':10, 'te-ospf':10}
         if 'metric' in attributes.keys():
-            return attributes['metric']
-        elif 'ospf-topology:ospf-link-attributes' in attributes.keys() and 'ted' in attributes['ospf-topology:ospf-link-attributes']:
-            return attributes['ospf-topology:ospf-link-attributes']['ted'].get('te-default-metric', 10)
-        elif 'isis-topology:isis-link-attributes' in attributes.keys() and 'ted' in attributes['isis-topology:isis-link-attributes']:
-            return attributes['isis-topology:isis-link-attributes']['ted'].get('te-default-metric', 10)
-        else:
-            return 10
+            temp.update({'metric': attributes['metric']})
+        if 'ospf-topology:ospf-link-attributes' in attributes.keys() and 'ted' in attributes['ospf-topology:ospf-link-attributes']:
+            temp.update({'te-ospf': attributes['ospf-topology:ospf-link-attributes']['ted'].get('te-default-metric', 10)})
+        if 'isis-topology:isis-link-attributes' in attributes.keys() and 'ted' in attributes['isis-topology:isis-link-attributes']:
+            temp.update({'te-isis': attributes['isis-topology:isis-link-attributes']['ted'].get('te-default-metric', 10)})
+
+        if metric == 'igp':
+            return temp.get('metric', 10)
+        elif metric == 'te':
+            if temp['te-isis'] != 10:
+                return temp['te-isis']
+            else:
+                return temp['te-ospf']
+
     net = {}
     link_list = []
     sr_enabled = [node.id for node in node_list if node.sid != '']
@@ -690,9 +688,9 @@ def node_links(my_topology, node_list, bgp=False, metric='igp'):
 
             if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
                 if link_dict['local-router'] in net.keys():
-                    net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'])})
+                    net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)})
                 else:
-                    net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'])}})
+                    net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)}})
 
     except:
         logging.info("We have no links in our BGP-LS topology")
@@ -1449,79 +1447,37 @@ def topoCheck(temp_nodelist):
     return temp_nodelist
 
 
-def getTopo_old(dict_subcommand, debug):
-    """ called from REST Server
-        - Get UI a topo to work with """
-    #topo_response = {'nodes':[],'links':[]}
-    success, cause, num_nodes = build_odl_topology(debug)
-    if success:
-        temp_nodelist = []
-
-        for node in node_list:
-            sr_enabled = True if node.sid != "" else False
-            pcep_enabled = True if node.pcc != "" else False
-            node_dict = {'name': node.name,
-                         'site': node.name,
-                         'ipaddress': node.loopback,
-                         'prefix': node.prefix,
-                         'sid': node.sid,
-                         'pcc': node.pcc,
-                         'sr_enabled': sr_enabled,
-                         'pcep_enabled': pcep_enabled
-                         }
-            copyTopo(node_dict, topologyData['nodes'])
-            temp_nodelist.append(node_dict)
-            #topo_response['nodes'].append(node_dict)
-
-        temp_nodelist = topoCheck(temp_nodelist)
-
-        sorted_nodelist = sorted(temp_nodelist, key=lambda k: k['name'])
-        topo_response = {'nodes':sorted_nodelist,'links':[]}
-        net_by_name = translate_topo(node_list, bgp_net, debug)
-
-        for node in net_by_name.keys():
-
-            for hop in net_by_name[node].keys():
-                if hop_not_source(topo_response['links'], hop):
-                    #link_dict.update({'source':node, 'target':hop})
-                    link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
-                    link_dict["source"]=node
-                    link_dict["target"]=hop
-                    try:
-                        link_dict["sourceTraffic"] = net_by_name[node][hop]
-                        link_dict["targetTraffic"] = net_by_name[hop][node]
-                        topo_response['links'].append(link_dict)
-                    except KeyError:
-                        logging.error("bgp-ls link missing between {0} and {1}".format(hop, node))
-
-        logging.info("Topo build with %s nodes" % num_nodes)
-        return True, 'another sunny day', topo_response
-    else:
-        logging.info("Failed to get topo: %s" % cause)
-        return False, cause, []
-
 def getTopo(dict_subcommand, debug):
     """ called from REST Server
         - Get UI a topo to work with """
-    def get_links(node_list, network):
+    def get_links(node_list, network, type='igp'):
         net_by_name = translate_topo(node_list, network, debug)
         links = []
-
         for node in net_by_name.keys():
             for hop in net_by_name[node].keys():
                 if hop_not_source(links, hop):
-                    link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
+                    # link_dict = {'source':None, 'target':None,'sourceTraffic':0, 'targetTraffic':0}
+                    link_dict = {}
                     link_dict["source"] = node
                     link_dict["target"] = hop
                     try:
-                        link_dict["sourceTraffic"] = net_by_name[node][hop]
-                        link_dict["targetTraffic"] = net_by_name[hop][node]
+                        link_dict["metric"] = {type: {'tx':  net_by_name[node][hop]}}
+                        link_dict["metric"][type].update({'rx': net_by_name[hop][node]})
                         links.append(link_dict)
-                    except KeyError:
+                    except KeyError as e:
+                        logging.error(e.message)
                         logging.error("Network link missing between {0} and {1}".format(hop, node))
         return links
 
-    # New topo_response = {'nodes':[],'links':[], te-links':[]}
+    def merge_links(master, extra):
+        """All links exist in master, and only once """
+        for item in master:
+            for link in extra:
+                if item['source'] == link['source'] and item['target'] == link['target']:
+                    # print "match", item['source'], item['target']
+                    item['metric'].update(link['metric'])
+        return master
+
     success, cause, num_nodes = build_odl_topology(debug)
     if success:
         temp_nodelist = []
@@ -1545,15 +1501,17 @@ def getTopo(dict_subcommand, debug):
         temp_nodelist = topoCheck(temp_nodelist)
 
         sorted_nodelist = sorted(temp_nodelist, key=lambda k: k['name'])
+        links = get_links(node_list, bgp_net)
+        te_links = get_links(node_list, te_net, type='te')
         topo_response = {'nodes': sorted_nodelist,
-                         'links': get_links(node_list, bgp_net),
-                         'te-links': get_links(node_list, te_net)}
+                         'links': merge_links(links, te_links)}
 
         logging.info("Topo build with %s nodes" % num_nodes)
         return True, 'another sunny day', topo_response
     else:
         logging.info("Failed to get topo: %s" % cause)
         return False, cause, []
+
 
 def listSRnodes(debug):
     """Lists existing SR Nodes

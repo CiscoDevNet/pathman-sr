@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="pathmanApp">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="media/img/favicon.ico" type="image/vnd.microsoft.icon">
+        <title>Pathman Segment Routing</title>
+
+		<!-- Vendor CSS -->
+		<link rel="stylesheet" href="vendor/angular-material/angular-material.min.css">
+		<link rel="stylesheet" href="vendor/angular-material-data-table/dist/md-data-table.min.css">
+		<link rel="stylesheet" type="text/css" href="vendor/NeXt/css/next.min.css">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css">
+		<!-- / Vendor CSS -->
+
+		<!-- Vendor JS -->
+		<script type="text/javascript" src="vendor/angular/angular.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-animate/angular-animate.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-messages/angular-messages.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-aria/angular-aria.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-material/angular-material.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-material-data-table/dist/md-data-table.min.js"></script>
+		<script type="text/javascript" src="vendor/NeXt/js/next.js"></script>
+		<script type="text/javascript" src="vendor/jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="vendor/lodash/dist/lodash.min.js"></script>
+		<script type="text/javascript" src="vendor/restangular/dist/restangular.min.js"></script>
+		<!-- / Vendor JS-->
+
+		<!-- styles -->
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+
+    </head>
+    <body ng-controller="PathmanAppCtrl">
+
+
+	<div layout="row" class="h100 app-wrapper" flex>
+
+		<section layout="column" class="h100" flex>
+			<md-toolbar class="toolbar-main">
+				<div class="md-toolbar-tools toolbar-main">
+					<span class="product-label">
+						Pathman SR
+					</span>
+					<md-button ng-click="openPanel('path-setup')" ng-class="{'selected-item': shared.sidePanelName === 'path-setup'}">
+						<i class="fa fa-wrench" aria-hidden="true"></i>
+						Path setup
+					</md-button>
+					<md-button ng-click="openPanel('path-list')" ng-class="{'selected-item': shared.sidePanelName === 'path-list' || shared.sidePanelName === 'path-details'}">
+						<i class="fa fa-exchange" aria-hidden="true"></i>
+						Path List
+					</md-button>
+					<md-button ng-click="openPanel('node-list')" ng-class="{'selected-item': shared.sidePanelName === 'node-list' || shared.sidePanelName === 'node-details'}">
+						<i class="fa fa-share-alt" aria-hidden="true"></i>
+						Node List
+					</md-button>
+					<md-button ng-click="openPanel('link-list')" ng-class="{'selected-item': shared.sidePanelName === 'link-list' || shared.sidePanelName === 'link-details'}">
+						<i class="fa fa-link" aria-hidden="true"></i>
+						Link List
+					</md-button>
+					<md-button>
+						<i class="fa fa-info-circle" aria-hidden="true"></i>
+						Help
+					</md-button>
+					<span flex></span>
+
+				</div>
+			</md-toolbar>
+
+			<div class="content-wrapper">
+				<md-progress-linear ng-if="!shared.topologyInitd" md-mode="indeterminate"></md-progress-linear>
+				<div class="w100 h100" ng-controller="NextTopologyCtrl">
+					<div id="topology-container" class="h100"></div>
+				</div>
+			</div>
+		</section>
+
+		<section layout="column"
+				 class="h100"
+				 ng-show="shared.sidePanel"
+				 ng-controller="SidePanelCtrl">
+			<div class="h100" ng-show="shared.sidePanelName == 'path-list'" ng-include=" 'templates/path-list-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-setup'" ng-include=" 'templates/path-setup-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'path-details'" ng-include=" 'templates/path-details-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'node-list'" ng-include=" 'templates/node-list-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'node-details'" ng-include=" 'templates/node-details-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'link-list'" ng-include=" 'templates/link-list-panel.tpl.html' "></div>
+			<div class="h100" ng-show="shared.sidePanelName == 'link-details'" ng-include=" 'templates/link-details-panel.tpl.html' "></div>
+		</section>
+	</div>
+	<script type="text/javascript" src="js/app.js"></script>
+    </body>
+</html>

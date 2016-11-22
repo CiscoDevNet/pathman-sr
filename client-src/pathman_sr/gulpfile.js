@@ -5,13 +5,13 @@ var gulp = require('gulp'),
 	prefixer = require('gulp-autoprefixer'),
 	uglify = require('gulp-uglify'),
 	less = require('gulp-less'),
-	//sourcemaps = require('gulp-sourcemaps'),
 	rigger = require('gulp-rigger'),
 	cssmin = require('gulp-minify-css'),
 	rename = require('gulp-rename'),
 	del = require('del'),
 	browserSync = require("browser-sync"),
 	htmlmin = require("gulp-htmlmin"),
+	runSequence = require("run-sequence"),
 	reload = browserSync.reload;
 
 var config = {
@@ -57,39 +57,35 @@ var path = {
 };
 
 gulp.task('clean', function () {
-	del([path.clean], {force: true});
+	return del([path.clean], {force: true});
 });
 
 gulp.task('js:build', function () {
-	gulp.src(path.src.js)
+	return gulp.src(path.src.js)
 		.pipe(rigger())
-		//.pipe(sourcemaps.init())
 		.pipe(uglify())
-		//.pipe(sourcemaps.write())
 		.pipe(rename(path.fileNames.jsMinified))
 		.pipe(gulp.dest(path.build.js))
 		.pipe(reload({stream: true}));
 });
 
 gulp.task('style:build', function () {
-	gulp.src(path.src.style)
-		//.pipe(sourcemaps.init())
+	return gulp.src(path.src.style)
 		.pipe(less({
 			includePaths: ['src/style/'],
 			outputStyle: 'compressed',
-			sourceMap: true,
+			sourceMap: false,
 			errLogToConsole: true
 		}))
 		.pipe(prefixer())
 		.pipe(cssmin())
-		//.pipe(sourcemaps.write())
 		.pipe(rename(path.fileNames.cssMinified))
 		.pipe(gulp.dest(path.build.css))
 		.pipe(reload({stream: true}));
 });
 
 gulp.task('image:build', function () {
-	gulp.src(path.src.img)
+	return gulp.src(path.src.img)
 		.pipe(gulp.dest(path.build.img))
 		.pipe(reload({stream: true}));
 });
@@ -102,45 +98,49 @@ gulp.task('html:build', function(){
 		.pipe(gulp.dest(path.build.index));
 
 	// build templates
-	gulp.src(path.src.templates)
+	return gulp.src(path.src.templates)
 		.pipe(gulp.dest(path.build.templates))
 		.pipe(reload({stream: true}));
 });
 
 gulp.task('vendor:build', function(){
-	gulp.src(path.src.vendor)
+	return gulp.src(path.src.vendor)
 		.pipe(gulp.dest(path.build.vendor))
 });
 
-gulp.task('build', [
-	'html:build', // compile index.html
-	'js:build', // assemble and minify js
-	'style:build', // assemble and minify less/css
-	'image:build', // just copy images
-	'vendor:build' // copy vendor files
-]);
+gulp.task('build-full', function(){
+	return runSequence(
+		"clean",
+		["html:build", "js:build", "style:build", "image:build", "vendor:build"]
+	);
+});
 
+gulp.task('build', function(){
+	return runSequence(
+		"clean",
+		["html:build", "js:build", "style:build", "image:build"]
+	);
+});
 
 gulp.task('watch', function(){
 	watch([path.watch.index, path.watch.templates], function(event, cb) {
-		gulp.start('html:build');
+		return runSequence("html:build");
 	});
 	watch([path.watch.style], function(event, cb) {
-		gulp.start('style:build');
+		return runSequence("style:build");
 	});
 	watch([path.watch.js], function(event, cb) {
-		gulp.start('js:build');
+		return runSequence("js:build");
 	});
 	watch([path.watch.img], function(event, cb) {
-		gulp.start('image:build');
+		return runSequence("image:build");
 	});
 	watch([path.watch.vendor], function(event, cb) {
-		gulp.start('vendor:build');
+		return runSequence("vendor:build");
 	});
 });
 
 
-gulp.task('default', ['clean'], function(){
-	gulp.start('build');
-	gulp.start('watch');
+gulp.task('default', function(){
+	return runSequence("build-full", "watch");
 });

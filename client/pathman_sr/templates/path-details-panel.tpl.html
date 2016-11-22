@@ -1,0 +1,147 @@
+<section layout="column" class="h100" ng-controller="PathDetailsCtrl">
+	<md-sidenav class="md-sidenav-right md-whiteframe-z2 h100" md-component-id="right" md-is-locked-open="shared.sidePanel" >
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<i class="fa fa-exchange"></i>
+						{{ pathData.name }}
+					</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-click="closeSidePanel()" class="md-button">Close</md-button>
+			</div>
+		</md-toolbar>
+		<md-content flex>
+
+			<div layout-fill>
+
+
+				<section>
+
+					<!-- Breadcrumbs -->
+					<div layout="row">
+						<ul class="breadcrumbs">
+							<li class="breadcrumb" ng-click="openPanel('path-list')">Path list</li>
+							<li class="breadcrumb separator">/</li>
+							<li class="breadcrumb active">Path details</li>
+						</ul>
+					</div>
+					<!-- / Breadcrumbs -->
+
+				</section>
+
+
+				<section>
+
+					<md-toolbar class="md-table-toolbar md-accent">
+						<div class="md-toolbar-tools white-text">
+							<h2>
+								<span>Summary</span>
+							</h2>
+						</div>
+					</md-toolbar>
+
+					<md-table-container>
+						<table md-table>
+							<tbody md-body>
+							<tr md-row>
+								<td md-cell>
+									Path name
+								</td>
+								<td md-cell>
+									{{ pathData.name }}
+								</td>
+							</tr>
+							<tr md-row>
+								<td md-cell>
+									Route
+								</td>
+								<td md-cell>
+									{{ pathData.path.join(" &rarr; ") }}
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</md-table-container>
+
+					<div layout="row" class="layout-padding-lr15">
+						<span flex="50"><strong></strong></span><span flex></span>
+					</div>
+					<div layout="row" class="layout-padding-lr15">
+						<span flex="50"><strong></strong></span><span flex></span>
+					</div>
+
+				</section>
+				<md-divider></md-divider>
+				<section>
+
+					<!-- Table -->
+
+					<md-toolbar class="md-table-toolbar md-accent">
+						<div class="md-toolbar-tools white-text">
+							<h2>
+								<span>Route</span>
+							</h2>
+							<span flex></span>
+							<md-button ng-click="openPanel('path-setup', makeArgsForUpdateReq(pathData))"
+									   class="md-button">Modify
+							</md-button>
+						</div>
+					</md-toolbar>
+
+					<md-table-container>
+						<table md-table>
+							<thead md-head>
+							<tr md-row>
+								<th md-column><span>Router</span></th>
+								<th md-column><span>IP</span></th>
+								<th md-column>SID</th>
+							</tr>
+							</thead>
+							<tbody md-body>
+							<tr md-row ng-repeat="(index, path) in pathData.path">
+								<td md-cell>{{ path }}</td>
+								<td md-cell>
+									<span ng-show=" index == 0 ">
+										{{ pathData.pcc }}
+									</span>
+									<span ng-show=" index > 0 ">
+										{{ pathData.hops [ index - 1 ] }}
+									</span>
+								</td>
+								<td md-cell>
+									<span ng-show=" index == 0 ">
+										-
+									</span>
+									<span ng-show=" index > 0 ">
+										{{ pathData.sids[ index - 1 ] }}
+									</span>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</md-table-container>
+
+					<md-table-pagination md-limit="pathDetailsQuery.limit" md-limit-options="[5, 10, 15]" md-page="pathDetailsQuery.page" md-total="{{ pathData.path.length }}" md-page-select></md-table-pagination>
+
+					<!-- / Table -->
+
+
+
+
+				</section>
+
+				<div class="layout-padding" ng-hide="shared.pathListData.length" layout="row">
+					<div ng-show="!shared.pathListInitd" layout="row">
+						<md-progress-circular md-mode="indeterminate" md-diameter="20px"></md-progress-circular> Loading path data
+					</div>
+					<div ng-show="shared.pathListInitd">
+						No paths found.
+					</div>
+				</div>
+
+			</div>
+		</md-content>
+	</md-sidenav>
+</section>

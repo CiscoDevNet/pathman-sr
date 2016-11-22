@@ -1,4 +1,4 @@
-# OpenDaylight Pathman SR App [![Creative Commons License](dcloud.png)](https://github.com/CiscoDevNet/pathman-sr/tree/master/dCloud)
+# OpenDaylight Pathman SR App <a style="float:right " href="https://dcloud.cisco.com/"><img src="dcloud.png" alt="IMAGE ALT TEXT HERE" align="right"/></a>  
 
 ![](demo/pahtmanlogo.png)
 
@@ -128,7 +128,7 @@ npm install gulp -g
 Assuming you are currently in the root directory of the project, navigate to *client-src/pathman-sr/* directory with *cd*:
 
 ```
-cd client-src/pathman-sr
+cd client-src/pathman_sr
 ```
 
 All GUI files are located in here.
