@@ -1,7 +1,7 @@
 # NeXt-bower
 NeXt UI Toolkit `bower` and `npm` distribution. You can install this package either with `npm` or with `bower`.
 
-Current version: 0.10
+Current version: 1.0
 
 # Install
 ### bower

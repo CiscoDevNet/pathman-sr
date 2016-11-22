@@ -13,7 +13,7 @@
 		"requirejs": "~2.1.22",
 		"restangular": "1.5.2",
 		"angular-material-data-table": "~0.9.11",
-		"NeXt": "~0.10.0",
+		"NeXt": "~1.0.0",
 		"jquery": "latest"
 	},
 	"authors": [
