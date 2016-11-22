@@ -314,6 +314,7 @@
 					"pathWidth": 3,
 					"links": pathLinkList,
 					"arrow": "cap",
+					"sourceNode": hopList[0],
 					"pathStyle": {
 						"fill": pathColor
 					}
