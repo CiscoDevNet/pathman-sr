@@ -1,11 +1,11 @@
-# lodash v4.16.0
+# lodash v4.17.2
 
 [Site](https://lodash.com/) |
 [Docs](https://lodash.com/docs) |
 [FP Guide](https://github.com/lodash/lodash/wiki/FP-Guide) |
 [Contributing](https://github.com/lodash/lodash/blob/master/.github/CONTRIBUTING.md) |
 [Wiki](https://github.com/lodash/lodash/wiki "Changelog, Roadmap, etc.") |
-[Code of Conduct](https://jquery.org/conduct/) |
+[Code of Conduct](https://js.foundation/conduct/) |
 [Twitter](https://twitter.com/bestiejs) |
 [Chat](https://gitter.im/lodash/lodash)
 
@@ -20,11 +20,11 @@ $ lodash core -o ./dist/lodash.core.js
 
 ## Download
 
- * [Core build](https://raw.githubusercontent.com/lodash/lodash/4.16.0/dist/lodash.core.js) ([~4 kB gzipped](https://raw.githubusercontent.com/lodash/lodash/4.16.0/dist/lodash.core.min.js))
- * [Full build](https://raw.githubusercontent.com/lodash/lodash/4.16.0/dist/lodash.js) ([~23 kB gzipped](https://raw.githubusercontent.com/lodash/lodash/4.16.0/dist/lodash.min.js))
+ * [Core build](https://raw.githubusercontent.com/lodash/lodash/4.17.2/dist/lodash.core.js) ([~4 kB gzipped](https://raw.githubusercontent.com/lodash/lodash/4.17.2/dist/lodash.core.min.js))
+ * [Full build](https://raw.githubusercontent.com/lodash/lodash/4.17.2/dist/lodash.js) ([~23 kB gzipped](https://raw.githubusercontent.com/lodash/lodash/4.17.2/dist/lodash.min.js))
  * [CDN copies](https://www.jsdelivr.com/projects/lodash)
 
-Lodash is released under the [MIT license](https://raw.githubusercontent.com/lodash/lodash/4.16.0/LICENSE) & supports [modern environments](#support).<br>
+Lodash is released under the [MIT license](https://raw.githubusercontent.com/lodash/lodash/4.17.2/LICENSE) & supports [modern environments](#support).<br>
 Review the [build differences](https://github.com/lodash/lodash/wiki/build-differences) & pick one that’s right for you.
 
 ## Installation
@@ -54,8 +54,8 @@ var array = require('lodash/array');
 var object = require('lodash/fp/object');
 
 // Cherry-pick methods for smaller browserify/rollup/webpack bundles.
-var chunk = require('lodash/chunk');
-var extend = require('lodash/fp/extend');
+var at = require('lodash/at');
+var curryN = require('lodash/fp/curryN');
 ```
 
 **Note:**<br>
@@ -66,9 +66,9 @@ Install [n_](https://www.npmjs.com/package/n_) for Lodash use in the Node.js < 6
 Lodash makes JavaScript easier by taking the hassle out of working with arrays,<br>
 numbers, objects, strings, etc. Lodash’s modular methods are great for:
 
-* Iterating arrays, objects, & strings
-* Manipulating & testing values
-* Creating composite functions
+ * Iterating arrays, objects, & strings
+ * Manipulating & testing values
+ * Creating composite functions
 
 ## Module Formats
 
