@@ -15661,10 +15661,10 @@ var nx = {
              */
             identityKey: {
                 get: function () {
-                    return this._identiyKey || 'index';
+                    return this._identityKey || 'index';
                 },
                 set: function (value) {
-                    this._identiyKey = value;
+                    this._identityKey = value;
                     this.graph().set('identityKey', value);
                 }
             },
@@ -17267,7 +17267,7 @@ var nx = {
 
 
 })(nx, nx.global);
-(function (nx, global) {
+(function(nx, global) {
 
     /**
      * Links mixin class
@@ -17326,17 +17326,22 @@ var nx = {
              * @param inOption {Config}
              * @returns {nx.graphic.Topology.Link}
              */
-            addLink: function (obj, inOption) {
-                if (obj.source == null || obj.target == null) {
+            addLink: function(obj, inOption) {
+                if (!obj || obj.source == null || obj.target == null) {
                     return undefined;
                 }
                 var edge = this.graph().addEdge(obj, inOption);
+                var edgeSet = this.graph().getEdgeSetBySourceAndTarget(obj.source, obj.target);
+                if (edgeSet) {
+                    this.graph()._generateConnection(edgeSet);
+                }
                 if (edge) {
                     var link = this.getLink(edge.id());
                     this.fire("addLink", link);
                     return link;
                 } else {
                     return null;
+
                 }
 
             },
@@ -17346,11 +17351,11 @@ var nx = {
              * @param arg  {String}
              * @returns {boolean}
              */
-            removeLink: function (arg) {
+            removeLink: function(arg) {
                 this.deleteLink(arg);
             },
 
-            deleteLink: function (arg) {
+            deleteLink: function(arg) {
                 var id = arg;
                 if (nx.is(arg, nx.graphic.Topology.AbstractLink)) {
                     id = arg.id();
@@ -17366,7 +17371,7 @@ var nx = {
              * @param callback <Function>
              * @param context {Object}
              */
-            eachLink: function (callback, context) {
+            eachLink: function(callback, context) {
                 this.getLayer("links").eachLink(callback, context || this);
             },
 
@@ -17376,7 +17381,7 @@ var nx = {
              * @param id
              * @returns {*}
              */
-            getLink: function (id) {
+            getLink: function(id) {
                 return this.getLayer("links").getLink(id);
             },
             /**
@@ -17385,7 +17390,7 @@ var nx = {
              * @param targetVertexID {String} target node's id
              * @returns  {nx.graphic.Topology.LinkSet}
              */
-            getLinkSet: function (sourceVertexID, targetVertexID) {
+            getLinkSet: function(sourceVertexID, targetVertexID) {
                 return this.getLayer("linkSet").getLinkSet(sourceVertexID, targetVertexID);
             },
             /**
@@ -17393,7 +17398,7 @@ var nx = {
              * @param linkKey {String} linkKey
              * @returns {nx.graphic.Topology.LinkSet}
              */
-            getLinkSetByLinkKey: function (linkKey) {
+            getLinkSetByLinkKey: function(linkKey) {
                 return this.getLayer("linkSet").getLinkSetByLinkKey(linkKey);
             },
             /**
@@ -17402,7 +17407,7 @@ var nx = {
              * @param targetVertexID {String} target node's id
              * @returns {Array} links collection
              */
-            getLinksByNode: function (sourceVertexID, targetVertexID) {
+            getLinksByNode: function(sourceVertexID, targetVertexID) {
                 var linkSet = this.getLinkSet(sourceVertexID, targetVertexID);
                 if (linkSet) {
                     return linkSet.links();
@@ -22060,20 +22065,20 @@ var nx = {
 
 
 })(nx, nx.global);
-(function (nx, global) {
+(function(nx, global) {
 
     nx.define("nx.graphic.Topology.HierarchicalLayout", {
         properties: {
             topology: {},
             levelBy: {
-                value: function () {
-                    return function (inNode) {
+                value: function() {
+                    return function(inNode) {
                         return inNode.model().get("role");
                     };
                 }
             },
             sortOrder: {
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -22090,17 +22095,19 @@ var nx = {
         },
         methods: {
 
-            process: function (graph, config, callback) {
+            process: function(graph, config, callback) {
                 var groups = this._group(graph, config || {});
                 var nodesPositionObject = this._calc(groups, config || {});
 
                 this._layout(nodesPositionObject, callback);
             },
-            _group: function (graph, config) {
-                var groups = {'__other__': []};
+            _group: function(graph, config) {
+                var groups = {
+                    '__other__': []
+                };
                 var topo = this.topology();
                 var levelBy = config.levelBy || this.levelBy();
-                topo.eachNode(function (node) {
+                topo.eachNode(function(node) {
                     var key;
                     if (nx.is(levelBy, 'String') && levelBy.substr(5) == 'model') {
                         key = node.model().get(levelBy.substring(6));
@@ -22118,16 +22125,26 @@ var nx = {
                 });
                 return groups;
             },
-            _calc: function (groups, config) {
-                var nodesPositionObject = {}, keys = Object.keys(groups);
+            _calc: function(groups, config) {
+                var nodesPositionObject = {},
+                    keys = Object.keys(groups);
                 var topo = this.topology();
                 var sortOrder = config.sortOrder || this.sortOrder() || [];
 
                 //build order array, and move __other__ to the last
-
                 var order = [];
-                nx.each(sortOrder, function (v) {
-                    var index = keys.indexOf(v);
+                nx.each(sortOrder, function(v) {
+                    var index = keys.indexOf(v.toUpperCase());
+                    /* jshint ignore:start */
+                    switch (index) {
+                        case -1:
+                            index = keys.indexOf(v.toLowerCase());
+                        case -1:
+                            index = keys.indexOf(v);
+
+                    }
+                    /* jshint ignore:end */
+
                     if (index !== -1) {
                         order.push(v);
                         keys.splice(index, 1);
@@ -22148,17 +22165,18 @@ var nx = {
 
                 var perY = height / (order.length + 1);
                 var perX = width / (order.length + 1);
-                var x = perX, y = perY;
+                var x = perX,
+                    y = perY;
 
                 //'vertical'
 
-                nx.each(order, function (key) {
+                nx.each(order, function(key) {
                     if (groups[key]) {
 
                         if (direction == 'vertical') {
                             //build nodes position map
                             perX = width / (groups[key].length + 1);
-                            nx.each(groups[key], function (node, i) {
+                            nx.each(groups[key], function(node, i) {
                                 nodesPositionObject[node.id()] = {
                                     x: perX * (i + 1),
                                     y: y
@@ -22168,7 +22186,7 @@ var nx = {
                         } else {
                             //build nodes position map
                             perY = height / (groups[key].length + 1);
-                            nx.each(groups[key], function (node, i) {
+                            nx.each(groups[key], function(node, i) {
                                 nodesPositionObject[node.id()] = {
                                     x: x,
                                     y: perY * (i + 1)
@@ -22188,28 +22206,29 @@ var nx = {
                 return nodesPositionObject;
 
             },
-            _sort: function (groups, order) {
+            _sort: function(groups, order) {
                 var topo = this.topology();
                 var graph = topo.graph();
 
-                groups[order[0]].sort(function (a, b) {
+                groups[order[0]].sort(function(a, b) {
                     return Object.keys(b.model().edgeSets()).length - Object.keys(a.model().edgeSets()).length;
                 });
 
                 for (var i = 0; i < order.length - 1; i++) {
                     var firstGroup = groups[order[i]];
                     var secondGroup = groups[order[i + 1]];
-                    var ary = [], indexs = [];
+                    var ary = [],
+                        indexs = [];
                     /* jshint -W083 */
-                    nx.each(firstGroup, function (fNode) {
+                    nx.each(firstGroup, function(fNode) {
                         var temp = [];
-                        nx.each(secondGroup, function (sNode, i) {
+                        nx.each(secondGroup, function(sNode, i) {
                             if (graph.getEdgesBySourceAndTarget(fNode, sNode) != null && temp.indexOf(sNode) != -1) {
                                 temp.push(sNode);
                                 indexs.push(i);
                             }
                         });
-                        temp.sort(function (a, b) {
+                        temp.sort(function(a, b) {
                             return Object.keys(b.model().edgeSets()).length - Object.keys(a.model().edgeSets()).length;
                         });
 
@@ -22217,7 +22236,7 @@ var nx = {
                     });
 
                     /* jshint -W083 */
-                    nx.each(ary, function (node, i) {
+                    nx.each(ary, function(node, i) {
                         var index = secondGroup.indexOf(node);
                         if (index !== -1) {
                             secondGroup.splice(index, 1);
@@ -22229,19 +22248,19 @@ var nx = {
                 this.groups(nx.extend({}, groups));
                 return groups;
             },
-            _layout: function (nodesPositionObject, callback) {
+            _layout: function(nodesPositionObject, callback) {
                 var topo = this.topology();
 
 
                 var queueCounter = 0;
                 var nodeLength = 0;
-                var finish = function () {
+                var finish = function() {
                     if (queueCounter == nodeLength) {
-                        setTimeout(function () {
+                        setTimeout(function() {
                             topo.getLayer('links').show();
                             topo.getLayer('linkSet').show();
                             topo.stage().resetFitMatrix();
-                            topo.fit(function () {
+                            topo.fit(function() {
 
                                 if (callback) {
                                     callback.call(topo);
@@ -22255,10 +22274,10 @@ var nx = {
                 //
                 topo.getLayer('links').hide();
                 topo.getLayer('linkSet').hide();
-                nx.each(nodesPositionObject, function (n, id) {
+                nx.each(nodesPositionObject, function(n, id) {
                     var node = topo.getNode(id);
                     if (node) {
-                        node.translateTo(n.x, n.y, function () {
+                        node.translateTo(n.x, n.y, function() {
                             queueCounter++;
                             finish();
                         });
@@ -22637,22 +22656,22 @@ var nx = {
 //                        }
 //                    }
 })(nx, nx.global);
-(function (nx, global) {
+(function(nx, global) {
 
     nx.define("nx.graphic.Topology.EnterpriseNetworkLayout", nx.graphic.Topology.HierarchicalLayout, {
-        properties: {
-        },
+        properties: {},
         methods: {
 
-            process: function (graph, config, callback) {
-                this.inherited(graph, config, function () {
+            process: function(graph, config, callback) {
+                this.inherited(graph, config, function() {
                     this._appendGroupElements();
                     if (callback) {
-                        callback();
+                        var topo = this.topology();
+                        callback.call(topo);
                     }
                 }.bind(this));
             },
-            _appendGroupElements: function () {
+            _appendGroupElements: function() {
                 var topo = this.topology();
                 var matrix = topo.matrix();
                 var layer = topo.prependLayer('ENLLayer', new Layer());
@@ -22666,17 +22685,19 @@ var nx = {
                 var y = padding;
                 var items = [];
                 var gap = 0;
-                nx.each(groups, function (nodes, key) {
+                nx.each(groups, function(nodes, key) {
                     var label = key !== '__other__' ? key : '';
                     var firstNode = nodes[0];
-                    items.push({
-                        left: (padding - matrix.x()) / matrix.scale(),
-                        top: firstNode.y() - 30 / matrix.scale(),
-                        width: width / matrix.scale(),
-                        height: 65 / matrix.scale(),
-                        label: label,
-                        stroke: '#b2e47f'
-                    });
+                    if (firstNode) {
+                        items.push({
+                            left: (padding - matrix.x()) / matrix.scale(),
+                            top: firstNode.y() - 30 / matrix.scale(),
+                            width: width / matrix.scale(),
+                            height: 65 / matrix.scale(),
+                            label: label,
+                            stroke: '#b2e47f'
+                        });
+                    }
                     y += perHeight;
                 }, this);
 
@@ -22706,25 +22727,22 @@ var nx = {
                 scale: '{#scale}'
             },
 
-            content: [
-                {
-                    type: 'nx.graphic.Text',
-                    props: {
-                        text: '{#label}',
-                        fill: '{#stroke}',
-                        'style': 'font-size:19px',
-                        y: -5
-                    }
-                },
-                {
-                    type: 'nx.graphic.Rect',
-                    props: {
-                        width: '{#width}',
-                        height: '{#height}',
-                        stroke: '{#stroke}'
-                    }
+            content: [{
+                type: 'nx.graphic.Text',
+                props: {
+                    text: '{#label}',
+                    fill: '{#stroke}',
+                    'style': 'font-size:19px',
+                    y: -5
                 }
-            ]
+            }, {
+                type: 'nx.graphic.Rect',
+                props: {
+                    width: '{#width}',
+                    height: '{#height}',
+                    stroke: '{#stroke}'
+                }
+            }]
         }
     });
 
@@ -22734,27 +22752,25 @@ var nx = {
         },
         view: {
             type: 'nx.graphic.Group',
-            content: [
-                {
-                    type: 'nx.graphic.Group',
-                    props: {
-                        items: '{#items}',
-                        template: {
-                            type: GroupItem,
-                            props: {
-                                top: '{top}',
-                                left: '{left}',
-                                label: '{label}',
-                                width: '{width}',
-                                height: '{height}',
-                                scale: '{scale}',
-                                stroke: '{stroke}',
-                                fill: 'none'
-                            }
+            content: [{
+                type: 'nx.graphic.Group',
+                props: {
+                    items: '{#items}',
+                    template: {
+                        type: GroupItem,
+                        props: {
+                            top: '{top}',
+                            left: '{left}',
+                            label: '{label}',
+                            width: '{width}',
+                            height: '{height}',
+                            scale: '{scale}',
+                            stroke: '{stroke}',
+                            fill: 'none'
                         }
                     }
                 }
-            ]
+            }]
         }
     });
 
@@ -23696,8 +23712,12 @@ var nx = {
             updateNodeCoordinate: function () {
 
             },
-
-
+            clickLinkSet: function(){
+                this._topo.selectedNodes().clear();
+            },
+            clickLink: function(){
+                this._topo.selectedNodes().clear();
+            },
             enterLink: function (sender, events) {
             },
 
@@ -25365,6 +25385,23 @@ var nx = {
             pathPadding: {
                 value: "auto"
             },
+			pathColor: {
+				get: function(){
+					return this._pathStyle.color ? this._pathStyle.color : null;
+				},
+				set: function(userColor){
+					var hexColorRE = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/;
+					// if it is a HEX-format color
+					if(hexColorRE.test(userColor)){
+						this.view("path").setStyle("fill", userColor);
+						this._pathStyle.color = userColor;
+					}
+					else{
+						console.warning("Color must be in HEX format, e.g.: #ffe4cc");
+						this._setRandomColor();
+					}
+				}
+			},
             /**
              * Get/set path arrow type , 'none'/'cap'/'full'/'end'
              * @property
@@ -25483,9 +25520,14 @@ var nx = {
             reverse: {
                 value: false
             },
-            owner: {
-
-            },
+            owner: {},
+            /**
+             * Source node defines the path direction
+             * It fixes the bug, when you try to draw one-link path and it goes in different direction
+             * In that case, sourceNode defines the real direction of the vector
+             * @property sourceNode
+             */
+            sourceNode: {},
             topology: {}
         },
         methods: {
@@ -25494,10 +25536,13 @@ var nx = {
                 var pathStyle = this.pathStyle();
                 this.view("path").sets(pathStyle);
 
-                if (!pathStyle.fill) {
-                    this.view("path").setStyle("fill", colorTable[colorIndex++ % 5]);
-                }
-
+				// if user passed a distinct color
+				if(props.color){
+					this.pathColor(props.color);
+				}
+				else{
+					this._setRandomColor();
+				}
             },
             /**
              * Draw a path,internal
@@ -25511,6 +25556,14 @@ var nx = {
                     topo = this.topology(),
                     allEdges = nx.path(this, "topology.graph.edges"),
                     allVertices = nx.path(this, "topology.graph.vertices");
+
+                // Fix 1-link bug (used to take wrong direction sometimes)
+                if(this.links().length == 1 && this.sourceNode() !== undefined){
+                    if(this.sourceNode().id() == this.links()[0].model().target().id()){
+                        this.reverse(true);
+                    }
+                }
+
                 nx.each(this.verticesIdCollection(), function(id) {
                     var item = allVertices.getItem(id);
                     if (!item.generated()) {
@@ -25697,6 +25750,11 @@ var nx = {
 
                 return linksSequentialArray;
             },
+			_setRandomColor: function() {
+				var color = colorTable[colorIndex++ % 5];
+				this.pathColor(color);
+				return color;
+			},
             isEqual: function(pos1, pos2) {
                 return pos1.x == pos2.x && pos1.y == pos2.y;
             },
