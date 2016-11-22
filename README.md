@@ -1,4 +1,4 @@
-# OpenDaylight Pathman SR App [![Creative Commons License](dcloud.png)](https://github.com/CiscoDevNet/pathman-sr/tree/master/dCloud)
+# OpenDaylight Pathman SR App <a style="float:right " href="https://dcloud.cisco.com/"><img src="dcloud.png" alt="IMAGE ALT TEXT HERE" align="right"/></a>  
 
 ![](demo/pahtmanlogo.png)
 
