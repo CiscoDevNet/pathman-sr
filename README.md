@@ -128,7 +128,7 @@ npm install gulp -g
 Assuming you are currently in the root directory of the project, navigate to *client-src/pathman-sr/* directory with *cd*:
 
 ```
-cd client-src/pathman-sr
+cd client-src/pathman_sr
 ```
 
 All GUI files are located in here.
