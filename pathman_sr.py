@@ -47,6 +47,7 @@
     20160912, Niklas - ver 5.9c - Fixed Boron version check from false positives
     20160919, Niklas - ver 5.9d - getTopo reply format changed
     20160924, Niklas - ver 5.9e - Updated metrics selection
+    20161204, Niklas - Ver 5.9f - Added BGP-RIB support to retrieve SIDs. Requires XRv 6.1.x, or higher.
     """
 __author__ = 'niklas'
 
@@ -407,25 +408,36 @@ def keyd_dict_walker(mdict, key):
 def node_sr_update(node_list):
     def update(node, temp_sid):
         if 'value' in temp_sid.keys():
-            node_list[node_list.index(node)] = node._replace(sid = temp_sid['value'])
+            node_list[node_list.index(node)] = node._replace(sid=temp_sid['value'])
             logging.info("SR sid updated for: %s" % node.name)
         elif 'sid-value' in temp_sid.keys():
-            node_list[node_list.index(node)] = node._replace(sid = temp_sid['sid-value'])
+            node_list[node_list.index(node)] = node._replace(sid=temp_sid['sid-value'])
             logging.info("SR sid updated for: %s" % node.name)
         else:
-            logging.error("No sid value for: %s - %s" % (node.name,temp_sid))
+            logging.error("No sid value for: %s - %s" % (node.name, temp_sid))
 
-    node_configs, rid_dict = get_netconf()
-    for node in node_list:
-        temp_sid = node_configs.get(node.name,{})
-        rid_sid = rid_dict.get(node.loopback,{})
+        # BGP Check
+    bgp_rib = MyBGP()
+    sid_dict = bgp_rib.get_sr_info()
+    if len(sid_dict) > 0:
+        for node in node_list:
+            if node.loopback in sid_dict.keys():
+                node_list[node_list.index(node)] = node._replace(sid=sid_dict[node.loopback])
+                logging.info('SR sid updated for: {}'.format(node.name))
+            else:
+                logging.error('No BGP SID for: {}'.format(node.name))
+    else:
+        node_configs, rid_dict = get_netconf()
+        for node in node_list:
+            temp_sid = node_configs.get(node.name,{})
+            rid_sid = rid_dict.get(node.loopback,{})
 
-        if len(temp_sid) >0:
-            update(node, temp_sid)
-        elif len(rid_sid) >0:
-            update(node, rid_sid)
-        else:
-            logging.error("No sid for: %s" % node.name)
+            if len(temp_sid) >0:
+                update(node, temp_sid)
+            elif len(rid_sid) >0:
+                update(node, rid_sid)
+            else:
+                logging.error("No sid for: %s" % node.name)
 
     return node_list
 
