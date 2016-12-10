@@ -48,6 +48,8 @@
     20160919, Niklas - ver 5.9d - getTopo reply format changed
     20160924, Niklas - ver 5.9e - Updated metrics selection
     20161204, Niklas - Ver 5.9f - Added BGP-RIB support to retrieve SIDs. Requires XRv 6.1.x, or higher.
+    20161210, Niklas - ver 5.9g - Added Netconf-modules for users to add their nodes to netconf
+                                - Added static netconf mappings for users ho give up on netconf
     """
 __author__ = 'niklas'
 
@@ -64,7 +66,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9e'
+version = '5.9g'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -418,7 +420,8 @@ def node_sr_update(node_list):
 
         # BGP Check
     bgp_rib = MyBGP()
-    sid_dict = bgp_rib.get_sr_info()
+    # sid_dict = bgp_rib.get_sr_info()
+    sid_dict = {}
     if len(sid_dict) > 0:
         for node in node_list:
             if node.loopback in sid_dict.keys():
@@ -437,6 +440,7 @@ def node_sr_update(node_list):
             elif len(rid_sid) >0:
                 update(node, rid_sid)
             else:
+                node_list[node_list.index(node)] = node._replace(sid=my_local_sids.get(node.loopback))
                 logging.error("No sid for: %s" % node.name)
 
     return node_list
