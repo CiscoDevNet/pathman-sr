@@ -453,7 +453,7 @@ def display_list(name=None):
         print "name: %s - not found" % name
 
 if __name__ == '__main__':
-    LOGGING['root']['handlers'] = ['console','logtofile']
+    # LOGGING['root']['handlers'] = ['console','logtofile']
     logging.config.dictConfig(LOGGING)
     logging.info("This is initializing the automation log")
 

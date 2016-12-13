@@ -76,7 +76,7 @@ def sid_delete(name=None, sid=None, address=None):
     return success, name
 
 if __name__ == '__main__':
-    LOGGING['root']['handlers'] = ['console','logtofile']
+    # LOGGING['root']['handlers'] = ['console','logtofile']
     logging.config.dictConfig(LOGGING)
     logging.info("This is initializing the automation log")
 
