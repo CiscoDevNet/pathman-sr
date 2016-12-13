@@ -371,7 +371,35 @@ def netconf_test(name=None):
     return {'netconf-test':{'number_of_nodes:': num_nodes, 'results':test_list}}
 
 
-def bgp_test():
+def bgp_test(name=None, address=None):
+    def node_test(node):
+        tnode= {'router-id':"missing"}
+        if 'l3-unicast-igp-topology:igp-node-attributes' in node.keys():
+
+            if 'router-id' in node['l3-unicast-igp-topology:igp-node-attributes'].keys():
+                tnode= {'router-id': node['l3-unicast-igp-topology:igp-node-attributes']['router-id']}
+            else:
+                 logging.error('router-id missing')
+
+            if 'name' in node['l3-unicast-igp-topology:igp-node-attributes'].keys():
+                tnode.update({'name': node['l3-unicast-igp-topology:igp-node-attributes']['name']})
+
+        try:
+            node_dict = html_style(node['node-id'])
+            tnode.update({'node-id': node_dict['router']})
+        except:
+            logging.error('node-id or router keywords missing: %s' % node)
+
+        node_ports = []
+        for link in node['termination-point']:
+            #logging.debug("port: %s " % link['tp-id'])
+            if 'tp-id' in link.keys():
+                port_dict = html_style(link['tp-id'])
+                if 'ipv4' in port_dict.keys():
+                    node_ports.append(port_dict['ipv4'])
+        tnode.update({'ports': node_ports})
+        return tnode
+
     head = set_head(access_head, controller)
     success, result = get_url(head+uri_topo)
     temp = {}
@@ -380,59 +408,58 @@ def bgp_test():
         temp = {topo['topology-id']:{'number_of_nodes':len(topo['node']), 'number_of_links': len(topo['link'])}}
         node_list = []
         for node in topo['node']:
-
-            tnode= {'router-id':"missing"}
-            if 'l3-unicast-igp-topology:igp-node-attributes' in node.keys():
-
-                if 'router-id' in node['l3-unicast-igp-topology:igp-node-attributes'].keys():
-                    tnode= {'router-id': node['l3-unicast-igp-topology:igp-node-attributes']['router-id']}
-                else:
-                     logging.error('router-id missing')
-
-                if 'name' in node['l3-unicast-igp-topology:igp-node-attributes'].keys():
-                    tnode.update({'name': node['l3-unicast-igp-topology:igp-node-attributes']['name']})
-
-            try:
-                node_dict = html_style(node['node-id'])
-                tnode.update({'node-id': node_dict['router']})
-            except:
-                logging.error('node-id or router keywords missing: %s' % node)
-
-            node_ports = []
-            for link in node['termination-point']:
-                #logging.debug("port: %s " % link['tp-id'])
-                if 'tp-id' in link.keys():
-                    port_dict = html_style(link['tp-id'])
-                    if 'ipv4' in port_dict.keys():
-                        node_ports.append(port_dict['ipv4'])
-            tnode.update({'ports': node_ports})
-            node_list.append(tnode)
+            if name:
+                if 'name' in node['l3-unicast-igp-topology:igp-node-attributes'].keys() and node['l3-unicast-igp-topology:igp-node-attributes']['name'] == name:
+                    tnode = node_test(node)
+                    node_list.append(tnode)
+            elif address:
+                if 'router-id' in node['l3-unicast-igp-topology:igp-node-attributes'].keys() and address in node['l3-unicast-igp-topology:igp-node-attributes']['router-id']:
+                    tnode = node_test(node)
+                    node_list.append(tnode)
+            else:
+                tnode = node_test(node)
+                node_list.append(tnode)
         temp[topo['topology-id']].update({'nodes':node_list})
     else:
         logging.error('No BGP-LS info')
     return temp
 
 
-def pcep_test():
+def pcep_test(address=None):
+    def node_test(node):
+        tnode = {"node-id":node['node-id']}
+        lsp_num = 0
+        if 'network-topology-pcep:path-computation-client' in node.keys():
+            if 'ip-address' in node['network-topology-pcep:path-computation-client'].keys():
+                tnode.update({"ip-address":node['network-topology-pcep:path-computation-client']['ip-address']})
+            if 'reported-lsp' in node['network-topology-pcep:path-computation-client'].keys():
+                for path in node['network-topology-pcep:path-computation-client']['reported-lsp']:
+                    lsp_num +=1
+        if lsp_num != 0:
+            tnode.update({'LSPs':lsp_num})
+        return tnode, lsp_num
+
     head = set_head(access_head, controller)
     success, result = get_url(head+uri_pcep_topo)
     temp = {}
+    lsp_sum = 0
     if success:
         topo = result['topology'][0]
         temp = {topo['topology-id']:{'number_of_nodes':len(topo['node'])}}
         node_list = []
         for node in topo['node']:
-            tnode = {"node-id":node['node-id']}
-            lsp_num = 0
-            if 'network-topology-pcep:path-computation-client' in node.keys():
-                if 'ip-address' in node['network-topology-pcep:path-computation-client'].keys():
-                    tnode.update({"ip-address":node['network-topology-pcep:path-computation-client']['ip-address']})
-                if 'reported-lsp' in node['network-topology-pcep:path-computation-client'].keys():
-                    for path in node['network-topology-pcep:path-computation-client']['reported-lsp']:
-                        lsp_num +=1
-            if lsp_num != 0:
-                tnode.update({'LSPs':lsp_num})
-            node_list.append(tnode)
+            if address:
+                if 'network-topology-pcep:path-computation-client' in node.keys():
+                    if 'ip-address' in node['network-topology-pcep:path-computation-client'].keys():
+                        if address == node['network-topology-pcep:path-computation-client']['ip-address']:
+                            tnode, lsp_num = node_test(node)
+                            node_list.append(tnode)
+            else:
+                tnode, lsp_num = node_test(node)
+                node_list.append(tnode)
+                lsp_sum += lsp_num
+        if lsp_sum >0:
+            temp[topo['topology-id']].update({'network LSPs': lsp_sum})
         temp[topo['topology-id']].update({'nodes': node_list})
     return temp
 
@@ -489,8 +516,6 @@ if __name__ == '__main__':
     p.add_argument('--controller_ip', default='198.18.1.80', type=str, help='ODL Controller ip address')
     p.add_argument('--user', default='admin', type=str, help='ODL user')
     p.add_argument('--password', default='admin', type=str, help='ODL password')
-
-
 
     ns = p.parse_args()
     logging.info("Parser: %s" % ns)

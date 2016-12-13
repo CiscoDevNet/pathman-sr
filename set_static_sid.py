@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     p = argparse.ArgumentParser(
         prog=sys.argv[0],
-        description='Add, List and Remove nodes from ODL Netconf',
+        description='Add, List and Remove SIDs from pathman_sr static file: "%s"' % sid_saves,
         version=version,
         epilog='Copyright (c) 2015 by Cisco Systems, Inc. All Rights Reserved'
         )
@@ -106,7 +106,6 @@ if __name__ == '__main__':
     list_p.add_argument('--address', type=str, help='loopback ip address of node to list')
     list_p.add_argument('--sid', type=int, help='node SID of node to list')
 
-
     ns = p.parse_args()
     logging.info("Parser: %s" % ns)
     if ns.command == 'add':
@@ -118,4 +117,4 @@ if __name__ == '__main__':
         print "we are listing"
         sid_list(ns.name, ns.sid, ns.address)
 
-#Bye bye
+# Bye bye
