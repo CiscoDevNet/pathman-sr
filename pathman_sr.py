@@ -303,6 +303,24 @@ LOGGING = {
 }
 
 
+def dict_to_file(mdict, file):
+    with open(file,'w') as f:
+        f.write(json.dumps(mdict))
+    logging.info("writing %s" % mdict)
+
+
+def file_to_dict(file):
+    mdict = {}
+    if os.path.exists(file):
+        with open(file,'r') as f:
+            string = f.read()
+        user_files = json.loads(string)
+        logging.info("reading %s" % user_files)
+        for item in user_files:
+            mdict.update({item:user_files[item]})
+    return mdict
+
+
 def version_check():
     """modified from odl_gateway"""
     url = get_version
@@ -411,22 +429,23 @@ def node_sr_update(node_list):
     def update(node, temp_sid):
         if 'value' in temp_sid.keys():
             node_list[node_list.index(node)] = node._replace(sid=temp_sid['value'])
-            logging.info("SR sid updated for: %s" % node.name)
+            logging.info("SR sid updated for: %s from netconf" % node.name)
         elif 'sid-value' in temp_sid.keys():
             node_list[node_list.index(node)] = node._replace(sid=temp_sid['sid-value'])
-            logging.info("SR sid updated for: %s" % node.name)
+            logging.info("SR sid updated for: %s from netconf" % node.name)
         else:
             logging.error("No sid value for: %s - %s" % (node.name, temp_sid))
 
         # BGP Check
     bgp_rib = MyBGP()
-    # sid_dict = bgp_rib.get_sr_info()
-    sid_dict = {}
+    sid_dict = bgp_rib.get_sr_info()
+    my_local_sids = file_to_dict(sid_list)
+    # sid_dict = {}
     if len(sid_dict) > 0:
         for node in node_list:
             if node.loopback in sid_dict.keys():
                 node_list[node_list.index(node)] = node._replace(sid=sid_dict[node.loopback])
-                logging.info('SR sid updated for: {}'.format(node.name))
+                logging.info('SR sid updated for: {} from bgp'.format(node.name))
             else:
                 logging.error('No BGP SID for: {}'.format(node.name))
     else:
@@ -439,8 +458,10 @@ def node_sr_update(node_list):
                 update(node, temp_sid)
             elif len(rid_sid) >0:
                 update(node, rid_sid)
+            elif my_local_sids.get(node.loopback):
+                node_list[node_list.index(node)] = node._replace(sid=my_local_sids[node.loopback]['sid'])
+                logging.info('SR sid updated for: {} from static'.format(node.name))
             else:
-                node_list[node_list.index(node)] = node._replace(sid=my_local_sids.get(node.loopback))
                 logging.error("No sid for: %s" % node.name)
 
     return node_list

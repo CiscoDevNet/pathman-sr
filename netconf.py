@@ -6,6 +6,7 @@
     netconf.py from odl_gateway.py
 
     Niklas Montin, 20150311, niklas@cisco.com
+    20161212, Niklas, Added parser for netconf utils
     """
 
 
@@ -14,9 +15,11 @@ from requests.auth import HTTPBasicAuth
 import json
 import logging
 from pathman_sr import LOGGING, html_style
+import sys
+import argparse
 
 
-ver = '1.0'
+version = '1.1'
 # =====================================================
 access = 'local'
 access_methods = ('local', 'connected', 'remote')
@@ -40,7 +43,7 @@ controller = {'odl_ip':'64.100.10.32',
                 '''
 
 
-#
+# Example: alb = {'name': 'alb', 'address': '198.18.1.30', 'username': 'cisco', 'password': 'cisco'}
 # ============================================================
 
 odl_version_list = [
@@ -299,7 +302,14 @@ def put_json(url, data):
         return False, str(e.message)
 
 
-def netconf_test():
+def netconf_test(name=None):
+    def get_node(node):
+        success, result = get_url(head+test_url.format(**node))
+        logging.info("Get netconf from node: %s, result: %s" % (node['name'], success))
+        if success:
+            result_list.append(result)
+        return
+
     head = set_head(access_head, controller)
     netconf_nodes = netconf_list(head+uri_nodelist)
     num_nodes = len(netconf_nodes)
@@ -308,6 +318,7 @@ def netconf_test():
     dict_list = [{'name': node} for node in netconf_nodes]
     result_list = []
     test_list = []
+    found = False
 
     odl_version = version_check()
     logging.info('Odl Version: %s' % odl_version)
@@ -324,11 +335,15 @@ def netconf_test():
         capability = 'netconf-node-topology:available-capabilities'
 
     for node in dict_list:
-        success, result = get_url(head+test_url.format(**node))
-
-        logging.info("Get netconf from node: %s, result: %s" % (node['name'], success))
-        if success:
-            result_list.append(result)
+        if name:
+            if node['name'] == name:
+                get_node(node)
+                # success, result = get_url(head+test_url.format(**node))
+                #logging.info("Get netconf from node: %s, result: %s" % (node['name'], success))
+                found = True
+                break
+        else:
+            get_node(node)
 
     for result in result_list:
         name = result['node'][0][node_id]
@@ -421,6 +436,22 @@ def pcep_test():
         temp[topo['topology-id']].update({'nodes': node_list})
     return temp
 
+
+def display_list(name=None):
+    netconf_dict = netconf_test(name)
+    # {'netconf-test': {'number_of_nodes:': 16, 'results':
+    found = False
+    for node in netconf_dict['netconf-test']['results']:
+        if name:
+            if name == node.keys()[0]:
+                print "name: %s, status: %s, address: %s" % (name, node[name]['status'], node[name]['address'])
+                found = True
+        else:
+            node_name = node.keys()[0]
+            print "name: %s, status: %s, address: %s" % (node_name, node[node_name]['status'], node[node_name]['address'])
+    if name and not found:
+        print "name: %s - not found" % name
+
 if __name__ == '__main__':
     LOGGING['root']['handlers'] = ['console','logtofile']
     logging.config.dictConfig(LOGGING)
@@ -428,9 +459,54 @@ if __name__ == '__main__':
 
     logging.captureWarnings(True)
 
-    alb = {'name': 'alb', 'address': '198.18.1.30', 'username': 'cisco', 'password': 'cisco'}
+    p = argparse.ArgumentParser(
+        prog=sys.argv[0],
+        description='Add, List and Remove nodes from ODL Netconf',
+        version=version,
+        epilog='Copyright (c) 2015 by Cisco Systems, Inc. All Rights Reserved'
+        )
 
-    # print del_netconf_node(alb)
-    # print add_netconf_node(alb)
-    print netconf_test()
-#Bye bye
+    subp = p.add_subparsers(help='commands', dest='command')
+
+    add_p = subp.add_parser("add", help='add a node to netconf')
+    add_p.add_argument('--name', required=True, type=str, help='name of node to add')
+    add_p.add_argument('--address', required=True, type=str, help='device ip address')
+    add_p.add_argument('--port', default='830', type=str, help='device netconf port [830]')
+    add_p.add_argument('--device_user', default='cisco', type=str, help='device username [admin]')
+    add_p.add_argument('--device_password', default='cisco', type=str, help='device password [admin]')
+
+    del_p = subp.add_parser("delete", help='delete a node from netconf')
+    del_p.add_argument('--name', required=True, type=str, help='name of node to delete')
+
+    list_p = subp.add_parser("list", help='list netconf nodes')
+    list_p.add_argument('--name', type=str, help='name of node to list')
+
+    static_sid = subp.add_parser("static", help='add static SR ID to pathman_sr')
+    static_sid.add_argument('--name', type=str, help='name of node')
+    static_sid.add_argument('--ip', type=str, help='loopback ip of node')
+    static_sid.add_argument('--sid', type=str, help='SR ID of node')
+
+    p.add_argument('--controller_ip', default='198.18.1.80', type=str, help='ODL Controller ip address')
+    p.add_argument('--user', default='admin', type=str, help='ODL user')
+    p.add_argument('--password', default='admin', type=str, help='ODL password')
+
+
+
+    ns = p.parse_args()
+    logging.info("Parser: %s" % ns)
+    if ns.command == 'add':
+        print "adding: {}, success: {}".format(ns.name,
+                                               add_netconf_node(
+                                                   {'name': ns.name,
+                                                    'address': ns.address,
+                                                    'port': ns.port,
+                                                    'username': ns.device_user,
+                                                    'password': ns.device_password}))
+    elif ns.command == 'delete':
+        print "deleting: {}, success: {}".format(ns.name,
+                                                 del_netconf_node({'name': ns.name}))
+    elif ns.command == 'list':
+        print "we are listing"
+        display_list(ns.name)
+
+# Bye bye
