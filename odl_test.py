@@ -14,7 +14,7 @@ import sys
 import json
 import logging
 from pathman_sr import LOGGING
-from netconf import pcep_test, bgp_test, netconf_test
+from netconf import pcep_test, bgp_test, netconf_test, controller
 
 version = '1.0'
 
@@ -64,12 +64,24 @@ if __name__ == '__main__':
     netconf_p = subp.add_parser("netconf", help='list netconf nodes')
     netconf_p.add_argument('--name', type=str, help='name of node to list')
 
-    p.add_argument('--controller_ip', default='198.18.1.80', type=str, help='ODL Controller ip address')
-    p.add_argument('--user', default='admin', type=str, help='ODL user')
-    p.add_argument('--password', default='admin', type=str, help='ODL password')
+    p.add_argument('--controller_ip', default=controller['odl_ip'], type=str, help='ODL Controller ip address')
+    p.add_argument('--port', default=controller['odl_port'], type=str, help='ODL port')
+    p.add_argument('--user', default=controller['any_user'], type=str, help='ODL user')
+    p.add_argument('--password', default=controller['any_pass'], type=str, help='ODL password')
 
     ns = p.parse_args()
     logging.info("Parser: %s" % ns)
+
+    if ns.controller_ip:
+        controller['odl_ip'] = ns.controller_ip
+    if ns.port:
+        controller['odl_port'] = ns.port
+    if ns.user:
+        controller['any_user'] = ns.user
+        # odl_user = ns.user
+    if ns.password:
+        controller['any_pass'] = ns.password
+
     if ns.command == 'pcep':
         print_pcep(ns.address)
 

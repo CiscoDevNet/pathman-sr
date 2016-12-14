@@ -15,6 +15,7 @@ from requests.auth import HTTPBasicAuth
 import json
 import logging
 from pathman_sr import LOGGING, html_style
+from pathman_ini import odl_ip, odl_port, odl_user, odl_password
 import sys
 import argparse
 
@@ -24,15 +25,15 @@ version = '1.1'
 access = 'local'
 access_methods = ('local', 'connected', 'remote')
 
-controller = {'odl_ip':'198.18.1.25','odl_port':'8181'}
-odl_user = 'admin'
-odl_password = 'admin'
+# controller = {'odl_ip':'198.18.1.25','odl_port':'8181'}
+# odl_user = 'admin'
+# odl_password = 'admin'
 
-controller = {'odl_ip': '198.18.1.80',
-              'odl_port': '8181',
+controller = {'odl_ip': odl_ip,
+              'odl_port': odl_port,
               'access': access,
-              'any_user': 'admin',
-              'any_pass': 'admin'}
+              'any_user': odl_user,
+              'any_pass': odl_password}
 
 '''
 controller = {'odl_ip':'64.100.10.32',
@@ -217,8 +218,9 @@ def del_netconf_node(node_dict):
 def get_url(url):
     '''request url'''
     headers = {'Content-type': 'application/json'}
+    auth = (controller['any_user'], controller['any_pass'])
     try:
-        response = requests.get(url, headers=headers, auth=(odl_user, odl_password), verify=False)
+        response = requests.get(url, headers=headers, auth=auth, verify=False)
         logging.info("Url Get Status: %s" % response.status_code)
 
         if response.status_code in [200]:
@@ -232,8 +234,9 @@ def get_url(url):
 def del_url(url):
     '''request url'''
     headers = {'Content-type': 'application/json'}
+    auth = (controller['any_user'], controller['any_pass'])
     try:
-        response = requests.delete(url, headers=headers, auth=(odl_user, odl_password), verify=False)
+        response = requests.delete(url, headers=headers, auth=auth, verify=False)
         logging.info("Url Del Status: %s" % response.status_code)
 
         if response.status_code in [200]:
@@ -248,9 +251,9 @@ def del_url(url):
 def post_xml(url, data):
     '''request post'''
     headers = {'Content-type': 'application/xml'}
-
+    auth = (controller['any_user'], controller['any_pass'])
     try:
-        response =  requests.post(url, data=data,auth = ('admin','admin'), headers = headers, verify=False)
+        response =  requests.post(url, data=data, auth=auth, headers=headers, verify=False)
         logging.info("Url Post Status: %s" % response.status_code)
         if response.status_code in [200, 204]:
             if len(response.text) > 0:
@@ -267,9 +270,9 @@ def post_xml(url, data):
 def put_xml(url, data):
     """request post"""
     headers = {'Content-type': 'application/xml'}
-
+    auth = (controller['any_user'], controller['any_pass'])
     try:
-        response = requests.put(url, data=data, auth=(odl_user, odl_password), headers=headers, verify=False)
+        response = requests.put(url, data=data, auth=auth, headers=headers, verify=False)
         logging.info("Url Put Status: %s" % response.status_code)
         if response.status_code in [200, 201, 204]:
             if len(response.text) > 0:
@@ -286,9 +289,9 @@ def put_xml(url, data):
 def put_json(url, data):
     """request post"""
     headers = {'Content-type': 'application/json'}
-
+    auth = (controller['any_user'], controller['any_pass'])
     try:
-        response =  requests.put(url, data=json.dumps(data), auth=(odl_user, odl_password), headers=headers, verify=False)
+        response =  requests.put(url, data=json.dumps(data), auth=auth, headers=headers, verify=False)
         logging.info("Url Put Status: %s" % response.status_code)
         if response.status_code in [200, 204]:
             if len(response.text) > 0:
@@ -513,12 +516,24 @@ if __name__ == '__main__':
     static_sid.add_argument('--ip', type=str, help='loopback ip of node')
     static_sid.add_argument('--sid', type=str, help='SR ID of node')
 
-    p.add_argument('--controller_ip', default='198.18.1.80', type=str, help='ODL Controller ip address')
-    p.add_argument('--user', default='admin', type=str, help='ODL user')
-    p.add_argument('--password', default='admin', type=str, help='ODL password')
+    p.add_argument('--controller_ip', default=controller['odl_ip'], type=str, help='ODL Controller ip address')
+    p.add_argument('--port', default=controller['odl_port'], type=str, help='ODL port')
+    p.add_argument('--user', default=controller['any_user'], type=str, help='ODL user')
+    p.add_argument('--password', default=controller['any_pass'], type=str, help='ODL password')
 
     ns = p.parse_args()
     logging.info("Parser: %s" % ns)
+
+    if ns.controller_ip:
+        controller['odl_ip'] = ns.controller_ip
+    if ns.port:
+        controller['odl_port'] = ns.port
+    if ns.user:
+        controller['any_user'] = ns.user
+        # odl_user = ns.user
+    if ns.password:
+        controller['any_pass'] = ns.password
+
     if ns.command == 'add':
         print "adding: {}, success: {}".format(ns.name,
                                                add_netconf_node(
