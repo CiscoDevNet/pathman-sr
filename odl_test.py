@@ -65,7 +65,7 @@ if __name__ == '__main__':
     netconf_p.add_argument('--name', type=str, help='name of node to list')
 
     p.add_argument('--controller_ip', default=controller['odl_ip'], type=str, help='ODL Controller ip address')
-    p.add_argument('--port', default=controller['odl_port'], type=str, help='ODL port')
+    p.add_argument('--controller_port', default=controller['odl_port'], type=str, help='ODL port')
     p.add_argument('--user', default=controller['any_user'], type=str, help='ODL user')
     p.add_argument('--password', default=controller['any_pass'], type=str, help='ODL password')
 
@@ -74,8 +74,8 @@ if __name__ == '__main__':
 
     if ns.controller_ip:
         controller['odl_ip'] = ns.controller_ip
-    if ns.port:
-        controller['odl_port'] = ns.port
+    if ns.controller_port:
+        controller['odl_port'] = ns.controller_port
     if ns.user:
         controller['any_user'] = ns.user
         # odl_user = ns.user

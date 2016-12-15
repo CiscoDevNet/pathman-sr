@@ -219,9 +219,10 @@ def get_url(url):
     '''request url'''
     headers = {'Content-type': 'application/json'}
     auth = (controller['any_user'], controller['any_pass'])
+    logging.info(url)
     try:
         response = requests.get(url, headers=headers, auth=auth, verify=False)
-        logging.info("Url Get Status: %s" % response.status_code)
+        logging.info("Url GET Status: %s" % response.status_code)
 
         if response.status_code in [200]:
             return True, response.json()
@@ -237,7 +238,7 @@ def del_url(url):
     auth = (controller['any_user'], controller['any_pass'])
     try:
         response = requests.delete(url, headers=headers, auth=auth, verify=False)
-        logging.info("Url Del Status: %s" % response.status_code)
+        logging.info("Url DEL Status: %s" % response.status_code)
 
         if response.status_code in [200]:
             return True, response
@@ -254,7 +255,7 @@ def post_xml(url, data):
     auth = (controller['any_user'], controller['any_pass'])
     try:
         response =  requests.post(url, data=data, auth=auth, headers=headers, verify=False)
-        logging.info("Url Post Status: %s" % response.status_code)
+        logging.info("Url POST Status: %s" % response.status_code)
         if response.status_code in [200, 204]:
             if len(response.text) > 0:
                 return True, response.json()
@@ -273,7 +274,7 @@ def put_xml(url, data):
     auth = (controller['any_user'], controller['any_pass'])
     try:
         response = requests.put(url, data=data, auth=auth, headers=headers, verify=False)
-        logging.info("Url Put Status: %s" % response.status_code)
+        logging.info("Url PUT Status: %s" % response.status_code)
         if response.status_code in [200, 201, 204]:
             if len(response.text) > 0:
                 return True, response.json()
@@ -292,7 +293,7 @@ def put_json(url, data):
     auth = (controller['any_user'], controller['any_pass'])
     try:
         response =  requests.put(url, data=json.dumps(data), auth=auth, headers=headers, verify=False)
-        logging.info("Url Put Status: %s" % response.status_code)
+        logging.info("Url PUT Status: %s" % response.status_code)
         if response.status_code in [200, 204]:
             if len(response.text) > 0:
                 return True, response.json()
@@ -517,7 +518,7 @@ if __name__ == '__main__':
     static_sid.add_argument('--sid', type=str, help='SR ID of node')
 
     p.add_argument('--controller_ip', default=controller['odl_ip'], type=str, help='ODL Controller ip address')
-    p.add_argument('--port', default=controller['odl_port'], type=str, help='ODL port')
+    p.add_argument('--controller_port', default=controller['odl_port'], type=str, help='ODL port')
     p.add_argument('--user', default=controller['any_user'], type=str, help='ODL user')
     p.add_argument('--password', default=controller['any_pass'], type=str, help='ODL password')
 
@@ -526,8 +527,8 @@ if __name__ == '__main__':
 
     if ns.controller_ip:
         controller['odl_ip'] = ns.controller_ip
-    if ns.port:
-        controller['odl_port'] = ns.port
+    if ns.controller_port:
+        controller['odl_port'] = ns.controller_port
     if ns.user:
         controller['any_user'] = ns.user
         # odl_user = ns.user
