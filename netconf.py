@@ -395,12 +395,13 @@ def bgp_test(name=None, address=None):
             logging.error('node-id or router keywords missing: %s' % node)
 
         node_ports = []
-        for link in node['termination-point']:
-            #logging.debug("port: %s " % link['tp-id'])
-            if 'tp-id' in link.keys():
-                port_dict = html_style(link['tp-id'])
-                if 'ipv4' in port_dict.keys():
-                    node_ports.append(port_dict['ipv4'])
+        if 'termination-point' in node.keys():
+            for link in node['termination-point']:
+                #logging.debug("port: %s " % link['tp-id'])
+                if 'tp-id' in link.keys():
+                    port_dict = html_style(link['tp-id'])
+                    if 'ipv4' in port_dict.keys():
+                        node_ports.append(port_dict['ipv4'])
         tnode.update({'ports': node_ports})
         return tnode
 
@@ -475,11 +476,11 @@ def display_list(name=None):
     for node in netconf_dict['netconf-test']['results']:
         if name:
             if name == node.keys()[0]:
-                print "name: %s, status: %s, address: %s" % (name, node[name]['status'], node[name]['address'])
+                print "name: %s, status: %s, address: %s" % (name, node[name]['status'], node[name].get('address'))
                 found = True
         else:
             node_name = node.keys()[0]
-            print "name: %s, status: %s, address: %s" % (node_name, node[node_name]['status'], node[node_name]['address'])
+            print "name: %s, status: %s, address: %s" % (node_name, node[node_name]['status'], node[node_name].get('address'))
     if name and not found:
         print "name: %s - not found" % name
 
