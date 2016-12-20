@@ -74,7 +74,7 @@ class MyBGP(object):
                 else:
                     logging.error('unexpected item: {}'.format(link))
 
-            self.dicts['nodes']['index'] = [node['attributes']['node-attributes']['ipv4-router-id'] for node in self.dicts['nodes']['list']]
+            self.dicts['nodes']['index'] = [node['attributes'].get('node-attributes', {}).get('ipv4-router-id', '0.0.0.0') for node in self.dicts['nodes']['list']]
             self.dicts['prefixes']['index'] = [prefix['prefix-descriptors']['ip-reachability-information'] for prefix in self.dicts['prefixes']['list']]
             self.dicts['links']['index'] = [link['link-descriptors']['ipv4-interface-address'] for link in self.dicts['links']['list']]
 
@@ -124,12 +124,33 @@ class MyBGP(object):
         except ValueError:
             return
 
-    def get_sr_info(self):
+    def get_sr_info_old(self):
         sr_info = {}
         for node in self.dicts['nodes']['list']:
             base = node['attributes']['node-attributes']['sr-capabilities']['local-label']
             loopback = node['attributes']['node-attributes']['ipv4-router-id']
-            prefix = self.item_details('prefixes', loopback + '/32' )
+            prefix = self.item_details('prefixes', loopback + '/32')
             label = prefix['attributes']['prefix-attributes']['sr-prefix']['local-label']
             sr_info.update({loopback: int(base) + int(label)})
         return sr_info
+
+    def get_sr_info(self):
+        sr_info = {}
+        for node in self.dicts['nodes']['list']:
+            base = node['attributes'].get('node-attributes', {}).get('sr-capabilities', {}).get('local-label',)
+            if base:
+                loopback = node['attributes'].get('node-attributes', {}).get('ipv4-router-id', )
+                if loopback:
+                    prefix = self.item_details('prefixes', loopback + '/32')
+                    # print prefix
+                    if any(x in prefix['attributes']['prefix-attributes'].keys() for x in ['local-label', 'sid']):
+                        if 'local-label' in prefix['attributes']['prefix-attributes'].keys():
+                            label = prefix['attributes']['prefix-attributes']['sr-prefix']['local-label']
+                        else:
+                            label = prefix['attributes']['prefix-attributes']['sr-prefix']['sid']
+                        sr_info.update({loopback: int(base) + int(label)})
+                    else:
+                        logging.error('no sid info')
+        return sr_info
+
+# Bye bye
