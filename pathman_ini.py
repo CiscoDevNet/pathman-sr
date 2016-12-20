@@ -142,9 +142,9 @@ class MyBGP(object):
                 loopback = node['attributes'].get('node-attributes', {}).get('ipv4-router-id', )
                 if loopback:
                     prefix = self.item_details('prefixes', loopback + '/32')
-                    # print prefix
-                    if any(x in prefix['attributes']['prefix-attributes'].keys() for x in ['local-label', 'sid']):
-                        if 'local-label' in prefix['attributes']['prefix-attributes'].keys():
+
+                    if any(x in prefix['attributes']['prefix-attributes']['sr-prefix'].keys() for x in ['local-label', 'sid']):
+                        if 'local-label' in prefix['attributes']['prefix-attributes']['sr-prefix'].keys():
                             label = prefix['attributes']['prefix-attributes']['sr-prefix']['local-label']
                         else:
                             label = prefix['attributes']['prefix-attributes']['sr-prefix']['sid']
