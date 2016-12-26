@@ -47,6 +47,7 @@
     20160912, Niklas - ver 5.9c - Fixed Boron version check from false positives
     20160919, Niklas - ver 5.9d - getTopo reply format changed
     20160924, Niklas - ver 5.9e - Updated metrics selection
+    20161226, Niklas - ver 5.9f - Updates from branches; multi-area/level and sid fix
     """
 __author__ = 'niklas'
 
@@ -63,7 +64,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9e'
+version = '5.9f'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -372,13 +373,13 @@ def get_netconf():
                 if sid != -1:
                     node_configs.update({node:sid})
                     logging.info("got netconf data for: %s" % node)
+                    if rid != -1:
+                        rid_dict.update({rid:sid})
+                        logging.info("router-id: %s" % rid)
+                    else:
+                        logging.error("No rid for: %s" % node)
                 else:
                     logging.info("No sid for: %s" % node)
-                if rid != -1:
-                    rid_dict.update({rid:sid})
-                    logging.info("router-id: %s" % rid)
-                else:
-                    logging.error("No rid for: %s" % node)
             except:
                 logging.error("failure to get netconf data for: %s" % node)
     return node_configs, rid_dict
@@ -576,6 +577,22 @@ def find_link2(local, remote, address):
                 return -1
     return(-1)
 
+def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, sid):
+    id_list = [node.id for node in node_list]
+    if id in id_list:
+        index = id_list.index(id)
+        node = node_list[index]
+        if name != node.name:
+            logging.error('Name does not match for same ID: {} was {}'.format(name, node.name))
+        if portlist != node.portlist or prefix != node.prefix:
+            node = node._replace(portlist=sorted(list(set(node.portlist+portlist))), prefix=sorted(list(set(node.prefix+prefix))))
+            node_list[index] = node
+            logging.info("Updated node: %s" % str(node))
+    else:
+        node = Node(name, id, loopback, sorted(portlist), pcc, pcep_type, sorted(prefix), sid)
+        logging.info("New node: %s" % str(node))
+        node_list.append(node)
+
 def node_structure(my_topology, debug = 2):
     """ learn (print out) the topology structure """
 
@@ -634,9 +651,10 @@ def node_structure(my_topology, debug = 2):
                 success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
                 if success:
                     name = hname
-        node = Node(name,node_dict['router'],router_id,node_ports,pcc, pcep_type, prefix_array, sid)
-        logging.info("New node: %s" % str(node))
-        node_list.append(node)
+        add_node(node_list, name, node_dict['router'], router_id, node_ports, pcc, pcep_type, prefix_array, sid)
+        # node = Node(name,node_dict['router'],router_id,node_ports,pcc, pcep_type, prefix_array, sid)
+        # logging.info("New node: %s" % str(node))
+        # node_list.append(node)
     logging.info(node_list)
     return node_list
 
