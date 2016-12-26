@@ -50,6 +50,7 @@
     20161204, Niklas - Ver 5.9f - Added BGP-RIB support to retrieve SIDs. Requires XRv 6.1.x, or higher.
     20161210, Niklas - ver 5.9g - Added Netconf-modules for users to add their nodes to netconf
                                 - Added static netconf mappings for users ho give up on netconf
+    20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
     """
 __author__ = 'niklas'
 
@@ -66,7 +67,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9g'
+version = '5.9h'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -388,16 +389,16 @@ def get_netconf():
             try:
                 sid = get_config([get_node_isis_config, get_node_ospf_config], 'prefix-sid')
                 rid = get_config([get_node_bgp_config], 'router-id')
-                logging.info('rid: %s, sid: %s' %(rid, sid))
+                logging.info('rid: %s, sid: %s' % (rid, sid))
 
                 if sid != -1:
-                    node_configs.update({node:sid})
+                    node_configs.update({node: sid})
                     logging.info("got netconf data for: %s" % node)
-                else:
-                    logging.info("No sid for: %s" % node)
-                if rid != -1:
-                    rid_dict.update({rid:sid})
-                    logging.info("router-id: %s" % rid)
+                    if rid != -1:
+                        rid_dict.update({rid: sid})
+                        logging.info("router-id: %s" % rid)
+                    else:
+                        logging.info("No sid for: %s" % node)
                 else:
                     logging.error("No rid for: %s" % node)
             except:
@@ -613,6 +614,22 @@ def find_link2(local, remote, address):
                 return -1
     return(-1)
 
+def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, sid):
+    id_list = [node.id for node in node_list]
+    if id in id_list:
+        index = id_list.index(id)
+        node = node_list[index]
+        if name != node.name:
+            logging.error('Name does not match for same ID: {} was {}'.format(name, node.name))
+        if portlist != node.portlist or prefix != node.prefix:
+            node = node._replace(portlist=sorted(list(set(node.portlist+portlist))), prefix=sorted(list(set(node.prefix+prefix))))
+            node_list[index] = node
+            logging.info("Updated node: %s" % str(node))
+    else:
+        node = Node(name, id, loopback, sorted(portlist), pcc, pcep_type, sorted(prefix), sid)
+        logging.info("New node: %s" % str(node))
+        node_list.append(node)
+
 def node_structure(my_topology, debug = 2):
     """ learn (print out) the topology structure """
 
@@ -671,9 +688,10 @@ def node_structure(my_topology, debug = 2):
                 success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
                 if success:
                     name = hname
-        node = Node(name,node_dict['router'],router_id,node_ports,pcc, pcep_type, prefix_array, sid)
-        logging.info("New node: %s" % str(node))
-        node_list.append(node)
+        add_node(node_list, name, node_dict['router'], router_id, node_ports, pcc, pcep_type, prefix_array, sid)
+        # node = Node(name,node_dict['router'],router_id,node_ports,pcc, pcep_type, prefix_array, sid)
+        # logging.info("New node: %s" % str(node))
+        # node_list.append(node)
     logging.info(node_list)
     return node_list
 
