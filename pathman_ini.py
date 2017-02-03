@@ -23,7 +23,7 @@
     
     """
 
-sid_list = 'static_sids.json'
+sid_saves = 'static_sids.json'
 
 #odl_ip = '127.0.0.1'
 odl_ip = '198.18.1.80'

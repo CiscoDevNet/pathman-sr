@@ -49,7 +49,7 @@ if __name__ == '__main__':
         prog=sys.argv[0],
         description='Test BGP, PCEP and Netconf output ODL Controller',
         version=version,
-        epilog='Copyright (c) 2015 by Cisco Systems, Inc. All Rights Reserved'
+        epilog='Copyright (c) 2017 by Cisco Systems, Inc. All Rights Reserved'
         )
 
     subp = p.add_subparsers(help='commands', dest='command')

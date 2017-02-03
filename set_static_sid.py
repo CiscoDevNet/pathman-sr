@@ -14,10 +14,10 @@ import logging
 import sys
 import argparse
 from pathman_sr import LOGGING, file_to_dict, dict_to_file
-from pathman_ini import sid_list as sid_saves
+from pathman_ini import sid_saves
 # sid_list = 'static_sids.json'
 
-version = '1.0'
+version = '1.1'
 # =====================================================
 
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         prog=sys.argv[0],
         description='Add, List and Remove SIDs from pathman_sr static file: "%s"' % sid_saves,
         version=version,
-        epilog='Copyright (c) 2015 by Cisco Systems, Inc. All Rights Reserved'
+        epilog='Copyright (c) 2017 by Cisco Systems, Inc. All Rights Reserved'
         )
 
     subp = p.add_subparsers(help='commands', dest='command')

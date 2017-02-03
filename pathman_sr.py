@@ -51,6 +51,7 @@
     20161210, Niklas - ver 5.9g - Added Netconf-modules for users to add their nodes to netconf
                                 - Added static netconf mappings for users ho give up on netconf
     20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
+    20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     """
 __author__ = 'niklas'
 
@@ -67,7 +68,7 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9h'
+version = '5.9i'
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -440,7 +441,7 @@ def node_sr_update(node_list):
         # BGP Check
     bgp_rib = MyBGP()
     sid_dict = bgp_rib.get_sr_info()
-    my_local_sids = file_to_dict(sid_list)
+    my_local_sids = file_to_dict(sid_saves)
     # sid_dict = {}
     if len(sid_dict) > 0:
         for node in node_list:
@@ -1144,14 +1145,14 @@ def sort_paths(pathlist, metriclist, type):
 
 def postUrl(url, data):
     import requests
-    response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/json'})
+    response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/json'})
     # print response.text
     return response.json()
 
 def postXml(url, data):
     """ post our lsp creation commands """
     import requests
-    response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/xml'})
+    response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/xml'})
     # print response.text
 
     return response.json()
