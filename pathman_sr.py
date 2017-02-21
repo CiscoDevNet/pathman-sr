@@ -52,6 +52,7 @@
                                 - Added static netconf mappings for users ho give up on netconf
     20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
+    20170220, Niklas - ver 5.9j - Avoid crashing for BgpEpe links and node information
     """
 __author__ = 'niklas'
 
@@ -512,8 +513,6 @@ def get_sid_list(path_list):
     return sid_list
 
 
-##########
-
 def name_check(address):
     '''check if a name is mapped to address'''
     import socket
@@ -522,6 +521,7 @@ def name_check(address):
         return True, name
     except:
         return False, ""
+
 
 def ipv4_in_network(ip, network):
     '''check if the ip is in the network'''
@@ -569,6 +569,7 @@ def get_url(url):
         logging.error('Connection Error: %s' % e.message)
         return {}
 
+
 def locations_of_substring(string,target, offset=0):
     '''recursive counter of all occurances'''
     temp = []
@@ -579,15 +580,22 @@ def locations_of_substring(string,target, offset=0):
         temp += locations_of_substring(string[start+len(target):],target, offset +start+len(target))
     return temp
 
+
 def html_style(string):
     """ find arguments and build list of dicts """
+    first = locations_of_substring(string, '/')
+    start = locations_of_substring(string, '&')
+    end = locations_of_substring(string, '=')
+    start.insert(0, first[-1])
 
-    first = locations_of_substring(string,'/')
-    start = locations_of_substring(string,'&')
-    end = locations_of_substring(string,'=')
-    start.insert(0,first[-1])
+    temp = chop_chop(start, end, string)
+    try:
+        tag = string[first[-2] + 1:first[-1]]
+        temp.update({'tag': tag})
+    except IndexError:
+        logging.error('Malformed string missing "bgpls://tag/": {} '.format(string))
+    return temp
 
-    return chop_chop(start,end,string)
 
 def chop_chop(start, end, string):
     """ Build value pair dict from restconf response """
@@ -655,44 +663,44 @@ def node_structure(my_topology, debug = 2):
     for nodes in my_topology['topology'][0]['node']:
         #try:
         node_dict = html_style(nodes['node-id'])
-        #logging.debug("node_dict: %s" % node_dict)
-        prefix_array = []
-        if 'prefix' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
-            for prefix in nodes['l3-unicast-igp-topology:igp-node-attributes']['prefix']:
-                prefix_array.append(prefix['prefix'])
-                #logging.debug("prefix: %s, metric: %s " % (prefix['prefix'],prefix['metric']))
-        node_ports = []
-        if 'termination-point' in nodes.keys():
-            for link in nodes['termination-point']:
-                #logging.debug("port: %s " % link['tp-id'])
-                if 'tp-id' in link.keys():
-                    port_dict = html_style(link['tp-id'])
-                    if 'ipv4' in port_dict.keys():
-                        node_ports.append(port_dict['ipv4'])
-        else:
-            logging.error("Node {0} is missing 'termination-point' ".format(node_dict['router']))
-        index = -1
-        router_id = ""
-        name = ""
-        pcc = ""
-        pcep_type = ""
-        sid = ""
-        for keys in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
-            if keys == 'router-id':
-                router_id = nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0]
-                if router_id in loops:
-                    index = loops.index(router_id)
-                    pcc = pcc_list[index]['pcc']
-                    pcep_type = pcc_list[index]['pcep_type']
-            elif keys == 'name':
-                name = nodes['l3-unicast-igp-topology:igp-node-attributes']['name']
-        if name == "":
-            name = node_dict['router']
-            if 'router-id' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
-                success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
-                if success:
-                    name = hname
-        add_node(node_list, name, node_dict['router'], router_id, node_ports, pcc, pcep_type, prefix_array, sid)
+        if node_dict['tag'] not in ['BgpEpe:0']:
+            prefix_array = []
+            if 'prefix' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
+                for prefix in nodes['l3-unicast-igp-topology:igp-node-attributes']['prefix']:
+                    prefix_array.append(prefix['prefix'])
+                    #logging.debug("prefix: %s, metric: %s " % (prefix['prefix'],prefix['metric']))
+            node_ports = []
+            if 'termination-point' in nodes.keys():
+                for link in nodes['termination-point']:
+                    #logging.debug("port: %s " % link['tp-id'])
+                    if 'tp-id' in link.keys():
+                        port_dict = html_style(link['tp-id'])
+                        if 'ipv4' in port_dict.keys():
+                            node_ports.append(port_dict['ipv4'])
+            else:
+                logging.error("Node {0} is missing 'termination-point' ".format(node_dict['router']))
+            index = -1
+            router_id = ""
+            name = ""
+            pcc = ""
+            pcep_type = ""
+            sid = ""
+            for keys in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
+                if keys == 'router-id':
+                    router_id = nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0]
+                    if router_id in loops:
+                        index = loops.index(router_id)
+                        pcc = pcc_list[index]['pcc']
+                        pcep_type = pcc_list[index]['pcep_type']
+                elif keys == 'name':
+                    name = nodes['l3-unicast-igp-topology:igp-node-attributes']['name']
+            if name == "":
+                name = node_dict['router']
+                if 'router-id' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
+                    success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
+                    if success:
+                        name = hname
+            add_node(node_list, name, node_dict['router'], router_id, node_ports, pcc, pcep_type, prefix_array, sid)
         # node = Node(name,node_dict['router'],router_id,node_ports,pcc, pcep_type, prefix_array, sid)
         # logging.info("New node: %s" % str(node))
         # node_list.append(node)
@@ -743,13 +751,14 @@ def node_links(my_topology, node_list, bgp=False, metric='igp'):
     try:
         for link in my_topology['topology'][0]['link']:
             link_dict = html_style(link['link-id'])
-            link_list.append(link_dict)
+            if link_dict['tag'] not in ['BgpEpe:0']:
+                link_list.append(link_dict)
 
-            if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
-                if link_dict['local-router'] in net.keys():
-                    net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)})
-                else:
-                    net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)}})
+                if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
+                    if link_dict['local-router'] in net.keys():
+                        net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)})
+                    else:
+                        net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)}})
 
     except:
         logging.info("We have no links in our BGP-LS topology")
@@ -847,12 +856,13 @@ def find_link(my_topology, local, remote, debug = 2):
     """ Determine what node is connected to which """
     for link in my_topology['topology'][0]['link']:
         link_dict = html_style(link['link-id'])
-        if link_dict['local-router'] == local and link_dict['remote-router'] == remote:
-            try:
-                return link_dict['ipv4-neigh']
-            except:
-                return -1
-    return(-1)
+        if link_dict['tag'] not in ['BgpEpe:0']:
+            if link_dict['local-router'] == local and link_dict['remote-router'] == remote:
+                try:
+                    return link_dict['ipv4-neigh']
+                except:
+                    return -1
+    return -1
 
 def map_name2node(node_list, name):
     """ find node id from name """
