@@ -68,7 +68,9 @@ from topo_data import topologyData
 
 
 #==============================================================
+
 version = '5.9i'
+
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -402,6 +404,7 @@ def get_netconf():
                         logging.info("No sid for: %s" % node)
                 else:
                     logging.error("No rid for: %s" % node)
+
             except:
                 logging.error("failure to get netconf data for: %s" % node)
     return node_configs, rid_dict
