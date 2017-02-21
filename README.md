@@ -180,6 +180,9 @@ Go here for [details](https://github.com/CiscoDevNet/pathman-sr/tree/master/dClo
 ## To use with Docker
 Go here for [details](https://github.com/CiscoDevNet/pathman-sr/tree/master/docker)
 
+## For Tools to help you get PCEP, BGP-LS and Netconf setup
+Go here for [details](https://github.com/CiscoDevNet/pathman-sr/tree/master/tools)
+
 
 
 

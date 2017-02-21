@@ -47,7 +47,11 @@
     20160912, Niklas - ver 5.9c - Fixed Boron version check from false positives
     20160919, Niklas - ver 5.9d - getTopo reply format changed
     20160924, Niklas - ver 5.9e - Updated metrics selection
-    20161226, Niklas - ver 5.9f - Updates from branches; multi-area/level and sid fix
+    20161204, Niklas - Ver 5.9f - Added BGP-RIB support to retrieve SIDs. Requires XRv 6.1.x, or higher.
+    20161210, Niklas - ver 5.9g - Added Netconf-modules for users to add their nodes to netconf
+                                - Added static netconf mappings for users ho give up on netconf
+    20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
+    20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     """
 __author__ = 'niklas'
 
@@ -64,7 +68,9 @@ from topo_data import topologyData
 
 
 #==============================================================
-version = '5.9f'
+
+version = '5.9i'
+
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
 odl_port = '8181'
@@ -301,6 +307,24 @@ LOGGING = {
 }
 
 
+def dict_to_file(mdict, file):
+    with open(file,'w') as f:
+        f.write(json.dumps(mdict))
+    logging.info("writing %s" % mdict)
+
+
+def file_to_dict(file):
+    mdict = {}
+    if os.path.exists(file):
+        with open(file,'r') as f:
+            string = f.read()
+        user_files = json.loads(string)
+        logging.info("reading %s" % user_files)
+        for item in user_files:
+            mdict.update({item:user_files[item]})
+    return mdict
+
+
 def version_check():
     """modified from odl_gateway"""
     url = get_version
@@ -368,18 +392,19 @@ def get_netconf():
             try:
                 sid = get_config([get_node_isis_config, get_node_ospf_config], 'prefix-sid')
                 rid = get_config([get_node_bgp_config], 'router-id')
-                logging.info('rid: %s, sid: %s' %(rid, sid))
+                logging.info('rid: %s, sid: %s' % (rid, sid))
 
                 if sid != -1:
-                    node_configs.update({node:sid})
+                    node_configs.update({node: sid})
                     logging.info("got netconf data for: %s" % node)
                     if rid != -1:
-                        rid_dict.update({rid:sid})
+                        rid_dict.update({rid: sid})
                         logging.info("router-id: %s" % rid)
                     else:
-                        logging.error("No rid for: %s" % node)
+                        logging.info("No sid for: %s" % node)
                 else:
-                    logging.info("No sid for: %s" % node)
+                    logging.error("No rid for: %s" % node)
+
             except:
                 logging.error("failure to get netconf data for: %s" % node)
     return node_configs, rid_dict
@@ -408,25 +433,41 @@ def keyd_dict_walker(mdict, key):
 def node_sr_update(node_list):
     def update(node, temp_sid):
         if 'value' in temp_sid.keys():
-            node_list[node_list.index(node)] = node._replace(sid = temp_sid['value'])
-            logging.info("SR sid updated for: %s" % node.name)
+            node_list[node_list.index(node)] = node._replace(sid=temp_sid['value'])
+            logging.info("SR sid updated for: %s from netconf" % node.name)
         elif 'sid-value' in temp_sid.keys():
-            node_list[node_list.index(node)] = node._replace(sid = temp_sid['sid-value'])
-            logging.info("SR sid updated for: %s" % node.name)
+            node_list[node_list.index(node)] = node._replace(sid=temp_sid['sid-value'])
+            logging.info("SR sid updated for: %s from netconf" % node.name)
         else:
-            logging.error("No sid value for: %s - %s" % (node.name,temp_sid))
+            logging.error("No sid value for: %s - %s" % (node.name, temp_sid))
 
-    node_configs, rid_dict = get_netconf()
-    for node in node_list:
-        temp_sid = node_configs.get(node.name,{})
-        rid_sid = rid_dict.get(node.loopback,{})
+        # BGP Check
+    bgp_rib = MyBGP()
+    sid_dict = bgp_rib.get_sr_info()
+    my_local_sids = file_to_dict(sid_saves)
+    # sid_dict = {}
+    if len(sid_dict) > 0:
+        for node in node_list:
+            if node.loopback in sid_dict.keys():
+                node_list[node_list.index(node)] = node._replace(sid=sid_dict[node.loopback])
+                logging.info('SR sid updated for: {} from bgp'.format(node.name))
+            else:
+                logging.error('No BGP SID for: {}'.format(node.name))
+    else:
+        node_configs, rid_dict = get_netconf()
+        for node in node_list:
+            temp_sid = node_configs.get(node.name,{})
+            rid_sid = rid_dict.get(node.loopback,{})
 
-        if len(temp_sid) >0:
-            update(node, temp_sid)
-        elif len(rid_sid) >0:
-            update(node, rid_sid)
-        else:
-            logging.error("No sid for: %s" % node.name)
+            if len(temp_sid) >0:
+                update(node, temp_sid)
+            elif len(rid_sid) >0:
+                update(node, rid_sid)
+            elif my_local_sids.get(node.loopback):
+                node_list[node_list.index(node)] = node._replace(sid=my_local_sids[node.loopback]['sid'])
+                logging.info('SR sid updated for: {} from static'.format(node.name))
+            else:
+                logging.error("No sid for: %s" % node.name)
 
     return node_list
 
@@ -1107,14 +1148,14 @@ def sort_paths(pathlist, metriclist, type):
 
 def postUrl(url, data):
     import requests
-    response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/json'})
+    response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/json'})
     # print response.text
     return response.json()
 
 def postXml(url, data):
     """ post our lsp creation commands """
     import requests
-    response = requests.post(url, data=data, auth = (odl_user, odl_password),headers= {'Content-Type': 'application/xml'})
+    response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/xml'})
     # print response.text
 
     return response.json()
