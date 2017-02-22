@@ -52,7 +52,7 @@ class Commands(object):
         re_uri_sr = re.compile('/pathman_sr' )
         txt_uri_sr = re_uri_sr.pattern
         
-        build_odl_topology(debug=debug)
+        build_odl_topology()
         
         logging.info('patterned to ' + repr(txt_uri))
         ##tuple_register2 = (txt_uri, CommandHandler2, dict(debug=debug))

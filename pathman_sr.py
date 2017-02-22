@@ -53,6 +53,7 @@
     20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     20170220, Niklas - ver 5.9j - Avoid crashing for BgpEpe links and node information
+    20170222, Niklas - ver 5.9k - Builds topo with BgpEpe nodes, Cleanup
     """
 __author__ = 'niklas'
 
@@ -70,7 +71,7 @@ from topo_data import topologyData
 
 #==============================================================
 
-version = '5.9i'
+version = '5.9k'
 
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
@@ -229,13 +230,14 @@ ero_sr_xml = '''<subobject>
        <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">{hop}</ip-address>
      </subobject>'''
 
+
 class Puck():
     """ Name Node was taken,
         holds path information to neighbors,
         every node spawns of Pucks as their neighbors,
         not a one-to-one with nodes.
         """
-    def __init__(self, id = '', end = '',pathlist = [], metriclist = [], topo = [], past = []):
+    def __init__(self, id='', end='', pathlist=[], metriclist=[], topo=[], past=[]):
         self.id = id
         self.end = end
         self.pathlist = pathlist
@@ -245,16 +247,18 @@ class Puck():
 
 debug_modules = ['node_structure']
 
+
 class debugFilter(logging.Filter):
-    ''' limits debug output to selected modules '''
+    """limits debug output to selected modules"""
     def filter(self, record):
         if record.levelname != 'DEBUG':
             return True
         else:
-            return  record.funcName in debug_modules
+            return record.funcName in debug_modules
+
 
 class MyFormatter(logging.Formatter):
-    ''' Gives us a dot instead of a comma in the log printout '''
+    """Gives us a dot instead of a comma in the log printout"""
     converter = time.gmtime
     def formatTime(self, record, datefmt=None):
         ct = self.converter(record.created)
@@ -279,9 +283,9 @@ LOGGING = {
         'to_screen': {
             'format': '[%(levelname)s] %(funcName)s: %(message)s'
             },
-        'to_file':{
-            '()':MyFormatter,
-            'format' : '%(process)d %(asctime)12s UTC %(name)s:%(funcName)-12s %(levelname)s: %(message)s'
+        'to_file': {
+            '()': MyFormatter,
+            'format': '%(process)d %(asctime)12s UTC %(name)s:%(funcName)-12s %(levelname)s: %(message)s'
             }
         },
     'handlers': {
@@ -290,10 +294,10 @@ LOGGING = {
             'filters': ['module_filter'],
             'formatter':'to_screen'
             },
-        'logtofile':{
+        'logtofile': {
             'class': 'logging.handlers.RotatingFileHandler',
             'filters': ['module_filter'],
-            'formatter':'to_file',
+            'formatter': 'to_file',
             'filename': log_file,
             'maxBytes': log_size,
             'backupCount': 3,
@@ -343,9 +347,9 @@ def version_check():
                     return version
     return ""
 
+
 def netconf_list(dummy=None):
-    '''modified from from odl_gateway'''
-    
+    """modified from from odl_gateway"""
     odl_version = version_check()
     
     if odl_version in ['beryllium', 'boron']:
@@ -373,8 +377,9 @@ def netconf_list(dummy=None):
                     pass
     return conf_list
 
+
 def get_netconf():
-    '''get configs for nodes added to controller'''
+    """get configs for nodes added to controller"""
     def get_config(url_list, match):
         for url in url_list:
             result = get_url(url.format(**temp))
@@ -410,9 +415,9 @@ def get_netconf():
                 logging.error("failure to get netconf data for: %s" % node)
     return node_configs, rid_dict
 
+
 def keyd_dict_walker(mdict, key):
     """ walk the dict and find value of key """
-    #print " being called "
     if key in mdict.keys():
         return mdict[key]
     else:
@@ -421,17 +426,18 @@ def keyd_dict_walker(mdict, key):
                 temp = keyd_dict_walker(mdict[keys],key)
                 if temp != -1:
                     return temp
-                    break
+
             elif type(mdict[keys]) == list:
                 for item in mdict[keys]:
                     if type(item) == dict:
                         temp = keyd_dict_walker(item,key)
                         if temp != -1:
                             return temp
-                            break
+
     return -1
 
-def node_sr_update(node_list):
+
+def node_sr_update(node_list, bgp_rib):
     def update(node, temp_sid):
         if 'value' in temp_sid.keys():
             node_list[node_list.index(node)] = node._replace(sid=temp_sid['value'])
@@ -442,11 +448,14 @@ def node_sr_update(node_list):
         else:
             logging.error("No sid value for: %s - %s" % (node.name, temp_sid))
 
-        # BGP Check
-    bgp_rib = MyBGP()
-    sid_dict = bgp_rib.get_sr_info()
+    # BGP Check
+    # bgp_rib = MyBGP()
+    try:
+        sid_dict = bgp_rib.get_sr_info()
+    except AttributeError:
+        sid_dict = {}
     my_local_sids = file_to_dict(sid_saves)
-    # sid_dict = {}
+
     if len(sid_dict) > 0:
         for node in node_list:
             if node.loopback in sid_dict.keys():
@@ -497,7 +506,7 @@ def get_sid_list(path_list):
     """ get sids for nodes in pathlist"""
     logging.info("Path: %s" % path_list)
     sid_list = []
-    #path_list.pop(0)
+    # path_list.pop(0)
     for name in path_list:
         try:
             temp_sid = node_list[[node.name for node in node_list].index(name)].sid
@@ -514,7 +523,7 @@ def get_sid_list(path_list):
 
 
 def name_check(address):
-    '''check if a name is mapped to address'''
+    """check if a name is mapped to address"""
     import socket
     try:
         name = socket.gethostbyaddr(address)[0]
@@ -524,9 +533,9 @@ def name_check(address):
 
 
 def ipv4_in_network(ip, network):
-    '''check if the ip is in the network'''
+    """check if the ip is in the network"""
     def mask_check(num):
-        ''' check bits in mask and how many octets we need to match'''
+        """check bits in mask and how many octets we need to match"""
         oct = num /8
         bits = num % 8
         return oct, bits
@@ -554,10 +563,10 @@ def ipv4_in_network(ip, network):
 
 
 def get_url(url):
-    '''request url'''
+    """request url"""
     headers = {'Content-type': 'application/json'}
     try:
-        response =  requests.get(url, headers = headers, auth = (odl_user,odl_password), verify=False)
+        response =  requests.get(url, headers=headers, auth=(odl_user,odl_password), verify=False)
         logging.info("Url get Status: %s" % response.status_code)
 
         if response.status_code in [200]:
@@ -570,14 +579,14 @@ def get_url(url):
         return {}
 
 
-def locations_of_substring(string,target, offset=0):
-    '''recursive counter of all occurances'''
+def locations_of_substring(string, target, offset=0):
+    """recursive counter of all occurrences"""
     temp = []
     start = string.find(target)
 
     if start != -1:
         temp = [start+offset]
-        temp += locations_of_substring(string[start+len(target):],target, offset +start+len(target))
+        temp += locations_of_substring(string[start+len(target):], target, offset+start+len(target))
     return temp
 
 
@@ -601,7 +610,7 @@ def chop_chop(start, end, string):
     """ Build value pair dict from restconf response """
 
     mydict = {}
-    while len(start)>0:
+    while len(start) > 0:
 
         arg = string[start[0]+1:end[0]]
         if len(start) > 1:
@@ -610,11 +619,12 @@ def chop_chop(start, end, string):
             inext = len(string)
         value = string[end[0]+1:inext]
 
-        mydict.update({arg:value})
+        mydict.update({arg: value})
         start.pop(0)
         end.pop(0)
 
     return mydict
+
 
 def find_link2(local, remote, address):
     """ Determine what node is connected to which """
@@ -624,7 +634,8 @@ def find_link2(local, remote, address):
                 return link_dict[address]
             except:
                 return -1
-    return(-1)
+    return -1
+
 
 def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, sid):
     id_list = [node.id for node in node_list]
@@ -634,7 +645,8 @@ def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, si
         if name != node.name:
             logging.error('Name does not match for same ID: {} was {}'.format(name, node.name))
         if portlist != node.portlist or prefix != node.prefix:
-            node = node._replace(portlist=sorted(list(set(node.portlist+portlist))), prefix=sorted(list(set(node.prefix+prefix))))
+            node = node._replace(portlist=sorted(list(set(node.portlist+portlist))),
+                                 prefix=sorted(list(set(node.prefix+prefix))))
             node_list[index] = node
             logging.info("Updated node: %s" % str(node))
     else:
@@ -642,11 +654,111 @@ def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, si
         logging.info("New node: %s" % str(node))
         node_list.append(node)
 
-def node_structure(my_topology, debug = 2):
+
+def find_bgp_node(node_ports, bgp_dict):
+    try:
+        for link in bgp_dict.dicts['links']['list']:
+            if link['protocol-id'] == 'bgp-epe':
+                logging.info('epe-link ip: {}, node-ports: {}'.format(
+                    link['link-descriptors']['ipv4-interface-address'],
+                    node_ports))
+                temp_ip = link['link-descriptors']['ipv4-interface-address']
+                if temp_ip in node_ports:
+                    loopback = link['local-node-descriptors']['bgp-router-id']
+                    index = bgp_dict.dicts['nodes']['index'].index(loopback)
+                    name = bgp_dict.dicts['nodes']['list'][index]['attributes']['node-attributes']['dynamic-hostname']
+                    router_id = loopback
+                    return name, loopback, router_id
+        return "", "", ""
+    except AttributeError:
+        logging.error("No BGP RIB data available")
+        return "", "", ""
+
+
+def node_structure(my_topology, bgp_dict):
+    """ learn (print out) the topology structure """
+    def find_ports(node):
+        node_ports = []
+        if 'termination-point' in nodes.keys():
+            for link in node['termination-point']:
+                # logging.debug("port: %s " % link['tp-id'])
+                if 'tp-id' in link.keys():
+                    port_dict = html_style(link['tp-id'])
+                    if 'ipv4' in port_dict.keys():
+                        node_ports.append(port_dict['ipv4'])
+        else:
+            logging.error("Node {0} is missing 'termination-point' ".format(node_dict['router']))
+        return node_ports
+
+    def find_prefixes(node):
+        prefix_array = []
+        if 'prefix' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
+            for prefix in nodes['l3-unicast-igp-topology:igp-node-attributes']['prefix']:
+                prefix_array.append(prefix['prefix'])
+        return prefix_array
+
+    node_list = []
+    pcc_list = get_pcep_type()
+    logging.debug("pcc_list: %s" % pcc_list)
+    try:
+        node_dictlist = my_topology['topology'][0]['node']
+        if len(pcc_list) > 0:
+            loops = [pnode['loopback'] for pnode in pcc_list]
+        else:
+            loops = []
+        logging.debug("Loopbacks of nodes: %s" % loops)
+
+    except:
+        logging.info("We have no nodes in our BGP-LS topology")
+        return []
+
+    for nodes in my_topology['topology'][0]['node']:
+        node_dict = html_style(nodes['node-id'])
+        prefix_array = find_prefixes(nodes)
+        node_ports = find_ports(nodes)
+
+        router_id = ""
+        name = ""
+        loopback = ""
+        pcc = ""
+        pcep_type = ""
+        sid = ""
+        for keys in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
+            if keys == 'router-id':
+                router_id = nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0]
+                if router_id in loops:
+                    index = loops.index(router_id)
+                    pcc = pcc_list[index]['pcc']
+                    pcep_type = pcc_list[index]['pcep_type']
+            elif keys == 'name':
+                name = nodes['l3-unicast-igp-topology:igp-node-attributes']['name']
+
+        if 'router' in node_dict.keys():
+            loopback = node_dict['router']
+        if name == '':
+            if 'router' in node_dict.keys():
+                name = node_dict['router']
+                if 'router-id' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
+                    success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
+                    if success:
+                        name = hname
+            elif node_dict['tag'] in ['BgpEpe:0']:
+                name, loopback, router_id = find_bgp_node(node_ports, bgp_dict)
+                logging.info("bgp: {}, {}, {}".format(name, loopback, router_id))
+                if name == router_id == loopback == "":
+                    name = "Epe-{}".format(node_dict['as'])
+                    router_id = loopback = name
+
+        add_node(node_list, name, loopback, router_id, node_ports, pcc, pcep_type, prefix_array, sid)
+    logging.info(node_list)
+    return node_list
+
+
+def node_structure_old(my_topology):
     """ learn (print out) the topology structure """
 
     node_list = []
-    pcc_list = get_pcep_type(debug)
+    pcc_list = get_pcep_type()
     logging.debug("pcc_list: %s" % pcc_list)
     try:
         node_dictlist = my_topology['topology'][0]['node']
@@ -707,6 +819,7 @@ def node_structure(my_topology, debug = 2):
     logging.info(node_list)
     return node_list
 
+
 def pseudo_net_build(node_list):
     pseudo_net = []
     for node in node_list:
@@ -715,17 +828,84 @@ def pseudo_net_build(node_list):
                 if owner.id == node.id[:len(owner.id)] and owner.name != node.name:
                     pseudo_network = '0.0.0.0/32'
                     for network in owner.prefix:
-                        #logging.info("calling ipv4_in_network for: %s - owner:%s" %(node.name,owner.name))
+                        # logging.info("calling ipv4_in_network for: %s - owner:%s" %(node.name,owner.name))
                         if node.portlist != [] and ipv4_in_network(node.portlist[0], network):
                             pseudo_network = network
-                    node_list[node_list.index(node)] = node._replace(name= owner.name+node.id[len(owner.id):],pcep_type="pseudonode",prefix=pseudo_network)
+                    node_list[node_list.index(node)] = node._replace(name=owner.name+node.id[len(owner.id):],
+                                                                     pcep_type="pseudonode",
+                                                                     prefix=pseudo_network)
                     pseudo_net += node.portlist
                     logging.info("Owner of Pseduo: %s is: %s" % (node.name, owner.name))
                     break
     logging.info(pseudo_net)
     return pseudo_net
 
-def node_links(my_topology, node_list, bgp=False, metric='igp'):
+
+def node_links(my_topology, node_list, bgp_dict, bgp=False, metric='igp'):
+    """ Dumps link info """
+    def metric_test(attributes, metric):
+        """ Pick a metric to return """
+        temp = {'te-isis':10, 'te-ospf':10}
+        if 'metric' in attributes.keys():
+            temp.update({'metric': attributes['metric']})
+        if 'ospf-topology:ospf-link-attributes' in attributes.keys() and 'ted' in attributes['ospf-topology:ospf-link-attributes']:
+            temp.update({'te-ospf': attributes['ospf-topology:ospf-link-attributes']['ted'].get('te-default-metric', 10)})
+        if 'isis-topology:isis-link-attributes' in attributes.keys() and 'ted' in attributes['isis-topology:isis-link-attributes']:
+            temp.update({'te-isis': attributes['isis-topology:isis-link-attributes']['ted'].get('te-default-metric', 10)})
+
+        if metric == 'igp':
+            return temp.get('metric', 10)
+        elif metric == 'te':
+            if temp['te-isis'] != 10:
+                return temp['te-isis']
+            else:
+                return temp['te-ospf']
+
+    net = {}
+    link_list = []
+    sr_enabled = [node.id for node in node_list if node.sid != '']
+    try:
+        for link in my_topology['topology'][0]['link']:
+            link_dict = html_style(link['link-id'])
+            link_list.append(link_dict)
+            if link_dict['tag'] not in ['BgpEpe:0']:
+                if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
+                    if link_dict['local-router'] in net.keys():
+                        if link_dict['remote-router'] in net[link_dict['local-router']].keys():
+                            logging.info('dupe: {}, {}'.format(link_dict['local-router'], link_dict['remote-router']))
+                        else:
+                            net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)})
+                    else:
+                        net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)}})
+            else:
+                if bgp:
+                    name, loopback, router_id = find_bgp_node([link_dict['ipv4-iface']], bgp_dict)
+                    if name == loopback == router_id == "":
+                        if "Epe-{}".format(link_dict['local-as']) in net.keys():
+                            if "Epe-{}".format(link_dict['remote-as']) in net["Epe-{}".format(link_dict['local-as'])].keys():
+                                logging.info('dupe: {}, {}'.format(link_dict['local-as'], link_dict['remote-as']))
+                            else:
+                                net["Epe-{}".format(link_dict['local-as'])].update({
+                                    "Epe-{}".format(link_dict['remote-as']): 0})
+                        else:
+                            net.update({"Epe-{}".format(link_dict['local-as']): {"Epe-{}".format(link_dict['remote-as']): 0}})
+
+                    else:
+                        router_id = map_name2node(node_list, name)
+                        # must add translation to router_id from name
+                        if router_id in net.keys():
+                            if "Epe-{}".format(link_dict['remote-as']) in net[router_id].keys():
+                                logging.info('dupe: {}, {}'.format(link_dict['local-as'], link_dict['remote-as']))
+                            else:
+                                net[router_id].update({"Epe-{}".format(link_dict['remote-as']): 0})
+                        else:
+                            net.update({router_id: {"Epe-{}".format(link_dict['remote-as']): 0}})
+    except KeyError as es:
+        logging.error("We have format issues with out bpg-ls topo: {}".format(es.message))
+    return net, link_list
+
+
+def node_links_old(my_topology, node_list, bgp=False, metric='igp'):
     """ Dumps link info """
     def metric_test(attributes, metric):
         """ Pick a metric to return """
@@ -764,24 +944,27 @@ def node_links(my_topology, node_list, bgp=False, metric='igp'):
         logging.info("We have no links in our BGP-LS topology")
     return net, link_list
 
+
 def copyTopo(node_dict, ref_nodelist):
     """ copy coordinates from ref topo """
     for node in ref_nodelist:
         if node_dict['name'] == node['name']:
-            for key in ['latitude','longitude','type','icon','y','x']:
+            for key in ['latitude', 'longitude', 'type', 'icon', 'y', 'x']:
                 node_dict[key] = node[key]
 
+
 def pseudo_net_check(address):
-    '''add pseduo node hop in hoplist'''
+    """add pseduo node hop in hoplist"""
     addr = address.split('/')[0]
     for node in pseudo_list:
-        #for prefix in node.prefix:
+        # for prefix in node.prefix:
         if ipv4_in_network(addr, node.prefix):
             logging.info("Found: %s" % node.name)
             return True, node.name
     return False, ''
 
-def list_pcep_lsp(node_list, debug):
+
+def list_pcep_lsp(node_list):
     """ reads pcep db from netowrk and provies a list of lsp's """
     my_pcep = get_url(get_pcep)
 
@@ -819,12 +1002,12 @@ def list_pcep_lsp(node_list, debug):
                                             sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
 
                                 hoplist = []
-                                originate = name_from_pcc(pcc, node_list, debug)
+                                originate = name_from_pcc(pcc, node_list)
                                 if originate != '':
                                     hoplist.append(originate)
 
                                 for interface in ip_hoplist:
-                                    temp = find_node(node_list, interface,debug)
+                                    temp = find_node(node_list, interface)
                                     if temp == None:
                                         try:
                                             index = loops.index(interface)
@@ -833,18 +1016,19 @@ def list_pcep_lsp(node_list, debug):
                                             logging.error("Interface not found: %s" % interface)
 
                                     logging.info("interface: %s, temp: %s" %(interface, temp))
-                                    #if temp in pseudo_net:
+                                    # if temp in pseudo_net:
                                     success, pname = pseudo_net_check(interface)
                                     if success:
                                         hoplist.append(pname)
                                     hoplist.append(temp)
                                 my_lsp = LSP(name, pcc, hoplist, ip_hoplist, sid_list)
                                 lsplist.append(my_lsp)
-    except:
-        logging.info("We have no nodes in our PCEP Topology")
+    except KeyError as es:
+        logging.error("We have format issues with our PCEP Topology: {}".format(es.message))
     return lsplist
 
-def find_node(node_list, interface, debug):
+
+def find_node(node_list, interface):
     """ find which node and interface belongs to """
     for node in node_list:
         if "pseudonode" not in node:
@@ -852,7 +1036,8 @@ def find_node(node_list, interface, debug):
                 if port == interface.split('/')[0]:
                     return node.name
 
-def find_link(my_topology, local, remote, debug = 2):
+
+def find_link(my_topology, local, remote):
     """ Determine what node is connected to which """
     for link in my_topology['topology'][0]['link']:
         link_dict = html_style(link['link-id'])
@@ -860,9 +1045,10 @@ def find_link(my_topology, local, remote, debug = 2):
             if link_dict['local-router'] == local and link_dict['remote-router'] == remote:
                 try:
                     return link_dict['ipv4-neigh']
-                except:
+                except KeyError:
                     return -1
     return -1
+
 
 def map_name2node(node_list, name):
     """ find node id from name """
@@ -872,6 +1058,7 @@ def map_name2node(node_list, name):
 
     return '0000.0000.0000'
 
+
 def map_node2name(node_list, node_id):
     """ find name from node-id """
     for node in node_list:
@@ -879,6 +1066,7 @@ def map_node2name(node_list, node_id):
             return node.name
 
     return "none"
+
 
 def reduce_topo(topo, begone):
     """ Remove node from topo """
@@ -940,7 +1128,7 @@ def nikstra(this_node):
         return
 
 
-def translate_pathnames(pathlist, debug):
+def translate_pathnames(pathlist):
     """ Insert nodenames in pathlist """
     npathlist = []
 
@@ -953,7 +1141,8 @@ def translate_pathnames(pathlist, debug):
 
     return npathlist
 
-def translate_pathids(path, debug):
+
+def translate_pathids(path):
     """ Insert nodeids in pathlist """
 
     npath = []
@@ -962,6 +1151,7 @@ def translate_pathids(path, debug):
 
     return npath
 
+
 def hop_not_source(linklist, hop):
     """ make sure hop is not a source """
     for links in linklist:
@@ -969,7 +1159,8 @@ def hop_not_source(linklist, hop):
             return False
     return True
 
-def translate_topo(node_list, net, debug):
+
+def translate_topo(node_list, net):
     """ returns net topology in names """
     name_net = {}
     for nodeid in net.keys():
@@ -980,8 +1171,9 @@ def translate_topo(node_list, net, debug):
 
     return name_net
 
-def get_pcep_type(debug):
-    '''update our node_list have pcep info'''
+
+def get_pcep_type():
+    """update our node_list have pcep info"""
     my_pcep = get_url(get_pcep)
 
     pcc_list = []
@@ -993,55 +1185,57 @@ def get_pcep_type(debug):
                 pcep_type = '07'
             else:
                 pcep_type = '02'
-            pcc_list.append({'pcc':pcc, 'loopback':loopback,'pcep_type':pcep_type} )
-    except:
-        logging.info("We have no nodes in our PCEP Topology")
+            pcc_list.append({'pcc': pcc, 'loopback': loopback, 'pcep_type': pcep_type})
+    except KeyError as es:
+        logging.info("We have format issues with our PCEP Topology: {}".format(es.message))
     return pcc_list
 
 
-def lsp_create_json(src, dst, name_of_lsp , pcc, debug):
+def lsp_create_json(src, dst, name_of_lsp , pcc):
     """ build a json structure to create LSPs """
     lsp_dict = {}
-    lsp_dict.update({"input":{}})
-    lsp_dict["input"].update({"node":pcc,
-                             "name": name_of_lsp,
-                             "network-topology-ref":'/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]',
-                             "arguments":{}
+    lsp_dict.update({"input": {}})
+    lsp_dict["input"].update({"node": pcc,
+                              "name": name_of_lsp,
+                              "network-topology-ref": '/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]',
+                              "arguments": {}
                               })
-    lsp_dict["input"]["arguments"] = {"endpoints-obj":{"ipv4":{"source-ipv4-address":src, "destination-ipv4-address": dst}}}
+    lsp_dict["input"]["arguments"] = {"endpoints-obj": {"ipv4": {"source-ipv4-address": src,
+                                                                 "destination-ipv4-address": dst}}}
     return lsp_dict
 
-def lsp_create_xml_07(src, dst, name_of_lsp , pcc, hoplist, debug):
+
+def lsp_create_xml_07(src, dst, name_of_lsp , pcc, hoplist):
     """ build a xml structure to create LSPs """
     hop_xml_list = []
 
     for hop in hoplist:
-        step = {"hop":hop}
+        step = {"hop": hop}
         new_xml = ero_xml.format(**step)
         hop_xml_list.append(new_xml)
 
-
     ero = "".join(hop_xml_list)
-    new_lsp = {"pcc":pcc,"name":name_of_lsp,"src":src,"dst":dst,"ero":ero}
+    new_lsp = {"pcc": pcc, "name": name_of_lsp, "src": src, "dst": dst, "ero": ero}
     new_lsp_xml07 = lsp07_xml.format(**new_lsp)
     return new_lsp_xml07
 
-def lsp_create_xml_sr(src, dst, name_of_lsp , pcc, hoplist, sid_list, debug):
+
+def lsp_create_xml_sr(src, dst, name_of_lsp, pcc, hoplist, sid_list):
     """ build a xml structure to create LSPs """
     hop_xml_list = []
 
     for hop, sid in zip(hoplist, sid_list):
-        step = {"hop":hop, "sid":sid}
+        step = {"hop": hop, "sid": sid}
         new_xml = ero_sr_xml.format(**step)
         hop_xml_list.append(new_xml)
 
-
     ero = "".join(hop_xml_list)
-    new_lsp = {"pcc":pcc,"name":name_of_lsp,"src":src,"dst":dst,"ero":ero}
+    new_lsp = {"pcc": pcc, "name": name_of_lsp, "src": src, "dst": dst, "ero": ero}
     new_lsp_xml_sr = lsp_sr_xml.format(**new_lsp)
     return new_lsp_xml_sr
 
-def lsp_update_xml_sr(src, dst, name_of_lsp , pcc, hoplist, sid_list, debug):
+
+def lsp_update_xml_sr(src, dst, name_of_lsp, pcc, hoplist, sid_list):
     """ build a xml structure to update LSPs """
     hop_xml_list = []
 
@@ -1050,13 +1244,13 @@ def lsp_update_xml_sr(src, dst, name_of_lsp , pcc, hoplist, sid_list, debug):
         new_xml = ero_sr_xml.format(**step)
         hop_xml_list.append(new_xml)
 
-
     ero = "".join(hop_xml_list)
-    new_lsp = {"pcc":pcc,"name":name_of_lsp,"src":src,"dst":dst,"ero":ero}
+    new_lsp = {"pcc": pcc, "name": name_of_lsp, "src": src, "dst": dst, "ero": ero}
     new_lsp_xml_sr = lsp_sr_update_xml.format(**new_lsp)
     return new_lsp_xml_sr
 
-def lsp_update_xml_07(src, dst, name_of_lsp , pcc, hoplist, debug):
+
+def lsp_update_xml_07(src, dst, name_of_lsp , pcc, hoplist):
     """ build a xml structure to update a LSPs """
     hop_xml_list = []
 
@@ -1065,52 +1259,52 @@ def lsp_update_xml_07(src, dst, name_of_lsp , pcc, hoplist, debug):
         new_xml = ero_xml.format(**step)
         hop_xml_list.append(new_xml)
 
-
     ero = "".join(hop_xml_list)
-    new_lsp = {"pcc":pcc,"name":name_of_lsp,"src":src,"dst":dst,"ero":ero}
+    new_lsp = {"pcc": pcc, "name": name_of_lsp, "src": src, "dst": dst, "ero": ero}
     lsp_update_xml07 = lsp07update_xml.format(**new_lsp)
     return lsp_update_xml07
 
-def lsp_delete_json(name_of_lsp, pcc, debug):
+
+def lsp_delete_json(name_of_lsp, pcc):
     """ build a json strtucture for lsp delete """
 
     lsp_dict = {}
-    lsp_dict.update({"input":{}})
-    lsp_dict["input"].update({"node":pcc,
-                             "name": name_of_lsp,
-                             "network-topology-ref":'/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]'
+    lsp_dict.update({"input": {}})
+    lsp_dict["input"].update({"node": pcc,
+                              "name": name_of_lsp,
+                              "network-topology-ref":'/network-topology:network-topology/network-topology:topology[network-topology:topology-id=\"pcep-topology\"]'
                               })
     return lsp_dict
-def lsp_delete_xml(name_of_lsp, pcc, debug):
-    """ build a json strtucture for lsp delete """
-    my_lsp = {'name':name_of_lsp, 'pcc':pcc}
+
+
+def lsp_delete_xml(name_of_lsp, pcc):
+    """ build a json structure for lsp delete """
+    my_lsp = {'name': name_of_lsp, 'pcc': pcc}
     data = lspDelete_xml.format(**my_lsp)
     return data
 
+
 def lsp_update_json(lsp_dict, path):
     """ build json structure for lsp path updates """
-
     path_dict = {}
-    path_dict.update({"input":{}})
-    path_dict["input"].update({"node":lsp_dict["input"]["node"],
-                              "name":lsp_dict["input"]["name"],
-                              "network-topology-ref":lsp_dict["input"]["network-topology-ref"],
-                              "arguments":{}
-                              })
-    path_dict["input"]["arguments"] = { "operational":"true",
-                                        "ero":{}
-                                        }
-    if path >0:
-
+    path_dict.update({"input": {}})
+    path_dict["input"].update({"node": lsp_dict["input"]["node"],
+                               "name": lsp_dict["input"]["name"],
+                               "network-topology-ref": lsp_dict["input"]["network-topology-ref"],
+                               "arguments": {}
+                               })
+    path_dict["input"]["arguments"] = {"operational": "true", "ero": {}}
+    if path > 0:
         explicit = []
         for hop in path:
-            entry = {"loose": "false", "ip-prefix":{"ip-prefix":hop+"/32"}}
+            entry = {"loose": "false", "ip-prefix": {"ip-prefix": hop+"/32"}}
             explicit.append(entry)
-        path_dict["input"]["arguments"]["ero"] = {"subobject":explicit}
+        path_dict["input"]["arguments"]["ero"] = {"subobject": explicit}
 
     return path_dict
 
-def build_odl_topology(debug):
+
+def build_odl_topology():
     """Build and inilaize our data structures """
     global net, bgp_net, te_net
     global pseudo_net
@@ -1120,14 +1314,14 @@ def build_odl_topology(debug):
     global my_topology
     try:
         my_topology = get_url(get_topo)
-
-        node_list = node_structure(my_topology, debug)
+        my_bgp = MyBGP()
+        node_list = node_structure(my_topology, my_bgp)
         pseudo_net = pseudo_net_build(node_list)
         pseudo_list = [ node for node in node_list if node.pcep_type == 'pseudonode']
-        node_sr_update(node_list)
-        bgp_net, bgp_link_list = node_links(my_topology, node_list, bgp=True)
-        net, link_list = node_links(my_topology, node_list, metric='igp')
-        te_net, link_list = node_links(my_topology, node_list, metric='te')
+        node_sr_update(node_list, my_bgp)
+        bgp_net, bgp_link_list = node_links(my_topology, node_list, my_bgp, bgp=True)
+        net, link_list = node_links(my_topology, node_list, my_bgp, metric='igp')
+        te_net, link_list = node_links(my_topology, node_list, my_bgp, metric='te')
         return True, 'all is well', len(net.keys())
 
     except :
@@ -1140,6 +1334,7 @@ def build_odl_topology(debug):
         my_topology = {}
         pseudo_net = pseudo_list = []
         return False, 'could not reach odl-server?', 0
+
 
 def sort_paths(pathlist, metriclist, type):
     """ lets sort the pathlist """
@@ -1156,21 +1351,21 @@ def sort_paths(pathlist, metriclist, type):
             newmetriclist.append(len(path))
     return newpathlist, newmetriclist
 
+
 def postUrl(url, data):
     import requests
     response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/json'})
-    # print response.text
     return response.json()
+
 
 def postXml(url, data):
     """ post our lsp creation commands """
     import requests
     response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/xml'})
-    # print response.text
-
     return response.json()
 
-def getPathlist(dict_subcommand,debug):
+
+def getPathlist(dict_subcommand):
     """ called from REST Server
         - build path list for given command """
     startname = dict_subcommand['src']
@@ -1191,23 +1386,24 @@ def getPathlist(dict_subcommand,debug):
     dut.metriclist = []
 
     nikstra(dut)
-    pathlist = translate_pathnames(dut.pathlist, debug)
-    #metriclist = deepcopy(dut.metriclist)
+    pathlist = translate_pathnames(dut.pathlist)
+    # metriclist = deepcopy(dut.metriclist)
     newpathlist, newmetriclist = sort_paths(pathlist, dut.metriclist,metrictype)
 
     return (True, 'we are good', newpathlist, newmetriclist)
 
-def getHoplist(dict_subcommand,debug):
+
+def getHoplist(dict_subcommand):
     """ called from REST Server
         - build hop list for given command """
-    path = translate_pathids(dict_subcommand['path'],debug)
+    path = translate_pathids(dict_subcommand['path'])
     logging.info("Path: %s" % path)
     hoplist = []
     j = 0
     while j < len(path)-1:
-        temp = find_link2(path[j], path[j+1],'ipv4-neigh')
+        temp = find_link2(path[j], path[j+1], 'ipv4-neigh')
         if temp in pseudo_net:
-            temp = find_link2(path[j+2], path[j+1],'ipv4-iface')
+            temp = find_link2(path[j+2], path[j+1], 'ipv4-iface')
             j += 1
         j += 1
         hoplist.append(temp)
@@ -1216,11 +1412,12 @@ def getHoplist(dict_subcommand,debug):
         return False, 'no link found',  hoplist
     return True, 'we are good', hoplist
 
-def getHoplistOld(dict_subcommand,debug):
+
+def getHoplistOld(dict_subcommand):
     """ called from REST Server
         - build hop list for given command """
 
-    path = translate_pathids(dict_subcommand['path'],debug)
+    path = translate_pathids(dict_subcommand['path'])
     logging.info("Path: %s" % path)
 
     hoplist = []
@@ -1235,9 +1432,10 @@ def getHoplistOld(dict_subcommand,debug):
 
     return True, 'we are good', hoplist
 
-def create_02_Lsp(start_loopback, stop_loopback, lsp_name, pcc, hoplist, debug):
+
+def create_02_Lsp(start_loopback, stop_loopback, lsp_name, pcc, hoplist):
     ''' create 02 lsp '''
-    my_new_lsp = lsp_create_json(start_loopback, stop_loopback, lsp_name, pcc, debug)
+    my_new_lsp = lsp_create_json(start_loopback, stop_loopback, lsp_name, pcc)
     my_new_path = lsp_update_json(my_new_lsp, hoplist)
 
     dict_reply = postUrl(create_lsp, json.dumps(my_new_lsp))
@@ -1257,12 +1455,13 @@ def create_02_Lsp(start_loopback, stop_loopback, lsp_name, pcc, hoplist, debug):
         cause = dict_reply['output']
     return success, cause
 
-def createLsp(dict_subcommand,debug):
+
+def createLsp(dict_subcommand):
     """ called from REST Server
         - Create a LSP along the given path """
     path = dict_subcommand['path']
     lsp_name = dict_subcommand['name']
-    success, cause, hoplist = getHoplist(dict_subcommand,debug)
+    success, cause, hoplist = getHoplist(dict_subcommand)
     if success:
         startid = map_name2node(node_list, path[0])
         stopid = map_name2node(node_list, path[-1])
@@ -1277,7 +1476,7 @@ def createLsp(dict_subcommand,debug):
                 stop_loopback = node.loopback
 
         if pcep_type == '07':
-            my_xml07 = lsp_create_xml_07(start_loopback, stop_loopback, lsp_name, pcc, hoplist, debug)
+            my_xml07 = lsp_create_xml_07(start_loopback, stop_loopback, lsp_name, pcc, hoplist)
             dict_reply = postXml(create_lsp, my_xml07)
             logging.info("Create 07LSP response: %s" % dict_reply)
             #
@@ -1291,16 +1490,17 @@ def createLsp(dict_subcommand,debug):
                 success = False
                 cause = dict_reply['output']
         else:
-            success, cause = create_02_Lsp(start_loopback, stop_loopback, lsp_name, pcc, hoplist, debug)
+            success, cause = create_02_Lsp(start_loopback, stop_loopback, lsp_name, pcc, hoplist)
 
     return success, cause
 
-def createSRtunnel(dict_subcommand,debug):
+
+def createSRtunnel(dict_subcommand):
     """ called from REST Server
         - Create a LSP along the given path """
     path = dict_subcommand['path']
     lsp_name = dict_subcommand['name']
-    #success, cause, hoplist = getHoplist(dict_subcommand,debug)
+    # success, cause, hoplist = getHoplist(dict_subcommand)
     loop_list = get_loop_list(path)
     sid_list = get_sid_list(path)
     if len(loop_list) >0 and len(sid_list) >0:
@@ -1316,7 +1516,7 @@ def createSRtunnel(dict_subcommand,debug):
                 stop_loopback = node.loopback
 
         if pcep_type == '07':
-            my_sr_xml = lsp_create_xml_sr(start_loopback, stop_loopback, lsp_name, pcc, loop_list, sid_list, debug)
+            my_sr_xml = lsp_create_xml_sr(start_loopback, stop_loopback, lsp_name, pcc, loop_list, sid_list)
             dict_reply = postXml(create_lsp, my_sr_xml)
             logging.info("Create SR Tunnel response: %s" % dict_reply)
             #
@@ -1342,6 +1542,7 @@ def createSRtunnel(dict_subcommand,debug):
         cause = "Nodes not found"
     return success, cause
 
+
 def matchLSP(lsp_name, pcc, pcep_type):
     lsplist = list_pcep_lsp(node_list, 1)
     for lsp in lsplist:
@@ -1349,7 +1550,8 @@ def matchLSP(lsp_name, pcc, pcep_type):
             return lsp
     return None
 
-def updateSRtunnel(dict_subcommand, debug):
+
+def updateSRtunnel(dict_subcommand):
     """ called from REST Server
         - Change an existing LSP to a new path """
     # 1. Get current LSP list - match the
@@ -1358,7 +1560,7 @@ def updateSRtunnel(dict_subcommand, debug):
 
     path = dict_subcommand['path']
     lsp_name = dict_subcommand['name']
-    #success, cause, hoplist = getHoplist(dict_subcommand,debug)
+    # success, cause, hoplist = getHoplist(dict_subcommand)
     loop_list = get_loop_list(path)
     sid_list = get_sid_list(path)
     if len(loop_list) >0 and len(sid_list) >0:
@@ -1377,7 +1579,7 @@ def updateSRtunnel(dict_subcommand, debug):
         lsp = matchLSP(lsp_name, pcc, pcep_type)
 
         if lsp:
-            my_sr_xml = lsp_update_xml_sr(start_loopback, stop_loopback, lsp_name, pcc, loop_list, sid_list, debug)
+            my_sr_xml = lsp_update_xml_sr(start_loopback, stop_loopback, lsp_name, pcc, loop_list, sid_list)
             # print my_sr_xml
             dict_reply = postXml(update_lsp, my_sr_xml)
             logging.info("Update SR Tunnel response: %s" % dict_reply)
@@ -1404,7 +1606,8 @@ def updateSRtunnel(dict_subcommand, debug):
         cause = "Nodes not found"
     return success, cause
 
-def deleteLsp(dict_subcommand,debug):
+
+def deleteLsp(dict_subcommand):
     """ called from REST Server
         - Deleta a LSP by name  """
 
@@ -1417,7 +1620,7 @@ def deleteLsp(dict_subcommand,debug):
             pcc = node.loopback
 
     if len(pcc) >0 :
-        data = lsp_delete_xml(lsp_name,'pcc://'+pcc, debug)
+        data = lsp_delete_xml(lsp_name,'pcc://'+pcc)
         dict_reply = postXml(delete_lsp, data)
         logging.info("Delete LSP response: %s" % dict_reply)
         if dict_reply['output'] == {}:
@@ -1429,21 +1632,23 @@ def deleteLsp(dict_subcommand,debug):
             cause = dict_reply['output']
     return False, 'no pcc found'
 
-def name_from_pcc(pcc, node_list, debug):
+
+def name_from_pcc(pcc, node_list):
     """ return name as strin for pcc """
     for node in node_list:
         if node.loopback == pcc:
             return node.name
     return ''
 
-def deleteAll(dict_subcommand, debug):
+
+def deleteAll(dict_subcommand):
     """ delete all LSPs in the network """
-    lsplist = list_pcep_lsp(node_list, debug)
+    lsplist = list_pcep_lsp(node_list)
     agg_success = True
     num_deleted = 0
     for lsp in lsplist:
-        dict_subcommand = {'node': name_from_pcc(lsp.pcc, node_list, debug), 'name': lsp.name }
-        success, cause = deleteLsp(dict_subcommand,debug)
+        dict_subcommand = {'node': name_from_pcc(lsp.pcc, node_list), 'name': lsp.name }
+        success, cause = deleteLsp(dict_subcommand)
         logging.info("Result: %s, name: %s" % (success, lsp.name))
         if success:
             num_deleted += 1
@@ -1452,10 +1657,10 @@ def deleteAll(dict_subcommand, debug):
     return agg_success, num_deleted
 
 
-def listAllLsp(dict_subcommand, debug):
+def listAllLsp(dict_subcommand):
     """ called from REST Server
         - mostly a wrapper and dict translation """
-    lsplist = list_pcep_lsp(node_list, debug)
+    lsplist = list_pcep_lsp(node_list)
 
     lspdictlist = []
 
@@ -1465,7 +1670,7 @@ def listAllLsp(dict_subcommand, debug):
         lsp_dict.update({'pcc': lsp.pcc})
         lsp_dict.update({'path': lsp.hoplist})
         lsp_dict.update({'hops': lsp.iphoplist})
-        #lsp_dict.update({'sids': get_sid_list(lsp.hoplist)})
+        # lsp_dict.update({'sids': get_sid_list(lsp.hoplist)})
         lsp_dict.update({'sids': lsp.sid_list})
         lspdictlist.append(lsp_dict)
 
@@ -1476,12 +1681,13 @@ def listAllLsp(dict_subcommand, debug):
     else:
         return True, 'no lsp found', []
 
-def listNodeLsp(dict_subcommand, debug):
+
+def listNodeLsp(dict_subcommand):
     """ called from REST Server
         - Which LSPs go through this node? """
     node = dict_subcommand['node']
     new_dict_list = []
-    (success, status, lspdictlist) = listAllLsp(dict_subcommand, debug)
+    (success, status, lspdictlist) = listAllLsp(dict_subcommand)
     if lspdictlist != []:
         for lspdict in lspdictlist:
             if node in lspdict['path']:
@@ -1490,6 +1696,7 @@ def listNodeLsp(dict_subcommand, debug):
         return True, 'we did good', new_dict_list
     else:
         return success, status, new_dict_list
+
 
 def topoCheck(temp_nodelist):
     ''' Fill in the blanks for up to 16 nodes '''
@@ -1516,11 +1723,11 @@ def topoCheck(temp_nodelist):
     return temp_nodelist
 
 
-def getTopo(dict_subcommand, debug):
+def getTopo(dict_subcommand):
     """ called from REST Server
         - Get UI a topo to work with """
     def get_links(node_list, network, type='igp'):
-        net_by_name = translate_topo(node_list, network, debug)
+        net_by_name = translate_topo(node_list, network)
         links = []
         for node in net_by_name.keys():
             for hop in net_by_name[node].keys():
@@ -1536,6 +1743,7 @@ def getTopo(dict_subcommand, debug):
                     except KeyError as e:
                         logging.error(e.message)
                         logging.error("Network link missing between {0} and {1}".format(hop, node))
+                        links.append(link_dict)  # For unidirectional epe links
         return links
 
     def merge_links(master, extra):
@@ -1547,7 +1755,7 @@ def getTopo(dict_subcommand, debug):
                     item['metric'].update(link['metric'])
         return master
 
-    success, cause, num_nodes = build_odl_topology(debug)
+    success, cause, num_nodes = build_odl_topology()
     if success:
         temp_nodelist = []
 
@@ -1582,7 +1790,7 @@ def getTopo(dict_subcommand, debug):
         return False, cause, []
 
 
-def listSRnodes(debug):
+def listSRnodes():
     """Lists existing SR Nodes
         - catching config changes require a refresh """
     reply = []
@@ -1592,101 +1800,95 @@ def listSRnodes(debug):
     return True, reply
 
 
-def rest_interface_parser(list_subcommands, debug):
+def rest_interface_parser(list_subcommands):
     """ interface module for rest API
         buld to handle stacked commands """
     response_list = []
     try:
-
         for dict_subcommand in list_subcommands:
             logging.info("Commands Relieved: %s" % dict_subcommand)
             if 'path' == dict_subcommand['option']:
-                Success, Cause, Pathlist, Metriclist = getPathlist(dict_subcommand,debug=debug)
+                Success, Cause, Pathlist, Metriclist = getPathlist(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
+                            'success': Success,
                             'path': Pathlist,
                             'metric': Metriclist
                             }
-
             elif 'hops' == dict_subcommand['option']:
-                Success, Cause, Hoplist = getHoplist(dict_subcommand,debug=debug)
+                Success, Cause, Hoplist = getHoplist(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
+                            'success': Success,
                             'hops': Hoplist
                             }
-
             elif 'create' == dict_subcommand['option']:
-                #Success, Cause = createLsp(dict_subcommand,debug=debug)
-                Success, Cause = createSRtunnel(dict_subcommand,debug=debug)
+                # Success, Cause = createLsp(dict_subcommand)
+                Success, Cause = createSRtunnel(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
-                            'name':dict_subcommand['name']
+                            'success': Success,
+                            'name': dict_subcommand['name']
                             }
             elif 'update' == dict_subcommand['option']:
-                #Success, Cause = createLsp(dict_subcommand,debug=debug)
-                Success, Cause = updateSRtunnel(dict_subcommand, debug=debug)
+                # Success, Cause = createLsp(dict_subcommand)
+                Success, Cause = updateSRtunnel(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
-                            'name':dict_subcommand['name']
+                            'success': Success,
+                            'name': dict_subcommand['name']
                             }
             elif 'delete' == dict_subcommand['option']:
-                Success, Cause = deleteLsp(dict_subcommand,debug=debug)
+                Success, Cause = deleteLsp(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
-                            'name':dict_subcommand['name']
+                            'success': Success,
+                            'name': dict_subcommand['name']
                             }
             elif 'delete_all' == dict_subcommand['option']:
-                Success, num_deleted = deleteAll(dict_subcommand,debug=debug)
+                Success, num_deleted = deleteAll(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                        'success':Success,
-                        'num_deleted' : num_deleted
-                        }
-
+                            'success': Success,
+                            'num_deleted': num_deleted
+                            }
             elif 'list_all' == dict_subcommand['option']:
-                Success, Cause, lsplist = listAllLsp(dict_subcommand,debug=debug)
+                Success, Cause, lsplist = listAllLsp(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
-                            'list':lsplist
+                            'success': Success,
+                            'list': lsplist
                             }
-
             elif 'topo' == dict_subcommand['option']:
-                Success, Cause, topo_dict = getTopo(dict_subcommand,debug=debug)
+                Success, Cause, topo_dict = getTopo(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
-                            'topology':topo_dict
+                            'success': Success,
+                            'topology': topo_dict
                             }
-
             elif 'list_local' == dict_subcommand['option']:
-                Success, Cause, lsplist = listNodeLsp(dict_subcommand,debug=debug)
+                Success, Cause, lsplist = listNodeLsp(dict_subcommand)
                 if Success:
                     temp = {'option': dict_subcommand['option'],
-                            'success':Success,
-                            'list':lsplist
+                            'success': Success,
+                            'list': lsplist
                             }
             elif 'version' == dict_subcommand['option']:
                 Success = True
                 temp = {'option': dict_subcommand['option'],
-                        'success':Success,
-                        'version' : version
+                        'success': Success,
+                        'version': version
                         }
             elif 'refresh' == dict_subcommand['option']:
-                Success, Cause, num_nodes = build_odl_topology(debug=debug)
+                Success, Cause, num_nodes = build_odl_topology()
                 temp = {'option': dict_subcommand['option'],
-                        'success':Success,
+                        'success': Success,
                         'num_nodes': num_nodes
                         }
             elif 'sr_nodes' == dict_subcommand['option']:
-                Success, reply = listSRnodes(debug=debug)
+                Success, reply = listSRnodes()
                 temp = {'option': dict_subcommand['option'],
-                        'success':Success,
+                        'success': Success,
                         'sr_nodes': reply
                         }
             else:
@@ -1695,7 +1897,7 @@ def rest_interface_parser(list_subcommands, debug):
 
             if not Success:
                 temp = {'option': dict_subcommand['option'],
-                        'success':Success,
+                        'success': Success,
                         'cause': Cause
                         }
 
@@ -1703,9 +1905,8 @@ def rest_interface_parser(list_subcommands, debug):
 
     except ValueError:
         response_list = [{'option': dict_subcommand['option'],
-                         'success': False,
-                         'cause': 'value error'
-                         }]
+                          'success': False,
+                          'cause': 'value error'}]
 
     return response_list
 
@@ -1734,30 +1935,30 @@ if __name__ == '__main__':
 
 
     my_topology = get_url(get_topo)
-    node_list = node_structure(my_topology, debug)
+    node_list = node_structure(my_topology, None)  # Empty my_bgp
     pseudo_net = pseudo_net_build(node_list)
-    pseudo_list = [ node for node in node_list if node.pcep_type == 'pseudonode']
-    bgp_net, link_list = node_links(my_topology, node_list, bgp=True)
-    net, link_list = node_links(my_topology, node_list, metric='igp')
-    te_net, link_list = node_links(my_topology, node_list, metric='te')
+    pseudo_list = [node for node in node_list if node.pcep_type == 'pseudonode']
+    bgp_net, link_list = node_links(my_topology, node_list, None, bgp=True)
+    net, link_list = node_links(my_topology, node_list, None, metric='igp')
+    te_net, link_list = node_links(my_topology, node_list, None,  metric='te')
     #net, link_list = node_links(my_topology, node_list)
 
     my_pcep = get_url(get_pcep)
     logging.info("hej")
-    lsplist = list_pcep_lsp(node_list, debug)
+    lsplist = list_pcep_lsp(node_list)
 
-    (success, status, lspdictlist) = listNodeLsp({'node':'sjc'}, debug)
-    print "List Node List",success, status, lspdictlist
+    (success, status, lspdictlist) = listNodeLsp({'node': 'sjc'})
+    print "List Node List", success, status, lspdictlist
 
-    my_dict = lsp_create_xml_07('30.30.30.30', '22.22.22.22', 'niklas07' , 'pcc://30.30.30.30', ['49.0.0.22'], 1)
+    my_dict = lsp_create_xml_07('30.30.30.30', '22.22.22.22', 'niklas07', 'pcc://30.30.30.30', ['49.0.0.22'])
     print my_dict
     ###
 
-    print node_sr_update(node_list)
+    print node_sr_update(node_list, None)  # Empty my_bgp
     print
     print "Create SR for ['sjc', 'kcy', 'san', 'lax']"
     mdict = {'path': ['sjc', 'kcy', 'san', 'lax'], 'name': 'my_lsp_2', 'option': 'create'}
-    print createSRtunnel(mdict,1)
+    print createSRtunnel(mdict)
     print
 
 # bye bye

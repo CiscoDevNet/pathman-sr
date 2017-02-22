@@ -80,22 +80,25 @@ class CommandHandlerSR(tornado.web.RequestHandler):
             dict_body = json.loads(json_body)
             
             list_subcommands = dict_body['request']
-            response_list_sr = rest_interface_parser(list_subcommands, debug)
+            response_list_sr = rest_interface_parser(list_subcommands)
         
         except SyntaxError, e:
-            response_list_sr = [{'success' :False,
-                             'cause': "SyntaxError: %s"% e.message ,
-                             'option': 'unknown'}]
+            response_list_sr = [
+                {'success': False,
+                 'cause': "SyntaxError: %s" % e.message,
+                 'option': 'unknown'}]
         
         except KeyError, e:
-            response_list_sr = [{'success' :False,
-                             'cause': "KeyError: %s"% e.message ,
-                             'option': 'unknown'}]
+            response_list_sr = [
+                {'success': False,
+                 'cause': "KeyError: %s" % e.message,
+                 'option': 'unknown'}]
         
         except ValueError, e:
-            response_list_sr = [{'success' :False,
-                             'cause': "ValueError: %s"% e.message ,
-                             'option': 'unknown'}]
+            response_list_sr = [
+                {'success': False,
+                 'cause': "ValueError: %s" % e.message,
+                 'option': 'unknown'}]
 
 
 
