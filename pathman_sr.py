@@ -54,6 +54,7 @@
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     20170220, Niklas - ver 5.9j - Avoid crashing for BgpEpe links and node information
     20170222, Niklas - ver 5.9k - Builds topo with BgpEpe nodes, Cleanup
+    20170307, Niklas - ver 5.9l - Changed epe topo build.
     """
 __author__ = 'niklas'
 
@@ -71,7 +72,7 @@ from topo_data import topologyData
 
 #==============================================================
 
-version = '5.9k'
+version = '5.9l'
 
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
@@ -638,10 +639,7 @@ def find_link2(local, remote, address):
 
 
 def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, sid):
-    id_list = [node.id for node in node_list]
-    if id in id_list:
-        index = id_list.index(id)
-        node = node_list[index]
+    def update_node(node, name, id, loopback, portlist, prefix):
         if name != node.name:
             logging.error('Name does not match for same ID: {} was {}'.format(name, node.name))
         if portlist != node.portlist or prefix != node.prefix:
@@ -649,6 +647,32 @@ def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, si
                                  prefix=sorted(list(set(node.prefix+prefix))))
             node_list[index] = node
             logging.info("Updated node: %s" % str(node))
+        if id not in ("", loopback):
+            node = node._replace(id=id)
+            node_list[index] = node
+            logging.info("Updated node id: {}, {}".format(str(node), id))
+        if pcc:
+            node = node._replace(pcc=pcc)
+            node_list[index] = node
+        if pcep_type:
+            node = node._replace(pcep_type=pcep_type)
+            node_list[index] = node
+
+    id_list = [node.id for node in node_list]
+    loop_list = [node.loopback for node in node_list]
+    if id and id in id_list:
+        logging.info('node in id-list: {}'.format(id))
+        index = id_list.index(id)
+        node = node_list[index]
+        update_node(node, name, id, loopback, portlist, prefix)
+
+    elif loopback and loopback in loop_list:
+        logging.info('node in loop-list: {}'.format(loopback))
+        # ID didn't match, probably blank
+        index = loop_list.index(loopback)
+        node = node_list[index]
+        update_node(node, name, id, loopback, portlist, prefix)
+
     else:
         node = Node(name, id, loopback, sorted(portlist), pcc, pcep_type, sorted(prefix), sid)
         logging.info("New node: %s" % str(node))
@@ -656,6 +680,7 @@ def add_node(node_list, name, id, loopback, portlist, pcc, pcep_type, prefix, si
 
 
 def find_bgp_node(node_ports, bgp_dict):
+    node_info_list = []
     try:
         for link in bgp_dict.dicts['links']['list']:
             if link['protocol-id'] == 'bgp-epe':
@@ -663,16 +688,36 @@ def find_bgp_node(node_ports, bgp_dict):
                     link['link-descriptors']['ipv4-interface-address'],
                     node_ports))
                 temp_ip = link['link-descriptors']['ipv4-interface-address']
+                remote_ip = link['link-descriptors']['ipv4-neighbor-address']
                 if temp_ip in node_ports:
                     loopback = link['local-node-descriptors']['bgp-router-id']
                     index = bgp_dict.dicts['nodes']['index'].index(loopback)
                     name = bgp_dict.dicts['nodes']['list'][index]['attributes']['node-attributes']['dynamic-hostname']
                     router_id = loopback
-                    return name, loopback, router_id
-        return "", "", ""
+                    # router_id = ""
+
+                    # return name, loopback, router_id, temp_ip
+                    # return name, router_id, loopback, temp_ip
+                    node_info_list.append((name, router_id, loopback, temp_ip))
+                elif remote_ip in node_ports:
+                    # creates isolated node :(
+                    '''
+                    return 'Epe-{}'.format(link['remote-node-descriptors']['as-number']), \
+                           link['remote-node-descriptors']['bgp-router-id'], \
+                           link['remote-node-descriptors']['bgp-router-id'], remote_ip
+                           '''
+                    node_info_list.append(('Epe-{}'.format(link['remote-node-descriptors']['as-number']),
+                                           link['remote-node-descriptors']['bgp-router-id'],
+                                           link['remote-node-descriptors']['bgp-router-id'], remote_ip))
+                else:
+                    logging.info('No Match for  {}'.format(node_ports))
+        # return "", "", "", ""
     except AttributeError:
         logging.error("No BGP RIB data available")
-        return "", "", ""
+    if node_info_list:
+        return node_info_list
+    else:
+        return [("", "", "", "")]
 
 
 def node_structure(my_topology, bgp_dict):
@@ -742,80 +787,24 @@ def node_structure(my_topology, bgp_dict):
                     success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
                     if success:
                         name = hname
+                add_node(node_list, name, loopback, router_id, node_ports, pcc, pcep_type, prefix_array, sid)
+
             elif node_dict['tag'] in ['BgpEpe:0']:
-                name, loopback, router_id = find_bgp_node(node_ports, bgp_dict)
-                logging.info("bgp: {}, {}, {}".format(name, loopback, router_id))
-                if name == router_id == loopback == "":
-                    name = "Epe-{}".format(node_dict['as'])
-                    router_id = loopback = name
+                node_info_list = find_bgp_node(node_ports, bgp_dict)
 
-        add_node(node_list, name, loopback, router_id, node_ports, pcc, pcep_type, prefix_array, sid)
-    logging.info(node_list)
-    return node_list
+                for node_info in node_info_list:
+                    name, router_id, loopback, ip_link = node_info
+                    if name == router_id == loopback == "":
+                        name = EPE.format(node_dict['as'])
+                        router_id = loopback = name
+                    else:
+                        node_ports = [ip_link]
+                    add_node(node_list, name, loopback, router_id, node_ports, pcc, pcep_type, prefix_array, sid)
 
-
-def node_structure_old(my_topology):
-    """ learn (print out) the topology structure """
-
-    node_list = []
-    pcc_list = get_pcep_type()
-    logging.debug("pcc_list: %s" % pcc_list)
-    try:
-        node_dictlist = my_topology['topology'][0]['node']
-        if len(pcc_list) > 0:
-            loops = [pnode['loopback'] for pnode in pcc_list]
-        else:
-            loops = []
-        logging.debug("Loopbacks of nodes: %s" % loops)
-
-    except:
-        logging.info("We have no nodes in our BGP-LS topology")
-        return []
-
-    for nodes in my_topology['topology'][0]['node']:
-        #try:
-        node_dict = html_style(nodes['node-id'])
-        if node_dict['tag'] not in ['BgpEpe:0']:
-            prefix_array = []
-            if 'prefix' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
-                for prefix in nodes['l3-unicast-igp-topology:igp-node-attributes']['prefix']:
-                    prefix_array.append(prefix['prefix'])
-                    #logging.debug("prefix: %s, metric: %s " % (prefix['prefix'],prefix['metric']))
-            node_ports = []
-            if 'termination-point' in nodes.keys():
-                for link in nodes['termination-point']:
-                    #logging.debug("port: %s " % link['tp-id'])
-                    if 'tp-id' in link.keys():
-                        port_dict = html_style(link['tp-id'])
-                        if 'ipv4' in port_dict.keys():
-                            node_ports.append(port_dict['ipv4'])
             else:
-                logging.error("Node {0} is missing 'termination-point' ".format(node_dict['router']))
-            index = -1
-            router_id = ""
-            name = ""
-            pcc = ""
-            pcep_type = ""
-            sid = ""
-            for keys in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
-                if keys == 'router-id':
-                    router_id = nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0]
-                    if router_id in loops:
-                        index = loops.index(router_id)
-                        pcc = pcc_list[index]['pcc']
-                        pcep_type = pcc_list[index]['pcep_type']
-                elif keys == 'name':
-                    name = nodes['l3-unicast-igp-topology:igp-node-attributes']['name']
-            if name == "":
-                name = node_dict['router']
-                if 'router-id' in nodes['l3-unicast-igp-topology:igp-node-attributes'].keys():
-                    success, hname = name_check(nodes['l3-unicast-igp-topology:igp-node-attributes']['router-id'][0])
-                    if success:
-                        name = hname
-            add_node(node_list, name, node_dict['router'], router_id, node_ports, pcc, pcep_type, prefix_array, sid)
-        # node = Node(name,node_dict['router'],router_id,node_ports,pcc, pcep_type, prefix_array, sid)
-        # logging.info("New node: %s" % str(node))
-        # node_list.append(node)
+                logging.error('not adding: {}'.format(node))
+        else:
+            add_node(node_list, name, loopback, router_id, node_ports, pcc, pcep_type, prefix_array, sid)
     logging.info(node_list)
     return node_list
 
@@ -861,6 +850,17 @@ def node_links(my_topology, node_list, bgp_dict, bgp=False, metric='igp'):
             else:
                 return temp['te-ospf']
 
+    def update_net(local_router_id, remote_router_id, link_dict, metric):
+        if local_router_id in net.keys():
+            if remote_router_id in net[local_router_id].keys():
+                logging.info('dupe: {}, {}'.format(link_dict['local-as'], link_dict['remote-as']))
+            else:
+                net[local_router_id].update({remote_router_id: metric})
+                logging.debug('Updating: {}'.format(remote_router_id))
+        else:
+            net.update({local_router_id: {remote_router_id: metric}})
+            logging.debug('Adding: {}'.format(remote_router_id))
+
     net = {}
     link_list = []
     sr_enabled = [node.id for node in node_list if node.sid != '']
@@ -870,78 +870,26 @@ def node_links(my_topology, node_list, bgp_dict, bgp=False, metric='igp'):
             link_list.append(link_dict)
             if link_dict['tag'] not in ['BgpEpe:0']:
                 if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
-                    if link_dict['local-router'] in net.keys():
-                        if link_dict['remote-router'] in net[link_dict['local-router']].keys():
-                            logging.info('dupe: {}, {}'.format(link_dict['local-router'], link_dict['remote-router']))
-                        else:
-                            net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)})
-                    else:
-                        net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)}})
+
+                    update_net(link_dict['local-router'],
+                               link_dict['remote-router'],
+                               link_dict,
+                               metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric))
+
             else:
                 if bgp:
-                    name, loopback, router_id = find_bgp_node([link_dict['ipv4-iface']], bgp_dict)
-                    if name == loopback == router_id == "":
-                        if "Epe-{}".format(link_dict['local-as']) in net.keys():
-                            if "Epe-{}".format(link_dict['remote-as']) in net["Epe-{}".format(link_dict['local-as'])].keys():
-                                logging.info('dupe: {}, {}'.format(link_dict['local-as'], link_dict['remote-as']))
-                            else:
-                                net["Epe-{}".format(link_dict['local-as'])].update({
-                                    "Epe-{}".format(link_dict['remote-as']): 0})
-                        else:
-                            net.update({"Epe-{}".format(link_dict['local-as']): {"Epe-{}".format(link_dict['remote-as']): 0}})
+                    node_info_list = find_bgp_node([link_dict['ipv4-iface']], bgp_dict)
+                    logging.info("forward: {}".format(node_info_list))
+                    name, loopback, router_id, temp_ip = node_info_list[0]
 
-                    else:
-                        router_id = map_name2node(node_list, name)
-                        # must add translation to router_id from name
-                        if router_id in net.keys():
-                            if "Epe-{}".format(link_dict['remote-as']) in net[router_id].keys():
-                                logging.info('dupe: {}, {}'.format(link_dict['local-as'], link_dict['remote-as']))
-                            else:
-                                net[router_id].update({"Epe-{}".format(link_dict['remote-as']): 0})
-                        else:
-                            net.update({router_id: {"Epe-{}".format(link_dict['remote-as']): 0}})
+                    local_router_id = map_name2node(node_list, name)
+                    remote_router_id = map_name2node(node_list, EPE.format(link_dict['remote-as']))
+
+                    update_net(local_router_id, remote_router_id, link_dict, 0)
+                    update_net(remote_router_id, local_router_id, link_dict, 0)
+
     except KeyError as es:
-        logging.error("We have format issues with out bpg-ls topo: {}".format(es.message))
-    return net, link_list
-
-
-def node_links_old(my_topology, node_list, bgp=False, metric='igp'):
-    """ Dumps link info """
-    def metric_test(attributes, metric):
-        """ Pick a metric to return """
-        temp = {'te-isis':10, 'te-ospf':10}
-        if 'metric' in attributes.keys():
-            temp.update({'metric': attributes['metric']})
-        if 'ospf-topology:ospf-link-attributes' in attributes.keys() and 'ted' in attributes['ospf-topology:ospf-link-attributes']:
-            temp.update({'te-ospf': attributes['ospf-topology:ospf-link-attributes']['ted'].get('te-default-metric', 10)})
-        if 'isis-topology:isis-link-attributes' in attributes.keys() and 'ted' in attributes['isis-topology:isis-link-attributes']:
-            temp.update({'te-isis': attributes['isis-topology:isis-link-attributes']['ted'].get('te-default-metric', 10)})
-
-        if metric == 'igp':
-            return temp.get('metric', 10)
-        elif metric == 'te':
-            if temp['te-isis'] != 10:
-                return temp['te-isis']
-            else:
-                return temp['te-ospf']
-
-    net = {}
-    link_list = []
-    sr_enabled = [node.id for node in node_list if node.sid != '']
-    try:
-        for link in my_topology['topology'][0]['link']:
-            link_dict = html_style(link['link-id'])
-            if link_dict['tag'] not in ['BgpEpe:0']:
-                link_list.append(link_dict)
-
-                if bgp or set([link_dict['local-router'], link_dict['remote-router']]).issubset(set(sr_enabled)):
-                    if link_dict['local-router'] in net.keys():
-                        net[link_dict['local-router']].update({link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)})
-                    else:
-                        net.update({link_dict['local-router']: {link_dict['remote-router']: metric_test(link['l3-unicast-igp-topology:igp-link-attributes'], metric)}})
-
-    except:
-        logging.info("We have no links in our BGP-LS topology")
+        logging.error("We have format issues with our bpg-ls topo: {}".format(es.message))
     return net, link_list
 
 
@@ -1743,7 +1691,7 @@ def getTopo(dict_subcommand):
                     except KeyError as e:
                         logging.error(e.message)
                         logging.error("Network link missing between {0} and {1}".format(hop, node))
-                        links.append(link_dict)  # For unidirectional epe links
+                        # links.append(link_dict)  # For unidirectional epe links
         return links
 
     def merge_links(master, extra):
@@ -1806,7 +1754,7 @@ def rest_interface_parser(list_subcommands):
     response_list = []
     try:
         for dict_subcommand in list_subcommands:
-            logging.info("Commands Relieved: %s" % dict_subcommand)
+            logging.info("Commands Received: %s" % dict_subcommand)
             if 'path' == dict_subcommand['option']:
                 Success, Cause, Pathlist, Metriclist = getPathlist(dict_subcommand)
                 if Success:
@@ -1935,12 +1883,13 @@ if __name__ == '__main__':
 
 
     my_topology = get_url(get_topo)
-    node_list = node_structure(my_topology, None)  # Empty my_bgp
+    my_bgp = MyBGP()
+    node_list = node_structure(my_topology, my_bgp)  # Empty my_bgp
     pseudo_net = pseudo_net_build(node_list)
     pseudo_list = [node for node in node_list if node.pcep_type == 'pseudonode']
-    bgp_net, link_list = node_links(my_topology, node_list, None, bgp=True)
-    net, link_list = node_links(my_topology, node_list, None, metric='igp')
-    te_net, link_list = node_links(my_topology, node_list, None,  metric='te')
+    bgp_net, link_list = node_links(my_topology, node_list, my_bgp, bgp=True)
+    net, link_list = node_links(my_topology, node_list, my_bgp, metric='igp')
+    te_net, link_list = node_links(my_topology, node_list, my_bgp,  metric='te')
     #net, link_list = node_links(my_topology, node_list)
 
     my_pcep = get_url(get_pcep)

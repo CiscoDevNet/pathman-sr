@@ -35,6 +35,8 @@ log_level = 'INFO'
 odl_user = 'admin'
 odl_password = 'admin'
 
+EPE = "Epe-{}"
+
 import requests, json, logging
 
 class MyBGP(object):
@@ -49,35 +51,37 @@ class MyBGP(object):
         self.ip = controller_ip
         self.user = user
         self.password = passw
-        self.dicts = {  'nodes':{'list':[], 'index':[]},
-                        'prefixes':{'list':[], 'index':[]},
-                        'links':{'list':[], 'index':[]},
-
+        self.dicts = {
+            'nodes': {'list': [], 'index': []},
+            'prefixes': {'list': [], 'index': []},
+            'links': {'list': [], 'index': []},
         }
         url = '{}://{}:{}/restconf/operational/bgp-rib:bgp-rib/rib/example-bgp-rib/loc-rib/tables/bgp-linkstate:linkstate-address-family/bgp-linkstate:linkstate-subsequent-address-family/linkstate-routes'
         self.url = url.format(method, controller_ip, controller_port)
-        self.creds = {'username':user,'password':passw}
+        self.creds = {'username': user, 'password': passw}
         self.status = 0
         self.error = ""
 
         result = self._get_url(self.url, headers={'content-type': 'application/json'})
         if result:
             linkstate = result.json()
-            for link in linkstate[u'bgp-linkstate:linkstate-routes']['linkstate-route']:
-                if 'node-descriptors' in link.keys():
-                    self.dicts['nodes']['list'].append(link)
-                elif 'prefix-descriptors' in link.keys():
-                    if 'sr-prefix' in link['attributes']['prefix-attributes'].keys():
-                        self.dicts['prefixes']['list'].append(link)
-                elif 'link-descriptors' in link.keys():
-                    self.dicts['links']['list'].append(link)
-                else:
-                    logging.error('unexpected item: {}'.format(link))
+            if 'linkstate-route' in linkstate[u'bgp-linkstate:linkstate-routes'].keys():
+                for link in linkstate[u'bgp-linkstate:linkstate-routes']['linkstate-route']:
+                    if 'node-descriptors' in link.keys():
+                        self.dicts['nodes']['list'].append(link)
+                    elif 'prefix-descriptors' in link.keys():
+                        if 'sr-prefix' in link['attributes']['prefix-attributes'].keys():
+                            self.dicts['prefixes']['list'].append(link)
+                    elif 'link-descriptors' in link.keys():
+                        self.dicts['links']['list'].append(link)
+                    else:
+                        logging.error('unexpected item: {}'.format(link))
 
-            self.dicts['nodes']['index'] = [node['attributes'].get('node-attributes', {}).get('ipv4-router-id', '0.0.0.0') for node in self.dicts['nodes']['list']]
-            self.dicts['prefixes']['index'] = [prefix['prefix-descriptors']['ip-reachability-information'] for prefix in self.dicts['prefixes']['list']]
-            self.dicts['links']['index'] = [link['link-descriptors']['ipv4-interface-address'] for link in self.dicts['links']['list']]
-
+                self.dicts['nodes']['index'] = [node['attributes'].get('node-attributes', {}).get('ipv4-router-id', '0.0.0.0') for node in self.dicts['nodes']['list']]
+                self.dicts['prefixes']['index'] = [prefix['prefix-descriptors']['ip-reachability-information'] for prefix in self.dicts['prefixes']['list']]
+                self.dicts['links']['index'] = [link['link-descriptors']['ipv4-interface-address'] for link in self.dicts['links']['list']]
+            else:
+                logging.info('No linkstate routes from bgp-rib')
         else:
             logging.info('Nothing retrieved')
 
@@ -124,16 +128,6 @@ class MyBGP(object):
         except ValueError:
             return
 
-    def get_sr_info_old(self):
-        sr_info = {}
-        for node in self.dicts['nodes']['list']:
-            base = node['attributes']['node-attributes']['sr-capabilities']['local-label']
-            loopback = node['attributes']['node-attributes']['ipv4-router-id']
-            prefix = self.item_details('prefixes', loopback + '/32')
-            label = prefix['attributes']['prefix-attributes']['sr-prefix']['local-label']
-            sr_info.update({loopback: int(base) + int(label)})
-        return sr_info
-
     def get_sr_info(self):
         sr_info = {}
         for node in self.dicts['nodes']['list']:
@@ -151,6 +145,13 @@ class MyBGP(object):
                         sr_info.update({loopback: int(base) + int(label)})
                     else:
                         logging.error('no sid info')
+        for link in self.dicts['links']['list']:
+            if link['protocol-id'] == "bgp-epe":
+                sid = link['attributes'].get('link-attributes', {}).get('peer-node-sid', {}).get('local-label', )
+                if sid:
+                    loopback = link['remote-node-descriptors'].get('bgp-router-id', )
+                    # loopback = link['link-descriptors'].get('ipv4-neighbor-address', )
+                    sr_info.update({loopback: sid})
+                    logging.info('Got epe-sid: {}'.format({loopback: sid}))
         return sr_info
-
 # Bye bye
