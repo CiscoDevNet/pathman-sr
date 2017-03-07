@@ -152,7 +152,10 @@ class MyBGP(object):
                     loopback = link['remote-node-descriptors'].get('bgp-router-id', )
                     # loopback = link['link-descriptors'].get('ipv4-neighbor-address', )
                     if loopback in sr_info.keys():
-                        sr_info[loopback] = [sr_info[loopback], sid]
+                        if isinstance(sr_info[loopback], list):
+                            sr_info[loopback].append(sid)
+                        else:
+                            sr_info[loopback] = [sr_info[loopback], sid]
                     else:
                         sr_info.update({loopback: sid})
                     logging.info('Got epe-sid: {}'.format({loopback: sid}))
