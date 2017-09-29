@@ -24,7 +24,7 @@ To simplify this step, we have implement a demonstration ODL controller and netw
  ![](media/image5.png)
  Figure 1 dCloud data center selection screen
 
-3. Once connected to [dCloud](http://dcloud.cisco.com), you will see the content overview. From there, select Service Provider, and locate the [OpenDayLight Beryllium SR2 with Apps with 8 nodes v1.](https://dcloud-cms.cisco.com/demo/opendaylight-beryllium-sr2-with-apps-with-8-nodes-v1) demo.
+3. Once connected to [dCloud](http://dcloud.cisco.com), you will see the content overview. From there, select Service Provider, and locate the [OpenDayLight Boron SR4 with Apps with 8 nodes v1.](https://dcloud-cms.cisco.com/demo/odl-boron-sr4-apps-8n-v1) demo.
 
  **Note that any newer ODL demo should work fine as well.**
 
@@ -39,11 +39,11 @@ To simplify this step, we have implement a demonstration ODL controller and netw
 
 **Note:**
 The Pathman_SR app has been tested with:
- - Lithium SR3
- - Beryllium SR1
- - Beryllium SR2
- - Beryllium SR3
- - Boron 0.5.0 Snapshot
+ - Lithium
+ - Beryllium
+ - Boron
+ - Carbon
+ - Nitrogen
 
 **No changes are needed to run this app towards the above-mentioned topology in dCloud.**
 
