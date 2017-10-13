@@ -184,7 +184,7 @@ def add_netconf_node(node_dict):
 
     # Need to make this a global check - once per session, not once per node
     odl_version = version_check()
-    if odl_version in ['boron']:
+    if odl_version in ['boron', 'carbon', 'nitrogen']:
         url = head + uri_netconf_topo.format(**node_dict)
         success, result = put_xml(url, add_node_boron.format(**node_dict))
     else:
@@ -203,7 +203,7 @@ def del_netconf_node(node_dict):
 
     # Need to make this a global check - once per session, not once per node
     odl_version = version_check()
-    if odl_version in ['boron']:
+    if odl_version in ['boron', 'carbon', 'nitrogen']:
         url = head + uri_netconf_topo.format(**node_dict)
     else:
         url = head + uri_netconf_del.format(**node_dict)
