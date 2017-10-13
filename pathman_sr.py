@@ -52,6 +52,7 @@
                                 - Added static netconf mappings for users ho give up on netconf
     20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
+    20171013, Niklas - ver 5.9j - Updated odl version lis and checks
     """
 __author__ = 'niklas'
 
@@ -69,7 +70,7 @@ from topo_data import topologyData
 
 #==============================================================
 
-version = '5.9i'
+version = '5.9j'
 
 # Defaults overridden by pathman_ini.py
 odl_ip = '127.0.0.1'
@@ -111,11 +112,13 @@ pcep_topology_parts = ['topology-id', 'topology-types', 'node']
 string = "bgpls://IsisLevel2:1/type=node&as=65504&domain=505290270&router=0000.0000.0029"
 
 odl_version_list = [
-                    {'boron':{'name': "openconfig-interfaces", 'revision': "2016-04-12"}},
-                    {'beryllium':{'name':"odl-rsvp-parser-spi-cfg", 'revision':"2015-08-26"}},
-                    {'lithium':{'name':"aaa-authn-model", 'revision':"2014-10-29"}},
-                    {'helium':{'name':"opendaylight-topology", 'revision':"2013-10-30"}},
-                    ]
+    {'nitrogen': {'name': 'odl-bmp-monitor-config', 'revision': '2017-05-17'}},
+    {'carbon': {'name': "aaa-encrypt-service-config", 'revision': "2016-09-15"}},
+    {'boron': {'name': "openconfig-interfaces", 'revision': "2016-04-12"}},
+    {'beryllium': {'name': "odl-rsvp-parser-spi-cfg", 'revision':"2015-08-26"}},
+    {'lithium': {'name': "aaa-authn-model", 'revision': "2014-10-29"}},
+    {'helium': {'name': "opendaylight-topology", 'revision': "2013-10-30"}},
+]
 
 lsp07_xml = '''<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
     <node>{pcc}</node>
@@ -347,7 +350,7 @@ def netconf_list(dummy=None):
     
     odl_version = version_check()
     
-    if odl_version in ['beryllium', 'boron']:
+    if odl_version in ['beryllium', 'boron', 'carbon', 'nitrogen']:
         url = get_node_topo
     else:
         url = get_nodes
