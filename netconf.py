@@ -48,11 +48,13 @@ controller = {'odl_ip':'64.100.10.32',
 # ============================================================
 
 odl_version_list = [
-                    {'boron': {'name': "openconfig-interfaces", 'revision': "2016-04-12"}},
-                    {'beryllium': {'name': "odl-rsvp-parser-spi-cfg", 'revision': "2015-08-26"}},
-                    {'lithium': {'name': "aaa-authn-model", 'revision': "2014-10-29"}},
-                    {'helium': {'name': "opendaylight-topology", 'revision': "2013-10-30"}},
-                    ]
+    {'nitrogen': {'name': 'odl-bmp-monitor-config', 'revision': '2017-05-17'}},
+    {'carbon': {'name': "aaa-encrypt-service-config", 'revision': "2016-09-15"}},
+    {'boron': {'name': "openconfig-interfaces", 'revision': "2016-04-12"}},
+    {'beryllium': {'name': "odl-rsvp-parser-spi-cfg", 'revision':"2015-08-26"}},
+    {'lithium': {'name': "aaa-authn-model", 'revision': "2014-10-29"}},
+    {'helium': {'name': "opendaylight-topology", 'revision': "2013-10-30"}},
+]
 
 uri_version = '/restconf/modules'
 uri_topo = '/restconf/operational/network-topology:network-topology/topology/example-linkstate-topology'
@@ -151,7 +153,7 @@ def netconf_list(dummy=None):
     head = set_head(access_head, controller)
     odl_version = version_check()
 
-    if odl_version in ['beryllium', 'boron']:
+    if odl_version in ['beryllium', 'boron', 'carbon', 'nitrogen']:
         url = head + uri_node_topo
     else:
         url = head + uri_nodelist
