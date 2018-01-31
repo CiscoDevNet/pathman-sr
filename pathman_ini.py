@@ -19,6 +19,7 @@
 
     Updated:
     - 20161204, Niklas, Added MyBGP to get SIDs from bgp-rib
+    - 20180131, Niklas, Fixed crash for missing link-ip
     
     
     """
@@ -76,7 +77,7 @@ class MyBGP(object):
 
             self.dicts['nodes']['index'] = [node['attributes'].get('node-attributes', {}).get('ipv4-router-id', '0.0.0.0') for node in self.dicts['nodes']['list']]
             self.dicts['prefixes']['index'] = [prefix['prefix-descriptors']['ip-reachability-information'] for prefix in self.dicts['prefixes']['list']]
-            self.dicts['links']['index'] = [link['link-descriptors']['ipv4-interface-address'] for link in self.dicts['links']['list']]
+            self.dicts['links']['index'] = [link['link-descriptors'].get('ipv4-interface-address', '0.0.0.0') for link in self.dicts['links']['list']]
 
         else:
             logging.info('Nothing retrieved')
