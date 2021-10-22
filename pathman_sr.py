@@ -53,6 +53,8 @@
     20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     20171013, Niklas - ver 5.9j - Updated odl version lis and checks
+    20212210, Abbed Sedkaoui - 5.9k - Rename odl module Stateful07 -> Stateful
+    20212210, Abbed Sedkaoui - 5.9l - Rename SR-ERO suboject from sid-type to nai-type
     """
 __author__ = 'niklas'
 
@@ -225,7 +227,7 @@ ero_xml = '''<subobject>
 
 ero_sr_xml = '''<subobject>
        <loose>false</loose>
-       <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
+       <nai-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</nai-type>
        <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
        <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">{sid}</sid>
        <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">{hop}</ip-address>
@@ -804,11 +806,11 @@ def list_pcep_lsp(node_list, debug):
                                 for nexthop in route_obj:
                                     if 'ip-prefix' in nexthop.keys():
                                         ip_hoplist.append(nexthop['ip-prefix']['ip-prefix'])
-                                    if 'odl-pcep-segment-routing:sid-type' in nexthop.keys():
-                                        if nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-node-id':
+                                    if 'odl-pcep-segment-routing:nai-type' in nexthop.keys():
+                                        if nexthop['odl-pcep-segment-routing:nai-type'] == 'ipv4-node-id':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:ip-address'])
                                             sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
-                                        elif nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-adjacency':
+                                        elif nexthop['odl-pcep-segment-routing:nai-type'] == 'ipv4-adjacency':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:remote-ip-address'])
                                             sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
 
