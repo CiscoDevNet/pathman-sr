@@ -791,10 +791,10 @@ def list_pcep_lsp(node_list, debug):
                     name = path['name']
                     ip_hoplist = []
                     sid_list = []
-                    if 'odl-pcep-ietf-stateful07:lsp' in path['path'][0].keys():
-                        if 'operational' in path['path'][0]['odl-pcep-ietf-stateful07:lsp'].keys():
-                            oper = path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational']
-                            # if path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational'] == 'up':
+                    if 'odl-pcep-ietf-stateful:lsp' in path['path'][0].keys():
+                        if 'operational' in path['path'][0]['odl-pcep-ietf-stateful:lsp'].keys():
+                            oper = path['path'][0]['odl-pcep-ietf-stateful:lsp']['operational']
+                            # if path['path'][0]['odl-pcep-ietf-stateful:lsp']['operational'] == 'up':
                             if oper == 'up' or oper == 'active':
                                 if 'rro' in path['path'][0].keys():
                                     route_obj = path['path'][0]['rro']['subobject']
@@ -982,7 +982,7 @@ def get_pcep_type(debug):
         for node in my_pcep['topology'][0]['node']:
             loopback = node['network-topology-pcep:path-computation-client']['ip-address']
             pcc = node['node-id']
-            if 'odl-pcep-ietf-stateful07:stateful' in node['network-topology-pcep:path-computation-client']['stateful-tlv'].keys():
+            if 'odl-pcep-ietf-stateful:stateful' in node['network-topology-pcep:path-computation-client']['stateful-tlv'].keys():
                 pcep_type = '07'
             else:
                 pcep_type = '02'
