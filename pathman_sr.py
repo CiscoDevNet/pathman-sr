@@ -53,6 +53,9 @@
     20161226, Niklas - ver 5.9h - Multi area/level fix for bgp-ls and sid bug.
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     20171013, Niklas - ver 5.9j - Updated odl version lis and checks
+    20212210, Abbed Sedkaoui - 5.9k - Rename odl module Stateful07 -> Stateful
+    20212210, Abbed Sedkaoui - 5.9l - Rename SR-ERO suboject from sid-type to nai-type
+    20213010, Abbed Sedkaoui - 5.9m - New version gives null reply. All credits to Niklas
     """
 __author__ = 'niklas'
 
@@ -225,7 +228,7 @@ ero_xml = '''<subobject>
 
 ero_sr_xml = '''<subobject>
        <loose>false</loose>
-       <sid-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</sid-type>
+       <nai-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">ipv4-node-id</nai-type>
        <m-flag xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">true</m-flag>
        <sid xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">{sid}</sid>
        <ip-address xmlns="urn:opendaylight:params:xml:ns:yang:pcep:segment:routing">{hop}</ip-address>
@@ -791,10 +794,10 @@ def list_pcep_lsp(node_list, debug):
                     name = path['name']
                     ip_hoplist = []
                     sid_list = []
-                    if 'odl-pcep-ietf-stateful07:lsp' in path['path'][0].keys():
-                        if 'operational' in path['path'][0]['odl-pcep-ietf-stateful07:lsp'].keys():
-                            oper = path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational']
-                            # if path['path'][0]['odl-pcep-ietf-stateful07:lsp']['operational'] == 'up':
+                    if 'odl-pcep-ietf-stateful:lsp' in path['path'][0].keys():
+                        if 'operational' in path['path'][0]['odl-pcep-ietf-stateful:lsp'].keys():
+                            oper = path['path'][0]['odl-pcep-ietf-stateful:lsp']['operational']
+                            # if path['path'][0]['odl-pcep-ietf-stateful:lsp']['operational'] == 'up':
                             if oper == 'up' or oper == 'active':
                                 if 'rro' in path['path'][0].keys():
                                     route_obj = path['path'][0]['rro']['subobject']
@@ -804,11 +807,11 @@ def list_pcep_lsp(node_list, debug):
                                 for nexthop in route_obj:
                                     if 'ip-prefix' in nexthop.keys():
                                         ip_hoplist.append(nexthop['ip-prefix']['ip-prefix'])
-                                    if 'odl-pcep-segment-routing:sid-type' in nexthop.keys():
-                                        if nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-node-id':
+                                    if 'odl-pcep-segment-routing:nai-type' in nexthop.keys():
+                                        if nexthop['odl-pcep-segment-routing:nai-type'] == 'ipv4-node-id':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:ip-address'])
                                             sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
-                                        elif nexthop['odl-pcep-segment-routing:sid-type'] == 'ipv4-adjacency':
+                                        elif nexthop['odl-pcep-segment-routing:nai-type'] == 'ipv4-adjacency':
                                             ip_hoplist.append(nexthop['odl-pcep-segment-routing:remote-ip-address'])
                                             sid_list.append(nexthop['odl-pcep-segment-routing:sid'])
 
@@ -982,7 +985,7 @@ def get_pcep_type(debug):
         for node in my_pcep['topology'][0]['node']:
             loopback = node['network-topology-pcep:path-computation-client']['ip-address']
             pcc = node['node-id']
-            if 'odl-pcep-ietf-stateful07:stateful' in node['network-topology-pcep:path-computation-client']['stateful-tlv'].keys():
+            if 'odl-pcep-ietf-stateful:stateful' in node['network-topology-pcep:path-computation-client']['stateful-tlv'].keys():
                 pcep_type = '07'
             else:
                 pcep_type = '02'
@@ -1152,15 +1155,23 @@ def sort_paths(pathlist, metriclist, type):
 def postUrl(url, data):
     import requests
     response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/json'})
-    # print response.text
+    print response.text
+    # New version gives null reply
+    if response.status_code in [200, 204]:
+        return {'output': {}}
     return response.json()
 
 def postXml(url, data):
     """ post our lsp creation commands """
     import requests
+    logging.info('POST Payload: {}'.format(data))
+    print "POST Payload", data
     response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/xml'})
-    # print response.text
-
+    print "POST Response: '{}'".format(response.text)
+    logging.info('POST Response: {}'.format(response.text))
+    # New version gives null reply
+    if response.status_code in [200, 204]:
+        return {'output': {}}
     return response.json()
 
 def getPathlist(dict_subcommand,debug):
