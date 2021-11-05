@@ -54,7 +54,8 @@
     20170202, Niklas - ver 5.9i - Refactored sid_list to sid_saves to avoid duplicate use
     20171013, Niklas - ver 5.9j - Updated odl version lis and checks
     20212210, Abbed Sedkaoui - 5.9k - Rename odl module Stateful07 -> Stateful
-    20212210, Abbed Sedkaoui - 5.9i - Rename SR-ERO suboject from sid-type to nai-type
+    20212210, Abbed Sedkaoui - 5.9l - Rename SR-ERO suboject from sid-type to nai-type
+    20213010, Abbed Sedkaoui - 5.9m - New version gives null reply. All credits to Niklas
     """
 __author__ = 'niklas'
 
@@ -1154,15 +1155,23 @@ def sort_paths(pathlist, metriclist, type):
 def postUrl(url, data):
     import requests
     response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/json'})
-    # print response.text
+    print response.text
+    # New version gives null reply
+    if response.status_code in [200, 204]:
+        return {'output': {}}
     return response.json()
 
 def postXml(url, data):
     """ post our lsp creation commands """
     import requests
+    logging.info('POST Payload: {}'.format(data))
+    print "POST Payload", data
     response = requests.post(url, data=data, auth=(odl_user, odl_password), headers={'Content-Type': 'application/xml'})
-    # print response.text
-
+    print "POST Response: '{}'".format(response.text)
+    logging.info('POST Response: {}'.format(response.text))
+    # New version gives null reply
+    if response.status_code in [200, 204]:
+        return {'output': {}}
     return response.json()
 
 def getPathlist(dict_subcommand,debug):
